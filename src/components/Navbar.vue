@@ -9,7 +9,7 @@ const { currentFile } = useDocument()
 </script>
 
 <template>
-  <nav class="fixed top-0 left-0 right-0 h-16 bg-parchment flex items-center justify-between px-8 z-50 relative">
+  <nav class="fixed top-0 left-0 right-0 h-16 bg-parchment flex items-center justify-between px-8 z-50">
     <div class="flex items-center gap-3 cursor-pointer" @click="router.push('/')">
       <div class="w-11 h-11 bg-cinnabar rounded-lg flex items-center justify-center">
         <RiBrushLine size="24" color="white" />
