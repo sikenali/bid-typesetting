@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import {
-  Page,
+  File,
   Type,
   Heading1,
   Table,
@@ -9,18 +9,18 @@ import {
   Save,
   Wand2,
   FileText,
-  Columns3,
+  AlignLeft,
 } from 'lucide-vue-next'
 
 const activeTab = ref('page')
 
 const tabs = [
-  { id: 'page', label: '页面', icon: Page },
+  { id: 'page', label: '页面', icon: File },
   { id: 'body', label: '正文', icon: Type },
   { id: 'heading', label: '标题', icon: Heading1 },
   { id: 'chart', label: '图表', icon: Table },
   { id: 'toc', label: '目录', icon: List },
-  { id: 'header', label: '页眉', icon: Columns3 },
+  { id: 'header', label: '页眉', icon: AlignLeft },
   { id: 'footer', label: '页脚', icon: FileText },
 ]
 </script>
