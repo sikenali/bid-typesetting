@@ -3,6 +3,8 @@ import { ref, watch, computed } from 'vue'
 import VueOfficeDocx from '@vue-office/docx'
 import '@vue-office/docx/lib/index.css'
 import VueOfficePdf from '@vue-office/pdf'
+import VueOfficeExcel from '@vue-office/excel'
+import VueOfficePptx from '@vue-office/pptx'
 import { RiCloseLine, RiPagesLine, RiTextSnippet, RiHeading, RiFileTextLine } from '@remixicon/vue'
 import { useDocument } from '../composables/useDocument'
 
@@ -26,7 +28,8 @@ const fileExtension = computed(() => {
 
 const isDocx = computed(() => fileExtension.value === 'docx')
 const isPdf = computed(() => fileExtension.value === 'pdf')
-const isText = computed(() => ['txt', 'md', 'markdown'].includes(fileExtension.value))
+const isXlsx = computed(() => fileExtension.value === 'xlsx')
+const isPptx = computed(() => fileExtension.value === 'pptx')
 
 function readFileAsArrayBuffer(file) {
   return new Promise((resolve, reject) => {
@@ -37,24 +40,12 @@ function readFileAsArrayBuffer(file) {
   })
 }
 
-function readFileAsText(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
-    reader.readAsText(file)
-  })
-}
-
 watch(() => currentFile.value, async (file) => {
   docBuffer.value = null
-  textContent.value = ''
   if (!file) return
   try {
-    if (isDocx.value || isPdf.value) {
+    if (['docx', 'pdf', 'xlsx', 'pptx'].includes(fileExtension.value)) {
       docBuffer.value = await readFileAsArrayBuffer(file)
-    } else if (isText.value) {
-      textContent.value = await readFileAsText(file)
     }
   } catch (e) {
     console.error('读取文件失败:', e)
@@ -140,15 +131,18 @@ const sections = computed(() => {
               <div v-else-if="currentFile && docBuffer && isPdf" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
                 <VueOfficePdf :src="docBuffer" style="width: 100%;" />
               </div>
-              <div v-else-if="currentFile && textContent && isText" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[600px] p-8">
-                <pre class="text-[14px] text-brown-dark leading-relaxed whitespace-pre-wrap font-songti">{{ textContent }}</pre>
+              <div v-else-if="currentFile && docBuffer && isXlsx" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
+                <VueOfficeExcel :src="docBuffer" style="width: 100%;" />
+              </div>
+              <div v-else-if="currentFile && docBuffer && isPptx" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
+                <VueOfficePptx :src="docBuffer" style="width: 100%;" />
               </div>
               <div v-else class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[600px] flex flex-col items-center justify-center text-center">
                 <div class="w-20 h-20 rounded-full bg-[#FDF0E0] flex items-center justify-center mb-5">
                   <RiFileTextLine size="40" color="#D4C4A8" />
                 </div>
                 <p class="text-[16px] font-medium text-brown-muted mb-2">{{ currentFile ? '正在加载文档...' : '暂无打开的文档' }}</p>
-                <p class="text-[13px] text-tan-dark max-w-[300px]">在编辑器中上传 DOCX 文档后，此处将实时预览模板排版效果</p>
+                <p class="text-[13px] text-tan-dark max-w-[300px]">在编辑器中上传 DOCX / XLSX / PPTX / PDF 文档后，此处将实时预览模板排版效果</p>
               </div>
             </div>
           </div>

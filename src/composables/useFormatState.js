@@ -3,23 +3,33 @@ import { ref, reactive, computed } from 'vue'
 const formatParams = reactive({
   page: {
     paperSize: 'A4 (210mm × 297mm)',
-    marginTop: 2.54,
-    marginBottom: 2.54,
-    marginLeft: 3.17,
-    marginRight: 3.17,
+    marginTop: 3.7,
+    marginBottom: 3.5,
+    marginLeft: 2.8,
+    marginRight: 2.6,
     orientation: 'portrait',
   },
   body: {
-    font: '宋体',
-    fontSize: '小四 (12pt)',
+    font: '仿宋',
+    fontSize: '三号 (16pt)',
     lineSpacing: '固定值 28磅',
     indentFirst: 2,
     indentLeft: 0,
   },
   heading: {
     level1: { font: '黑体', fontSize: '三号' },
-    level2: { font: '楷体', fontSize: '四号' },
-    level3: { font: '仿宋', fontSize: '小四' },
+    level2: { font: '楷体', fontSize: '三号' },
+    level3: { font: '仿宋', fontSize: '三号' },
+  },
+  citation: {
+    style: 'numeric',
+    styleLabel: '顺序编码制',
+    referenceFont: '宋体',
+    referenceFontSize: '五号 (10.5pt)',
+    referenceLineSpacing: '固定值 20磅',
+    referenceIndent: '悬挂缩进',
+    referenceIndentChars: 2,
+    referenceLocale: 'zh-CN',
   },
 })
 
@@ -37,10 +47,10 @@ function applyFormatting() {
   const after = JSON.parse(JSON.stringify(formatParams))
 
   after.page.paperSize = 'A4 (210mm × 297mm)'
-  after.page.marginTop = 2.54
-  after.page.marginBottom = 2.54
-  after.page.marginLeft = 3.17
-  after.page.marginRight = 3.17
+  after.page.marginTop = 3.7
+  after.page.marginBottom = 3.5
+  after.page.marginLeft = 2.8
+  after.page.marginRight = 2.6
   after.page.orientation = 'portrait'
 
   after.body.font = '仿宋'
@@ -52,9 +62,18 @@ function applyFormatting() {
   after.heading.level1.font = '黑体'
   after.heading.level1.fontSize = '三号'
   after.heading.level2.font = '楷体'
-  after.heading.level2.fontSize = '四号'
+  after.heading.level2.fontSize = '三号'
   after.heading.level3.font = '仿宋'
-  after.heading.level3.fontSize = '小四'
+  after.heading.level3.fontSize = '三号'
+
+  after.citation.style = 'numeric'
+  after.citation.styleLabel = '顺序编码制'
+  after.citation.referenceFont = '宋体'
+  after.citation.referenceFontSize = '五号 (10.5pt)'
+  after.citation.referenceLineSpacing = '固定值 20磅'
+  after.citation.referenceIndent = '悬挂缩进'
+  after.citation.referenceIndentChars = 2
+  after.citation.referenceLocale = 'zh-CN'
 
   afterSnapshot.value = after
 
@@ -69,7 +88,7 @@ function applyFormatting() {
       before: before.body.font,
       after: after.body.font,
       type: 'change',
-      annotation: '正文建议使用仿宋，符合公文排版规范（GB/T 9704-2012）',
+      annotation: '正文应使用三号仿宋，符合 GB/T 9704-2012 第5.2.2条',
       annotationType: 'font',
     })
   }
@@ -82,7 +101,7 @@ function applyFormatting() {
       before: before.body.fontSize,
       after: after.body.fontSize,
       type: 'change',
-      annotation: '正文建议使用三号字，增强文档可读性',
+      annotation: '三号字（16pt）为国标正文标准字号',
       annotationType: 'font',
     })
   }
@@ -95,7 +114,7 @@ function applyFormatting() {
       before: before.body.lineSpacing,
       after: after.body.lineSpacing,
       type: 'change',
-      annotation: '行距已调整为28磅固定值，符合正式公文标准',
+      annotation: '行距28磅固定值对应 GB/T 9704-2012 每面22行标准',
       annotationType: 'layout',
     })
   }
@@ -155,6 +174,19 @@ function applyFormatting() {
     })
   }
 
+  if (before.citation.style !== after.citation.style) {
+    diffList.push({
+      id: 'citation-style',
+      category: '引用',
+      label: '引用格式',
+      before: before.citation.styleLabel || before.citation.style,
+      after: after.citation.styleLabel || after.citation.style,
+      type: 'change',
+      annotation: '参考文献采用 GB/T 7714-2015 ' + after.citation.styleLabel,
+      annotationType: 'layout',
+    })
+  }
+
   if (before.page.marginTop !== after.page.marginTop ||
       before.page.marginBottom !== after.page.marginBottom ||
       before.page.marginLeft !== after.page.marginLeft ||
@@ -166,7 +198,7 @@ function applyFormatting() {
       before: `上${before.page.marginTop}cm 下${before.page.marginBottom}cm 左${before.page.marginLeft}cm 右${before.page.marginRight}cm`,
       after: `上${after.page.marginTop}cm 下${after.page.marginBottom}cm 左${after.page.marginLeft}cm 右${after.page.marginRight}cm`,
       type: 'change',
-      annotation: '页边距已按国标标准调整',
+      annotation: '按GB/T 9704-2012: 上37mm下35mm左28mm右26mm',
       annotationType: 'layout',
     })
   }
@@ -179,6 +211,7 @@ function loadFormatParams(params) {
   if (params.page) Object.assign(formatParams.page, params.page)
   if (params.body) Object.assign(formatParams.body, params.body)
   if (params.heading) Object.assign(formatParams.heading, params.heading)
+  if (params.citation) Object.assign(formatParams.citation, params.citation)
 }
 
 export function useFormatState() {

@@ -3,6 +3,8 @@ import { ref, watch, computed } from 'vue'
 import VueOfficeDocx from '@vue-office/docx'
 import '@vue-office/docx/lib/index.css'
 import VueOfficePdf from '@vue-office/pdf'
+import VueOfficeExcel from '@vue-office/excel'
+import VueOfficePptx from '@vue-office/pptx'
 
 const props = defineProps({
   file: {
@@ -21,7 +23,8 @@ const fileExtension = computed(() => {
 
 const isDocx = computed(() => fileExtension.value === 'docx')
 const isPdf = computed(() => fileExtension.value === 'pdf')
-const isText = computed(() => ['txt', 'md', 'markdown'].includes(fileExtension.value))
+const isXlsx = computed(() => fileExtension.value === 'xlsx')
+const isPptx = computed(() => fileExtension.value === 'pptx')
 
 const readFileAsArrayBuffer = (file) => {
   return new Promise((resolve, reject) => {
@@ -46,10 +49,8 @@ watch(() => props.file, async (newFile) => {
   textContent.value = ''
   if (!newFile) return
   try {
-    if (isDocx.value || isPdf.value) {
+    if (['docx', 'pdf', 'xlsx', 'pptx'].includes(fileExtension.value)) {
       docBuffer.value = await readFileAsArrayBuffer(newFile)
-    } else if (isText.value) {
-      textContent.value = await readFileAsText(newFile)
     }
   } catch (e) {
     console.error('读取文件失败:', e)
@@ -62,22 +63,25 @@ watch(() => props.file, async (newFile) => {
     <div v-if="!file" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[842px] flex items-center justify-center">
       <p class="text-brown-muted text-lg font-xiaowei">请先上传文档</p>
     </div>
-    <div v-else class="max-w-[864px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
+      <div v-else class="max-w-[864px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
       <div v-if="isDocx && docBuffer" class="w-full">
         <VueOfficeDocx :src="docBuffer" style="width: 100%;" />
       </div>
       <div v-else-if="isPdf && docBuffer" class="w-full">
         <VueOfficePdf :src="docBuffer" style="width: 100%;" />
       </div>
-      <div v-else-if="isText && textContent" class="w-full p-8">
-        <pre class="text-[14px] text-brown-dark leading-relaxed whitespace-pre-wrap font-songti">{{ textContent }}</pre>
+      <div v-else-if="isXlsx && docBuffer" class="w-full">
+        <VueOfficeExcel :src="docBuffer" style="width: 100%;" />
       </div>
-      <div v-else-if="(isDocx || isPdf) && !docBuffer" class="flex items-center justify-center py-12 text-brown-muted font-xiaowei">
+      <div v-else-if="isPptx && docBuffer" class="w-full">
+        <VueOfficePptx :src="docBuffer" style="width: 100%;" />
+      </div>
+      <div v-else-if="docBuffer" class="flex items-center justify-center py-12 text-brown-muted font-xiaowei">
         <p class="text-lg">正在加载文档...</p>
       </div>
       <div v-else class="text-center py-12 text-brown-muted font-xiaowei">
         <p class="text-lg mb-2">暂不支持预览此格式</p>
-        <p class="text-sm">支持 DOCX / PDF / TXT / MD 格式预览</p>
+        <p class="text-sm">支持 DOCX / XLSX / PPTX / PDF 格式预览</p>
       </div>
     </div>
   </div>

@@ -1,7 +1,33 @@
 export function useDocumentExport() {
+  const fontTable = {
+    '宋体': { ascii: 'SimSun', hAnsi: 'SimSun', eastAsia: 'SimSun', cs: 'SimSun' },
+    '仿宋': { ascii: 'FangSong', hAnsi: 'FangSong', eastAsia: 'FangSong', cs: 'FangSong' },
+    '黑体': { ascii: 'SimHei', hAnsi: 'SimHei', eastAsia: 'SimHei', cs: 'SimHei' },
+    '楷体': { ascii: 'KaiTi', hAnsi: 'KaiTi', eastAsia: 'KaiTi', cs: 'KaiTi' },
+  }
+
+  const cnFontSizePt = {
+    '初号': 42, '小初': 36, '一号': 26, '小一': 24,
+    '二号': 22, '小二': 18, '三号': 16, '小三': 15,
+    '四号': 14, '小四': 12, '五号': 10.5, '小五': 9,
+  }
+
+  function resolveFont(chineseName) {
+    return fontTable[chineseName] || fontTable['仿宋']
+  }
+
+  function parseFontSize(str) {
+    const match = str.match(/(\d+(?:\.\d+)?)/)
+    if (match) return Math.round(parseFloat(match[1]) * 2)
+    for (const [cn, pt] of Object.entries(cnFontSizePt)) {
+      if (str.includes(cn)) return Math.round(pt * 2)
+    }
+    return 24
+  }
+
   async function exportFormattedDoc(originalFile, formatParams) {
     const mammoth = await import('mammoth')
-    const { Document, Packer, Paragraph, TextRun, AlignmentType, convertInchesToTwip, PageOrientation, HeadingLevel, Header, Footer } = await import('docx')
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, convertInchesToTwip, PageOrientation, HeadingLevel } = await import('docx')
 
     const buf = await originalFile.arrayBuffer()
     const { value: htmlContent } = await mammoth.convertToHtml({ arrayBuffer: buf })
@@ -10,34 +36,29 @@ export function useDocumentExport() {
     const doc = parser.parseFromString(htmlContent, 'text/html')
     const paragraphs = Array.from(doc.body.children).filter(el => el.tagName === 'P')
 
-    const fontMap = {
-      '宋体': 'SimSun',
-      '仿宋': 'FangSong',
-      '黑体': 'SimHei',
-      '楷体': 'KaiTi',
-    }
-
-    const bodyFont = fontMap[formatParams.body.font] || 'FangSong'
-    const bodySizeMatch = formatParams.body.fontSize.match(/(\d+)/)
-    const bodySize = bodySizeMatch ? parseInt(bodySizeMatch[1]) * 2 : 24
+    const bodyFontObj = resolveFont(formatParams.body.font)
+    const bodySize = parseFontSize(formatParams.body.fontSize)
     const lineSpacing = formatParams.body.lineSpacing.includes('28') ? 560 : 400
     const indentFirst = formatParams.body.indentFirst > 0
 
-    const h1Font = fontMap[formatParams.heading.level1.font] || 'SimHei'
-    const h1SizeMatch = formatParams.heading.level1.fontSize.match(/(\d+)/)
-    const h1Size = h1SizeMatch ? parseInt(h1SizeMatch[1]) * 2 : 32
-    const h2Font = fontMap[formatParams.heading.level2.font] || 'KaiTi'
-    const h2SizeMatch = formatParams.heading.level2.fontSize.match(/(\d+)/)
-    const h2Size = h2SizeMatch ? parseInt(h2SizeMatch[1]) * 2 : 28
-    const h3Font = fontMap[formatParams.heading.level3.font] || 'FangSong'
-    const h3SizeMatch = formatParams.heading.level3.fontSize.match(/(\d+)/)
-    const h3Size = h3SizeMatch ? parseInt(h3SizeMatch[1]) * 2 : 24
+    const h1 = {
+      fontObj: resolveFont(formatParams.heading.level1.font),
+      size: parseFontSize(formatParams.heading.level1.fontSize),
+    }
+    const h2 = {
+      fontObj: resolveFont(formatParams.heading.level2.font),
+      size: parseFontSize(formatParams.heading.level2.fontSize),
+    }
+    const h3 = {
+      fontObj: resolveFont(formatParams.heading.level3.font),
+      size: parseFontSize(formatParams.heading.level3.fontSize),
+    }
 
     const headingPatterns = [
-      { prefix: /^第[一二三四五六七八九十]+[、．. ]/, level: HeadingLevel.HEADING_1, font: h1Font, size: h1Size },
-      { prefix: /^（[一二三四五六七八九十]+）/, level: HeadingLevel.HEADING_2, font: h2Font, size: h2Size },
-      { prefix: /^\d+[、．. ]/, level: HeadingLevel.HEADING_3, font: h3Font, size: h3Size },
-      { prefix: /^[一二三四五六七八九十]+[、．. ]/, level: HeadingLevel.HEADING_1, font: h1Font, size: h1Size },
+      { prefix: /^第[一二三四五六七八九十]+[、．. ]/, level: HeadingLevel.HEADING_1, font: h1.fontObj, size: h1.size },
+      { prefix: /^（[一二三四五六七八九十]+）/, level: HeadingLevel.HEADING_2, font: h2.fontObj, size: h2.size },
+      { prefix: /^\d+[、．. ]/, level: HeadingLevel.HEADING_3, font: h3.fontObj, size: h3.size },
+      { prefix: /^[一二三四五六七八九十]+[、．. ]/, level: HeadingLevel.HEADING_1, font: h1.fontObj, size: h1.size },
     ]
 
     function detectHeading(text) {
@@ -45,6 +66,10 @@ export function useDocumentExport() {
         if (p.prefix.test(text)) return p
       }
       return null
+    }
+
+    function makeFont(fontObj) {
+      return { ascii: fontObj.ascii, hAnsi: fontObj.hAnsi, eastAsia: fontObj.eastAsia, cs: fontObj.cs }
     }
 
     const pageWidth = convertInchesToTwip(21 / 2.54 * 0.9)
@@ -69,7 +94,7 @@ export function useDocumentExport() {
               children: [
                 new TextRun({
                   text: line.trim(),
-                  font: { name: heading.font, eastAsia: heading.font },
+                  font: makeFont(heading.font),
                   size: heading.size,
                   bold: true,
                 }),
@@ -84,7 +109,7 @@ export function useDocumentExport() {
               children: [
                 new TextRun({
                   text: line.trim(),
-                  font: { name: bodyFont, eastAsia: bodyFont },
+                  font: makeFont(bodyFontObj),
                   size: bodySize,
                 }),
               ],
@@ -108,7 +133,7 @@ export function useDocumentExport() {
               children: [
                 new TextRun({
                   text,
-                  font: { name: heading.font, eastAsia: heading.font },
+                  font: makeFont(heading.font),
                   size: heading.size,
                   bold: true,
                 }),
@@ -123,7 +148,7 @@ export function useDocumentExport() {
               children: [
                 new TextRun({
                   text,
-                  font: { name: bodyFont, eastAsia: bodyFont },
+                  font: makeFont(bodyFontObj),
                   size: bodySize,
                 }),
               ],
@@ -139,7 +164,7 @@ export function useDocumentExport() {
         default: {
           document: {
             run: {
-              font: bodyFont,
+              font: bodyFontObj.eastAsia,
               size: bodySize,
             },
           },
