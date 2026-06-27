@@ -74,25 +74,25 @@ const exportDoc = () => { alert('文档导出中...') }
         <div class="flex-1 bg-warm-gray flex items-start justify-center p-6">
           <div class="w-[560px] bg-white shadow-lg p-[48px_56px]">
             <div class="text-center mb-1">
-              <div class="text-[24px] font-bold text-[#1A1A1A]">2024年度工作报告</div>
+              <div class="text-[24px] font-bold text-brown-dark">2024年度工作报告</div>
             </div>
-            <div class="text-[13px] text-[#666666] text-center mb-8">XX公司 · 2024年12月</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-11">
+            <div class="text-[13px] text-brown-muted text-center mb-8">XX公司 · 2024年12月</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-11">
               2024年是公司发展历程中具有里程碑意义的一年。在董事会的正确领导下，全体员工团结一心，攻坚克难，圆满完成了年度各项目标任务。
             </p>
-            <div class="text-[16px] font-bold text-[#1A1A1A] mb-3">一、主要工作回顾</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <div class="text-[16px] font-bold text-brown-dark mb-3">一、主要工作回顾</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               本年度，我们紧紧围绕"提质增效、创新发展"的工作主线，在市场开拓、技术研发、团队建设等方面取得了显著成效。
             </p>
             <div class="border-[2.7px] border-cinnabar bg-diff-red-bg rounded p-2 mb-5">
-              <p class="text-[14px] text-[#333333] leading-relaxed">
+              <p class="text-[14px] text-brown leading-relaxed">
                 市场拓展方面，我们新开拓了华东区域市场，新增客户超过150家。
               </p>
             </div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               技术研发方面，公司全年申请专利45项，获得授权28项。研发团队规模进一步扩大，引进了多名高级工程师。
             </p>
-            <div class="text-[11px] text-[#999] text-center">— 1 —</div>
+            <div class="text-[11px] text-brown-muted text-center">— 1 —</div>
           </div>
         </div>
       </div>
@@ -106,25 +106,25 @@ const exportDoc = () => { alert('文档导出中...') }
         <div class="flex-1 bg-warm-gray flex items-start justify-center p-6">
           <div class="w-[560px] bg-white shadow-lg p-[48px_56px]">
             <div class="text-center mb-1">
-              <div class="text-[24px] font-bold text-[#1A1A1A]">2024年度工作报告</div>
+              <div class="text-[24px] font-bold text-brown-dark">2024年度工作报告</div>
             </div>
-            <div class="text-[13px] text-[#666666] text-center mb-8">XX公司 · 2024年12月</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-11">
+            <div class="text-[13px] text-brown-muted text-center mb-8">XX公司 · 2024年12月</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-11">
               2024年是公司发展历程中具有里程碑意义的一年。在董事会的科学决策与大力支持下，全体员工团结一致、迎难而上，圆满完成了年度各项目标任务。
             </p>
-            <div class="text-[16px] font-bold text-[#1A1A1A] mb-3">一、主要工作回顾</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <div class="text-[16px] font-bold text-brown-dark mb-3">一、主要工作回顾</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               本年度，我们紧紧围绕"提质增效、创新发展"的工作主线，在市场开拓、技术研发、团队建设等方面取得了显著成效。
             </p>
-            <div class="border-[2.7px] border-jade-light bg-[#E8F5E0] rounded p-2 mb-5">
-              <p class="text-[14px] text-[#333333] leading-relaxed">
+            <div class="border-[2.7px] border-jade-light bg-diff-green-bg rounded p-2 mb-5">
+              <p class="text-[14px] text-brown leading-relaxed">
                 市场拓展方面，我们成功开拓了华东、华南两大区域市场，累计新增优质客户超过150家，销售额同比增长35%。
               </p>
             </div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               技术研发方面，公司全年申请专利56项，获得授权32项，其中发明专利18项。研发团队规模扩大至280人。
             </p>
-            <div class="text-[11px] text-[#999] text-center">— 1 —</div>
+            <div class="text-[11px] text-brown-muted text-center">— 1 —</div>
           </div>
         </div>
       </div>
@@ -139,25 +139,25 @@ const exportDoc = () => { alert('文档导出中...') }
         <div class="flex-1 bg-warm-gray flex items-start justify-center p-6">
           <div class="w-[560px] bg-white shadow-lg p-[48px_56px]">
             <div class="text-center mb-1">
-              <div class="text-[24px] font-bold text-[#1A1A1A]">2024年度工作报告</div>
+              <div class="text-[24px] font-bold text-brown-dark">2024年度工作报告</div>
             </div>
-            <div class="text-[13px] text-[#666666] text-center mb-8">XX公司 · 2024年12月</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-11">
+            <div class="text-[13px] text-brown-muted text-center mb-8">XX公司 · 2024年12月</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-11">
               2024年是公司发展历程中具有里程碑意义的一年。在董事会的正确领导下，全体员工团结一心，攻坚克难，圆满完成了年度各项目标任务。
             </p>
-            <div class="text-[16px] font-bold text-[#1A1A1A] mb-3">一、主要工作回顾</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <div class="text-[16px] font-bold text-brown-dark mb-3">一、主要工作回顾</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               本年度，我们紧紧围绕"提质增效、创新发展"的工作主线，在市场开拓、技术研发、团队建设等方面取得了显著成效。
             </p>
             <div class="border-[2.7px] border-cinnabar bg-diff-red-bg rounded p-2 mb-5">
-              <p class="text-[14px] text-[#333333] leading-relaxed">
+              <p class="text-[14px] text-brown leading-relaxed">
                 市场拓展方面，我们新开拓了华东区域市场，新增客户超过150家。
               </p>
             </div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               技术研发方面，公司全年申请专利45项，获得授权28项。研发团队规模进一步扩大，引进了多名高级工程师。
             </p>
-            <div class="text-[11px] text-[#999] text-center">— 1 —</div>
+            <div class="text-[11px] text-brown-muted text-center">— 1 —</div>
           </div>
         </div>
       </div>
@@ -171,25 +171,25 @@ const exportDoc = () => { alert('文档导出中...') }
         <div class="flex-1 bg-warm-gray/90 flex items-start justify-center p-6">
           <div class="w-[560px] bg-white shadow-lg p-[48px_56px]">
             <div class="text-center mb-1">
-              <div class="text-[24px] font-bold text-[#1A1A1A]">2024年度工作报告</div>
+              <div class="text-[24px] font-bold text-brown-dark">2024年度工作报告</div>
             </div>
-            <div class="text-[13px] text-[#666666] text-center mb-8">XX公司 · 2024年12月</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-11">
+            <div class="text-[13px] text-brown-muted text-center mb-8">XX公司 · 2024年12月</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-11">
               2024年是公司发展历程中具有里程碑意义的一年。在董事会的科学决策与大力支持下，全体员工团结一致、迎难而上，圆满完成了年度各项目标任务。
             </p>
-            <div class="text-[16px] font-bold text-[#1A1A1A] mb-3">一、主要工作回顾</div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <div class="text-[16px] font-bold text-brown-dark mb-3">一、主要工作回顾</div>
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               本年度，我们紧紧围绕"提质增效、创新发展"的工作主线，在市场开拓、技术研发、团队建设等方面取得了显著成效。
             </p>
-            <div class="border-[2.7px] border-jade-light bg-[#E8F5E0] rounded p-2 mb-5">
-              <p class="text-[14px] text-[#333333] leading-relaxed">
+            <div class="border-[2.7px] border-jade-light bg-diff-green-bg rounded p-2 mb-5">
+              <p class="text-[14px] text-brown leading-relaxed">
                 市场拓展方面，我们成功开拓了华东、华南两大区域市场，累计新增优质客户超过150家，销售额同比增长35%。
               </p>
             </div>
-            <p class="text-[14px] text-[#333333] leading-relaxed mb-5">
+            <p class="text-[14px] text-brown leading-relaxed mb-5">
               技术研发方面，公司全年申请专利56项，获得授权32项，其中发明专利18项。研发团队规模扩大至280人。
             </p>
-            <div class="text-[11px] text-[#999] text-center">— 1 —</div>
+            <div class="text-[11px] text-brown-muted text-center">— 1 —</div>
           </div>
         </div>
       </div>

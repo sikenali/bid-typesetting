@@ -13,7 +13,7 @@
 
 ## Tailwind Theme Tokens
 Defined in `src/styles/tailwind.css` using `@theme` directive:
-- Colors: `cinnabar` (#C43A31), `cinnabar-dark` (#8B1A1A), `gold` (#D4AF37), `gold-dark` (#B8860B), `jade` (#2D8B57), `jade-light` (#5B8C5A), `cloud-blue` (#5B7DB1), `brown` (#8B7355), `brown-dark` (#5C4033), `brown-muted` (#A0896C), `parchment` (#FDF6E3), `cream` (#F5E6C8), `cream-dark` (#E8D5B0), `cream-darker` (#DCC8A0), `warm-gray` (#F0EBE0), `tan-border` (#C4A97D), `tan-dark` (#A8895E), `tan-light` (#D4BA8C), `diff-red-bg` (#FFF0EE), `diff-green-bg` (#E8F5E0)
+- Colors: `cinnabar` (#C23B22), `cinnabar-dark` (#A83028), `gold` (#D4AF37), `gold-dark` (#C8A45C), `jade` (#2D8B57), `jade-light` (#5B8C5A), `cloud-blue` (#5B7DB1), `ink-black` (#2C2C2C), `brown-dark` (#3D2B1F), `brown` (#5C4033), `brown-muted` (#8B7355), `parchment` (#FDF6E3), `cream` (#FBF7EF), `cream-dark` (#F5EFE0), `cream-darker` (#F0E8D5), `warm-gray` (#EAE5D9), `tan-border` (#E0D5C0), `tan-dark` (#D4C4A8), `tan-light` (#E8DCC8), `diff-red-bg` (#FFF0ED), `diff-green-bg` (#E8F0E0)
 - Fonts: `sans` → Source Han Sans SC, `serif` → Noto Serif SC, `calligraphy` → Ma Shan Zheng, `songti` → Noto Serif SC
 
 ## RemixIcon Import Convention
