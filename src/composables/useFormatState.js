@@ -174,6 +174,13 @@ function applyFormatting() {
   diffs.value = diffList
 }
 
+function loadFormatParams(params) {
+  if (!params) return
+  if (params.page) Object.assign(formatParams.page, params.page)
+  if (params.body) Object.assign(formatParams.body, params.body)
+  if (params.heading) Object.assign(formatParams.heading, params.heading)
+}
+
 export function useFormatState() {
   return {
     formatParams,
@@ -182,5 +189,6 @@ export function useFormatState() {
     diffs,
     takeBeforeSnapshot,
     applyFormatting,
+    loadFormatParams,
   }
 }

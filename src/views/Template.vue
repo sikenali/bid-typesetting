@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTemplates } from '../composables/useTemplates'
+import { useFormatState } from '../composables/useFormatState'
 import PreviewTemplateModal from '../components/PreviewTemplateModal.vue'
 import { RiBookOpenLine, RiArrowLeftSLine, RiDeleteBin6Line, RiCheckLine, RiFileTextLine, RiGovernmentLine, RiBook2Line, RiBarChart2Line, RiPaintBrushLine, RiSearchLine, RiLayout3Line, RiEyeLine } from '@remixicon/vue'
 
@@ -39,8 +40,14 @@ const previewTemplate = () => {
   }
 }
 
+const { loadFormatParams } = useFormatState()
+
 const applyTemplates = () => {
   if (selectedTemplates.value.length > 0) {
+    const tpl = selectedTemplates.value[0]
+    if (tpl.formatParams) {
+      loadFormatParams(tpl.formatParams)
+    }
     router.push('/editor')
   }
 }
