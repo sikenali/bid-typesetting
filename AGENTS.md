@@ -49,6 +49,34 @@ App.vue
 - Primary accent: `text-cinnabar` (#C43A31)
 - Border: `border-tan-border` (#C4A97D)
 
+## Cross-Platform & Cross-Office Font Compatibility
+
+The export engine (`useDocumentExport.js`) generates DOCX using Windows font names (SimSun, FangSong, SimHei, KaiTi). These are only pre-installed on Windows. Behavior on other platforms:
+
+| Platform / Office | 宋体/SimSun | 仿宋/FangSong | 黑体/SimHei | 楷体/KaiTi |
+|---|---|---|---|---|
+| Win + MS Office | ✓ 原生 | ✓ 原生 | ✓ 原生 | ✓ 原生 |
+| Win + WPS | ✓ 原生 | ✓ 原生 | ✓ 原生 | ✓ 原生 |
+| macOS + MS Office | ↪ Songti SC | ↪ STFangsong | ↪ Heiti SC | ↪ Kaiti SC |
+| macOS + WPS | ↪ 同上 (macOS 字体回退) | ↪ 同上 | ↪ 同上 | ↪ 同上 |
+| Linux + WPS | ✓ (wps-office-fonts) | ✓ | ✓ | ✓ |
+| Linux + LibreOffice | ↪ Noto Serif CJK SC | ↪ Noto Serif CJK SC | ↪ Noto Sans CJK SC | ↪ Noto Sans CJK SC |
+
+**The generated DOCX uses `w:rFonts` with all four slots (ascii, hAnsi, eastAsia, cs) to ensure the Office app on each platform makes the best possible font substitution.**
+
+### Font Size Handling
+`useDocumentExport.js::parseFontSize()` supports:
+- Extracting pt number from `"三号 (16pt)"` → 32 half-pts
+- Chinese name lookup (`"三号"` → 16pt → 32 half-pts)
+- Falls back to 12pt (24 half-pts) if neither matches
+
+### Known Differences (MS Office vs WPS)
+- **Paragraph spacing**: WPS rounds `w:spacing` differently; our `line: 560` (28pt fixed) may render ±1pt on WPS
+- **Character spacing**: WPS ignores `w:spacing` with `w:val` on certain run properties
+- **Table rendering**: Not yet implemented in export; WPS and MS Office handle nested table borders differently
+- **Font embedding**: Not implemented (licensing); documents rely on system fonts
+- **Page margins**: `w:pgMar` is standard OOXML and renders identically across both
+
 ## Session Summary
 ### 2025-06-27 — Icon Library Migration & Feature Completion
 - 卸载 lucide-vue-next，安装 @remixicon/vue v4.4.0
