@@ -14,7 +14,7 @@ import {
   RiZoomOutLine, RiZoomInLine, RiPagesLine, RiTextSnippet, RiHeading,
   RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiPhoneFindFill,
   RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
-  RiSideBarLine, RiCheckLine, RiFilePaper2Line, RiEdit2Line, RiEyeLine
+  RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine
 } from '@remixicon/vue'
 
 const router = useRouter()
@@ -135,7 +135,7 @@ const handleOneClickModify = () => {
 }
 
 const handleReset = () => {
-  // Reset handler placeholder
+  router.push('/')
 }
 
 const onTemplateSaved = ({ name, category }) => {
@@ -169,7 +169,7 @@ const isDocx = computed(() => {
           <div class="flex items-center justify-between px-6 py-4">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-lg bg-cinnabar flex items-center justify-center">
-                <component :is="tabIcons[activeTab] || RiFilePaper2Line" size="18" color="white" />
+                <component :is="tabIcons[activeTab]" size="18" color="white" />
               </div>
               <div>
                 <div class="text-[16px] font-bold text-brown-dark">{{ tabTitles[activeTab] || '排版设置' }}</div>
@@ -542,7 +542,7 @@ const isDocx = computed(() => {
               v-else-if="!isEditMode && vueOfficeBuffer"
               class="max-w-[864px] mx-auto bg-white shadow"
             >
-              <VueOfficeDocx :file="vueOfficeBuffer" />
+              <VueOfficeDocx :src="vueOfficeBuffer" style="width: 100%;" />
             </div>
 
             <!-- Empty state -->
@@ -570,5 +570,13 @@ const isDocx = computed(() => {
 
 .docx-editor-container :deep(.ep-editor) {
   background: #ffffff !important;
+}
+
+/* Hide docx-editor-vue title bar and menu bar */
+.docx-editor-container :deep(.docx-editor-vue__title-bar-center),
+.docx-editor-container :deep(.menu-bar),
+.docx-editor-container :deep(.doc-name),
+.docx-editor-container :deep(.doc-name__input) {
+  display: none !important;
 }
 </style>
