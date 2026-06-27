@@ -8,6 +8,26 @@ const router = useRouter()
 const { setFile } = useDocument()
 const isDragging = ref(false)
 const selectedFile = ref(null)
+const uploading = ref(false)
+const uploadProgress = ref(0)
+
+const simulateUpload = (file) => {
+  uploading.value = true
+  uploadProgress.value = 0
+  selectedFile.value = file
+  setFile(file)
+
+  const interval = setInterval(() => {
+    uploadProgress.value += Math.random() * 15 + 5
+    if (uploadProgress.value >= 100) {
+      uploadProgress.value = 100
+      clearInterval(interval)
+      setTimeout(() => {
+        router.push('/editor')
+      }, 300)
+    }
+  }, 200)
+}
 
 const handleDragOver = (e) => {
   e.preventDefault()
@@ -22,25 +42,19 @@ const handleDrop = (e) => {
   e.preventDefault()
   isDragging.value = false
   if (e.dataTransfer.files.length > 0) {
-    const file = e.dataTransfer.files[0]
-    selectedFile.value = file
-    setFile(file)
-    router.push('/editor')
+    simulateUpload(e.dataTransfer.files[0])
   }
 }
 
 const handleFileChange = (e) => {
   if (e.target.files.length > 0) {
-    const file = e.target.files[0]
-    selectedFile.value = file
-    setFile(file)
-    router.push('/editor')
+    simulateUpload(e.target.files[0])
   }
 }
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center pt-20 px-8">
+  <div class="h-[calc(100vh-4rem)] flex items-center justify-center px-8">
     <div class="max-w-[800px] w-full flex flex-col items-center">
       <div class="text-center mb-10">
         <h1 class="text-3xl font-bold text-brown-dark mb-2">开始您的文档排版之旅</h1>
@@ -54,25 +68,43 @@ const handleFileChange = (e) => {
         @dragleave="handleDragLeave"
         @drop="handleDrop"
       >
-        <div class="w-20 h-20 mx-auto mb-6 bg-cream-darker rounded-full flex items-center justify-center">
+        <div v-if="!uploading" class="w-20 h-20 mx-auto mb-6 bg-cream-darker rounded-full flex items-center justify-center">
           <RiUploadCloud2Line size="36" color="#C43A31" />
         </div>
+        <div v-else class="w-20 h-20 mx-auto mb-6 bg-cream-darker rounded-full flex items-center justify-center">
+          <RiUploadCloud2Line size="36" color="#5B8C5A" />
+        </div>
 
-        <p class="text-xl font-semibold text-brown-dark mb-2">
+        <p v-if="!uploading" class="text-xl font-semibold text-brown-dark mb-2">
           {{ selectedFile ? `已选择: ${selectedFile.name}` : '拖拽文件到此处，或点击上传' }}
         </p>
+        <p v-else class="text-xl font-semibold text-brown-dark mb-2">
+          正在上传: {{ selectedFile?.name }}
+        </p>
 
-        <p class="text-sm text-brown-muted mb-6">支持 .docx / .pdf / .txt / .md 格式，单文件最大 50MB</p>
+        <div v-if="uploading" class="max-w-[400px] mx-auto mb-6">
+          <div class="w-full h-2 bg-cream-darker rounded-full overflow-hidden">
+            <div
+              class="h-full bg-jade-light rounded-full transition-all duration-300 ease-out"
+              :style="{ width: uploadProgress + '%' }"
+            ></div>
+          </div>
+          <p class="text-sm text-brown-muted mt-2">{{ Math.round(uploadProgress) }}%</p>
+        </div>
+
+        <p v-if="!uploading" class="text-sm text-brown-muted mb-6">支持 .docx / .pdf / .txt / .md 格式，单文件最大 50MB</p>
 
         <input
           type="file"
           id="file-input"
           class="hidden"
           accept=".docx,.pdf,.txt,.md"
+          :disabled="uploading"
           @change="handleFileChange"
         />
 
         <label
+          v-if="!uploading"
           for="file-input"
           class="inline-flex items-center gap-2 px-6 py-3 bg-cinnabar text-white rounded-lg cursor-pointer hover:bg-cinnabar-dark transition-colors font-medium"
         >
@@ -81,22 +113,22 @@ const handleFileChange = (e) => {
         </label>
       </div>
 
-      <div class="flex items-center gap-6 mt-10">
-        <div class="flex items-center gap-2 px-4 py-2 bg-cream-darker rounded-full">
-          <RiFileTextLine size="16" color="#5B8C5A" />
-          <span class="text-sm font-medium text-brown">DOCX</span>
+      <div class="flex items-center gap-4 mt-10">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
+          <RiFileTextLine size="14" color="#5B8C5A" />
+          <span class="text-xs font-medium text-brown">DOCX</span>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 bg-cream-darker rounded-full">
-          <RiFilePdfLine size="16" color="#C43A31" />
-          <span class="text-sm font-medium text-brown">PDF</span>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
+          <RiFilePdfLine size="14" color="#C43A31" />
+          <span class="text-xs font-medium text-brown">PDF</span>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 bg-cream-darker rounded-full">
-          <RiFileList3Line size="16" color="#6B8CAE" />
-          <span class="text-sm font-medium text-brown">TXT</span>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
+          <RiFileList3Line size="14" color="#6B8CAE" />
+          <span class="text-xs font-medium text-brown">TXT</span>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 bg-cream-darker rounded-full">
-          <RiMarkdownLine size="16" color="#C8A45C" />
-          <span class="text-sm font-medium text-brown">MD</span>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
+          <RiMarkdownLine size="14" color="#C8A45C" />
+          <span class="text-xs font-medium text-brown">MD</span>
         </div>
       </div>
     </div>
