@@ -29,7 +29,7 @@ const displayOptions = [
 </script>
 
 <template>
-  <div class="h-[calc(100vh-4rem)] flex">
+  <div class="pt-16 h-screen flex">
     <div class="w-[280px] bg-cream border-r border-tan-border flex flex-col">
       <div class="px-6 pt-5 pb-5">
         <h3 class="text-base font-semibold text-brown-dark">排版设置</h3>
@@ -61,8 +61,8 @@ const displayOptions = [
           <div class="flex items-center gap-3">
             <RiBookmark3Line size="20" :color="activeSection === 'template' ? 'white' : '#5C4033'" />
             <div class="flex-1">
-              <div class="text-[15px] font-semibold" :class="activeSection === 'template' ? 'text-white' : 'text-brown-dark'">内置模板</div>
-              <div class="text-[11px]" :class="activeSection === 'template' ? 'text-white/75' : 'text-brown-muted'">Templates</div>
+              <div class="text-[15px] font-semibold" :class="activeSection === 'template' ? 'text-white' : 'text-brown-dark'">标准模板</div>
+              <div class="text-[11px]" :class="activeSection === 'template' ? 'text-white/75' : 'text-brown-muted'">Standards</div>
             </div>
             <div v-if="activeSection === 'template'" class="w-[9px] h-[8px] bg-white rounded-[4px]"></div>
           </div>
@@ -99,7 +99,7 @@ const displayOptions = [
           </div>
           <div>
             <h2 class="text-[18px] font-bold text-brown-dark">
-              {{ activeSection === 'theme' ? '主题设置' : activeSection === 'template' ? '内置模板' : '显示模式' }}
+              {{ activeSection === 'theme' ? '主题设置' : activeSection === 'template' ? '标准模板' : '显示模式' }}
             </h2>
             <p class="text-[12px] text-brown-muted">
               {{ activeSection === 'theme' ? '选择界面配色方案' : activeSection === 'template' ? '选择文档排版标准模板' : '控制修改建议的展示方式' }}

@@ -54,7 +54,7 @@ const applyTemplates = () => {
 </script>
 
 <template>
-  <div class="h-[calc(100vh-4rem)] flex">
+  <div class="pt-16 h-screen flex">
     <div class="w-[280px] bg-cream border-r border-tan-border flex flex-col">
       <div class="px-6 pt-5 pb-5">
         <h3 class="text-base font-semibold text-brown-dark">模板书架</h3>
@@ -116,8 +116,8 @@ const applyTemplates = () => {
       <div class="flex-1 p-8 overflow-y-auto">
         <div v-if="filteredTemplates.length === 0" class="flex flex-col items-center justify-center h-full text-brown-muted">
           <RiBookOpenLine size="48" color="#D4C4A8" />
-          <p class="mt-4 text-[16px] font-medium">暂无保存的模板</p>
-          <p class="mt-1 text-[13px]">在编辑器中点击「保存到模板」来创建您的第一个模板</p>
+          <p class="mt-4 text-[16px] font-medium">暂无可用模板</p>
+          <p class="mt-1 text-[13px]">在编辑器中点击「保存到模板」来创建您的自定义模板</p>
         </div>
 
         <div v-else class="bg-cream-dark border border-tan-light rounded-2xl p-8">
@@ -145,12 +145,13 @@ const applyTemplates = () => {
                     <div class="h-1"></div>
                     <div class="text-[11px] text-brown-muted">{{ categoryMeta[tpl.category]?.label || '未分类' }}</div>
                     <div class="h-2"></div>
-                    <div class="text-[12px] text-brown-muted leading-relaxed">用户保存的自定义模板</div>
+                    <div class="text-[12px] text-brown-muted leading-relaxed">{{ tpl.builtIn ? tpl.description : '用户保存的自定义模板' }}</div>
                   </div>
                 </div>
                 <div class="h-2" :class="tpl.spineColor"></div>
 
                 <button
+                  v-if="!tpl.builtIn"
                   @click.stop="deleteTemplate(tpl.id)"
                   class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shadow-sm"
                 >
