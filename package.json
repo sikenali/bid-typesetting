@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "lucide-vue-next": "^0.300.0",
+    "@remixicon/vue": "^4.9.0",
     "vue": "^3.4.0",
     "vue-office": "^0.0.5",
     "vue-router": "^4.2.5"
