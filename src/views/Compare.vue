@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
 import { useFormatState } from '../composables/useFormatState'
 import { useDocumentExport } from '../composables/useDocumentExport'
-import { RiFileTextLine, RiEditLine, RiCheckLine, RiDownloadLine, RiArrowLeftSLine, RiArrowRightSLine, RiLayout2Line, RiCollageLine } from '@remixicon/vue'
+import { RiFileTextLine, RiEditLine, RiCheckLine, RiDownloadLine, RiArrowLeftSLine, RiArrowRightSLine, RiLayout2Line, RiCollageLine, RiLinksLine, RiPagesLine, RiTextSnippet, RiHeading, RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiPhoneFindFill, RiFootprintLine, RiDoubleQuotesL } from '@remixicon/vue'
+import DocumentPreview from '../components/DocumentPreview.vue'
 
 const router = useRouter()
 const { getFile } = useDocument()
@@ -12,10 +13,100 @@ const { beforeSnapshot, afterSnapshot, diffs, formatParams } = useFormatState()
 const { exportFormattedDoc } = useDocumentExport()
 const currentFile = getFile()
 
+const today = new Date()
+const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`
+
+const modifiedFileName = computed(() => {
+  if (!currentFile) return '未命名文档-M'
+  const name = currentFile.name
+  const dot = name.lastIndexOf('.')
+  if (dot === -1) return `${name}-M-${dateStr}`
+  return `${name.slice(0, dot)}-M-${dateStr}${name.slice(dot)}`
+})
+
 const compareMode = ref('side-by-side')
 const diffIndex = ref(0)
+const syncScroll = ref(true)
+const highlightDiffs = ref(true)
+
+const leftScrollRef = ref(null)
+const rightScrollRef = ref(null)
+let syncing = false
+
+const syncScrollHandler = (source, target) => {
+  if (!syncScroll.value || syncing) return
+  syncing = true
+  if (target) {
+    const ratio = source.scrollTop / (source.scrollHeight - source.clientHeight)
+    target.scrollTop = ratio * (target.scrollHeight - target.clientHeight)
+  }
+  nextTick(() => { syncing = false })
+}
+
+const onLeftScroll = (e) => syncScrollHandler(e.target, rightScrollRef.value)
+const onRightScroll = (e) => syncScrollHandler(e.target, leftScrollRef.value)
 
 const totalDiffs = computed(() => diffs.value.length)
+
+const g = (obj, path) => {
+  if (!obj) return '--'
+  const keys = path.split('.')
+  let v = obj
+  for (const k of keys) v = v?.[k]
+  return v ?? '--'
+}
+
+const tabs = [
+  { id: 'page', label: '页面', sublabel: 'Page Layout', icon: RiPagesLine,
+    fields: [
+      { id: 'page-paper', label: '纸张大小', before: p => g(p, 'page.paperSize'), after: p => g(p, 'page.paperSize') },
+      { id: 'page-margins', label: '页边距', before: p => `上${g(p,'page.marginTop')} 下${g(p,'page.marginBottom')} 左${g(p,'page.marginLeft')} 右${g(p,'page.marginRight')}`, after: p => `上${g(p,'page.marginTop')} 下${g(p,'page.marginBottom')} 左${g(p,'page.marginLeft')} 右${g(p,'page.marginRight')}` },
+      { id: 'page-orientation', label: '方向', before: p => g(p, 'page.orientation'), after: p => g(p, 'page.orientation') },
+    ] },
+  { id: 'body', label: '正文', sublabel: 'Body Text', icon: RiTextSnippet,
+    fields: [
+      { id: 'body-font', label: '字体', before: p => g(p, 'body.font'), after: p => g(p, 'body.font') },
+      { id: 'body-font-size', label: '字号', before: p => g(p, 'body.fontSize'), after: p => g(p, 'body.fontSize') },
+      { id: 'body-line-spacing', label: '行距', before: p => g(p, 'body.lineSpacing'), after: p => g(p, 'body.lineSpacing') },
+      { id: 'body-indent', label: '缩进', before: p => `首行${g(p,'body.indentFirst')} 左${g(p,'body.indentLeft')}`, after: p => `首行${g(p,'body.indentFirst')} 左${g(p,'body.indentLeft')}` },
+    ] },
+  { id: 'heading', label: '标题', sublabel: 'Headings', icon: RiHeading,
+    fields: [
+      { id: 'heading-level1', label: '一级标题', before: p => `${g(p,'heading.level1.font')} ${g(p,'heading.level1.fontSize')}`, after: p => `${g(p,'heading.level1.font')} ${g(p,'heading.level1.fontSize')}` },
+      { id: 'heading-level2', label: '二级标题', before: p => `${g(p,'heading.level2.font')} ${g(p,'heading.level2.fontSize')}`, after: p => `${g(p,'heading.level2.font')} ${g(p,'heading.level2.fontSize')}` },
+      { id: 'heading-level3', label: '三级标题', before: p => `${g(p,'heading.level3.font')} ${g(p,'heading.level3.fontSize')}`, after: p => `${g(p,'heading.level3.font')} ${g(p,'heading.level3.fontSize')}` },
+    ] },
+  { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line, fields: [] },
+  { id: 'toc', label: '目录', sublabel: 'Table of Contents', icon: RiListCheck2, fields: [] },
+  { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line, fields: [] },
+  { id: 'pagenumber', label: '页码', sublabel: 'Page Number', icon: RiPhoneFindFill, fields: [] },
+  { id: 'footnote', label: '脚注', sublabel: 'Footnotes', icon: RiFootprintLine, fields: [] },
+  { id: 'citation', label: '引用', sublabel: 'Citations', icon: RiDoubleQuotesL,
+    fields: [
+      { id: 'citation-style', label: '引用样式', before: p => g(p, 'citation.styleLabel'), after: p => g(p, 'citation.styleLabel') },
+      { id: 'citation-font', label: '参考文献字体', before: p => g(p, 'citation.referenceFont'), after: p => g(p, 'citation.referenceFont') },
+      { id: 'citation-font-size', label: '参考文献字号', before: p => g(p, 'citation.referenceFontSize'), after: p => g(p, 'citation.referenceFontSize') },
+      { id: 'citation-line-spacing', label: '参考文献行距', before: p => g(p, 'citation.referenceLineSpacing'), after: p => g(p, 'citation.referenceLineSpacing') },
+      { id: 'citation-indent', label: '缩进方式', before: p => `${g(p,'citation.referenceIndent')} ${g(p,'citation.referenceIndentChars')}字符`, after: p => `${g(p,'citation.referenceIndent')} ${g(p,'citation.referenceIndentChars')}字符` },
+      { id: 'citation-locale', label: '参考文献语言', before: p => g(p, 'citation.referenceLocale'), after: p => g(p, 'citation.referenceLocale') },
+    ] },
+]
+
+const activeTab = ref('page')
+
+const tabFields = computed(() => {
+  const tab = tabs.find(t => t.id === activeTab.value)
+  if (!tab) return []
+  const before = beforeSnapshot.value
+  const after = afterSnapshot.value || formatParams
+  return tab.fields.map(f => ({
+    id: f.id,
+    label: f.label,
+    before: f.before(before),
+    after: f.after(after),
+    changed: f.before(before) !== f.after(after),
+  }))
+})
 
 const currentDiff = computed(() => diffs.value[diffIndex.value] || null)
 
@@ -42,94 +133,86 @@ const exportDoc = async () => {
 </script>
 
 <template>
-  <div class="h-[calc(100vh-4rem)] flex flex-col">
-    <div class="bg-parchment border-b border-tan-border">
-      <div class="flex items-center justify-between px-8 py-4">
+  <div class="pt-16 h-screen flex flex-col">
+
+      <div class="px-8 py-3 bg-parchment border-b border-tan-border flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <RiFileTextLine size="22" color="#5B8C5A" />
-          <span class="text-[15px] font-semibold text-brown-dark">{{ currentFile?.name || '未命名文档' }}</span>
-          <div class="flex items-center gap-2 px-3 py-1 bg-cream-darker rounded-full">
-            <RiEditLine size="14" color="#C43A31" />
-            <span class="text-[12px] font-medium text-cinnabar">共 {{ totalDiffs }} 处修改</span>
+          <RiLayout2Line size="18" class="text-brown" />
+          <span class="text-[13px] font-semibold text-brown-dark">对比模式</span>
+          <div class="flex bg-cream-darker rounded-lg p-1">
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px]"
+              :class="compareMode === 'side-by-side' ? 'bg-white font-semibold text-cinnabar' : 'font-medium text-brown'"
+              @click="compareMode = 'side-by-side'"
+            >
+              <RiLayout2Line size="16" :color="compareMode === 'side-by-side' ? '#C43A31' : '#8B7355'" />
+              并排对比
+            </button>
+            <button
+              class="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px]"
+              :class="compareMode === 'diff-table' ? 'bg-white font-semibold text-cinnabar' : 'font-medium text-brown'"
+              @click="compareMode = 'diff-table'"
+            >
+              <RiCollageLine size="16" :color="compareMode === 'diff-table' ? '#C43A31' : '#8B7355'" />
+              差异显示
+            </button>
           </div>
         </div>
-        <div class="flex items-center gap-3">
-          <button
-            class="flex items-center gap-2 px-5 py-2 bg-jade-light text-white rounded-lg text-[14px] font-semibold"
-            @click="acceptAll"
-          >
-            <RiCheckLine size="18" color="white" />
-            接受全部修改
-          </button>
-          <button
-            class="flex items-center gap-2 px-5 py-2 bg-cinnabar text-white rounded-lg text-[14px] font-semibold"
-            @click="exportDoc"
-          >
-            <RiDownloadLine size="18" color="white" />
-            导出文档
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <div class="px-8 py-3 bg-parchment border-b border-tan-border flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <RiLayout2Line size="18" class="text-brown" />
-        <span class="text-[13px] font-semibold text-brown-dark">对比模式</span>
-        <div class="flex bg-cream-darker rounded-lg p-1">
-          <button
-            class="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px]"
-            :class="compareMode === 'side-by-side' ? 'bg-white font-semibold text-cinnabar' : 'font-medium text-brown'"
-            @click="compareMode = 'side-by-side'"
-          >
-            <RiLayout2Line size="16" :color="compareMode === 'side-by-side' ? '#C43A31' : '#8B7355'" />
-            并排对比
-          </button>
-          <button
-            class="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px]"
-            :class="compareMode === 'overlay' ? 'bg-white font-semibold text-cinnabar' : 'font-medium text-brown'"
-            @click="compareMode = 'overlay'"
-          >
-            <RiCollageLine size="16" :color="compareMode === 'overlay' ? '#C43A31' : '#8B7355'" />
-            叠加对比
-          </button>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <RiLinksLine size="15" class="text-brown" />
+            <span class="text-[12px] font-medium text-brown">同步滚动</span>
+            <button
+              @click="syncScroll = !syncScroll"
+              class="w-[40px] h-[22px] rounded-full relative transition-colors"
+              :class="syncScroll ? 'bg-cinnabar' : 'bg-tan-dark'"
+            >
+              <div
+                class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"
+                :class="syncScroll ? 'right-0.5' : 'left-0.5'"
+              ></div>
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <RiEditLine size="15" class="text-brown" />
+            <span class="text-[12px] font-medium text-brown">高亮修改</span>
+            <button
+              @click="highlightDiffs = !highlightDiffs"
+              class="w-[40px] h-[22px] rounded-full relative transition-colors"
+              :class="highlightDiffs ? 'bg-cinnabar' : 'bg-tan-dark'"
+            >
+              <div
+                class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"
+                :class="highlightDiffs ? 'right-0.5' : 'left-0.5'"
+              ></div>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
     <div v-if="compareMode === 'side-by-side'" class="flex-1 flex bg-warm-gray overflow-hidden">
       <div class="flex-1 flex flex-col min-w-0">
-        <div class="px-6 py-3 bg-cream-dark flex items-center gap-3 shrink-0">
-          <div class="w-[11px] h-[10px] rounded-full bg-brown-muted shrink-0"></div>
-          <span class="text-[14px] font-semibold text-brown">修改前 · 原始文档</span>
-        </div>
-        <div class="flex-1 bg-warm-gray overflow-y-auto py-6">
-          <div class="w-[560px] mx-auto bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-xl px-14 py-12 space-y-0">
-            <div class="text-center">
-              <div class="text-[24px] font-bold text-brown-dark leading-tight">2024年度工作报告</div>
-              <div class="h-[6px]"></div>
-              <div class="text-[13px] text-brown-muted">XX公司 · 2024年12月</div>
-            </div>
-            <div class="h-8"></div>
-            <div class="text-[14px] text-brown leading-relaxed">2024年是公司发展历程中具有里程碑意义的一年。在董事会的正确领导下，全体员工团结一心，攻坚克难，圆满完成了年度各项目标任务。</div>
-            <div class="h-11"></div>
-            <div class="text-[16px] font-bold text-brown-dark">一、主要工作回顾</div>
-            <div class="h-3"></div>
-            <div class="text-[14px] text-brown leading-relaxed">本年度，我们紧紧围绕"提质增效、创新发展"的工作主线，在市场拓展、技术研发、团队建设等方面取得了显著成效。</div>
-            <div class="h-5"></div>
-
-            <div v-if="currentDiff" class="border-2.7 border-cinnabar bg-diff-red-bg rounded-lg p-3">
-              <div class="text-[12px] text-brown-muted font-medium">{{ currentDiff.category }}</div>
-              <div class="text-[14px] text-brown-dark font-medium mt-0.5">{{ currentDiff.label }}：<span class="line-through text-brown-muted">{{ currentDiff.before }}</span></div>
-              <div v-if="currentDiff.annotation" class="text-[12px] text-brown mt-1">{{ currentDiff.annotation }}</div>
-            </div>
-            <div v-else class="text-[14px] text-brown leading-relaxed">暂无差异数据</div>
-
-            <div class="h-5"></div>
-            <div class="text-[14px] text-brown leading-relaxed">技术研发方面，公司全年申请专利56项，获得授权32项，其中发明专利18项。研发团队规模扩大至280人，引进了多位行业顶尖人才，为公司的持续创新奠定了坚实基础。</div>
-            <div class="h-[60px]"></div>
-            <div class="text-[11px] text-brown-muted text-center">— 1 —</div>
+        <div class="px-6 py-3 bg-cream-dark flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="w-[11px] h-[10px] rounded-full bg-brown-muted shrink-0"></div>
+            <span class="text-[14px] font-semibold text-brown">修改前 · 原始文档</span>
           </div>
+          <div class="flex items-center gap-2">
+            <RiFileTextLine size="14" color="#5B8C5A" />
+            <span class="text-[13px] font-medium text-brown-dark">{{ currentFile?.name || '未命名文档' }}</span>
+            <div class="flex items-center gap-1.5 px-2 py-0.5 bg-cream-darker rounded-full">
+              <RiEditLine size="12" color="#C43A31" />
+              <span class="text-[11px] font-medium text-cinnabar">共 {{ totalDiffs }} 处修改</span>
+            </div>
+          </div>
+        </div>
+        <div
+          ref="leftScrollRef"
+          class="flex-1 bg-warm-gray overflow-y-auto py-6"
+          @scroll="onLeftScroll"
+        >
+          <DocumentPreview :file="currentFile" />
         </div>
       </div>
 
@@ -139,79 +222,104 @@ const exportDoc = async () => {
             <div class="w-[11px] h-[10px] rounded-full bg-jade-light shrink-0"></div>
             <span class="text-[14px] font-semibold text-brown-dark">修改后 · 排版优化</span>
           </div>
-          <div class="px-3 py-1 bg-jade-light text-white rounded-full text-[11px] font-semibold">推荐</div>
-        </div>
-        <div class="flex-1 bg-warm-gray overflow-y-auto py-6">
-          <div class="w-[560px] mx-auto bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-xl px-14 py-12 space-y-0">
-            <div class="text-center">
-              <div class="text-[24px] font-bold text-brown-dark leading-tight">2024年度工作报告</div>
-              <div class="h-[6px]"></div>
-              <div class="text-[13px] text-brown-muted">XX公司 · 2024年12月</div>
-            </div>
-            <div class="h-8"></div>
-            <div class="text-[14px] text-brown leading-relaxed">2024年是公司发展历程中具有里程碑意义的一年。在董事会的正确领导下，全体员工团结一心，攻坚克难，圆满完成了年度各项目标任务。</div>
-            <div class="h-11"></div>
-            <div class="text-[16px] font-bold text-brown-dark">一、主要工作回顾</div>
-            <div class="h-3"></div>
-            <div class="text-[14px] text-brown leading-relaxed">本年度，我们紧紧围绕"提质增效、创新发展"的工作主线，在市场拓展、技术研发、团队建设等方面取得了显著成效。</div>
-            <div class="h-5"></div>
-
-            <div v-if="currentDiff" class="border-2.7 border-jade-light bg-diff-green-bg rounded-lg p-3">
-              <div class="text-[12px] text-brown-muted font-medium">{{ currentDiff.category }}</div>
-              <div class="text-[14px] text-brown-dark font-medium mt-0.5">{{ currentDiff.label }}：<span class="font-semibold text-jade-light">{{ currentDiff.after }}</span></div>
-              <div v-if="currentDiff.annotation" class="text-[12px] text-brown mt-1">{{ currentDiff.annotation }}</div>
-            </div>
-            <div v-else class="text-[14px] text-brown leading-relaxed">暂无差异数据</div>
-
-            <div class="h-5"></div>
-            <div class="text-[14px] text-brown leading-relaxed">技术研发方面，公司全年申请专利56项，获得授权32项，其中发明专利18项。研发团队规模扩大至280人，引进了多位行业顶尖人才，为公司的持续创新奠定了坚实基础。</div>
-            <div class="h-[60px]"></div>
-            <div class="text-[11px] text-brown-muted text-center">— 1 —</div>
+          <div class="flex items-center gap-2">
+            <RiFileTextLine size="14" color="#5B8C5A" />
+            <span class="text-[13px] font-medium text-brown-dark">{{ modifiedFileName }}</span>
+            <div class="px-2 py-0.5 bg-jade-light text-white rounded-full text-[11px] font-semibold">推荐</div>
           </div>
+        </div>
+        <div
+          ref="rightScrollRef"
+          class="flex-1 bg-warm-gray overflow-y-auto py-6"
+          @scroll="onRightScroll"
+        >
+          <DocumentPreview :file="currentFile" />
         </div>
       </div>
     </div>
 
-    <div v-else-if="compareMode === 'overlay'" class="flex-1 flex bg-warm-gray relative">
-      <div class="flex-1 flex flex-col">
-        <div class="px-6 py-3 bg-cream-dark flex items-center gap-3">
-          <div class="w-[11px] h-[10px] rounded-full bg-brown-muted"></div>
-          <span class="text-[14px] font-semibold text-brown">修改前 · 原始文档</span>
-        </div>
-        <div class="flex-1 overflow-y-auto p-6">
-          <div class="bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-xl p-6 space-y-4">
-            <div v-for="diff in diffs" :key="diff.id" class="flex items-center justify-between py-2 border-b border-tan-border/50 last:border-b-0">
-              <div>
-                <span class="text-[11px] text-brown-muted font-medium">{{ diff.category }}</span>
-                <p class="text-[14px] text-brown-dark font-medium">{{ diff.label }}</p>
-              </div>
-              <div class="text-right">
-                <span class="text-[13px] text-brown-muted line-through">{{ diff.before }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div v-else-if="compareMode === 'diff-table'" class="flex-1 flex bg-warm-gray overflow-hidden">
 
-      <div class="flex-1 flex flex-col absolute inset-0 left-1/2 bg-white/80">
-        <div class="px-6 py-3 bg-diff-green-bg/90 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-[11px] h-[10px] rounded-full bg-jade-light"></div>
-            <span class="text-[14px] font-semibold text-brown-dark">修改后 · 排版优化</span>
-          </div>
-          <div class="px-3 py-1 bg-jade-light text-white rounded-full text-[11px] font-semibold">推荐</div>
+      <aside class="w-[280px] bg-cream border-r border-tan-border flex flex-col shrink-0">
+        <div class="px-6 pt-5 pb-5">
+          <h3 class="text-base font-semibold text-brown-dark">文档排版标签</h3>
+          <div class="w-full h-[1px] bg-tan-border mt-[2px]"></div>
+          <p class="text-xs text-brown-muted mt-2">选择需要识别的排版元素</p>
         </div>
-        <div class="flex-1 overflow-y-auto p-6">
-          <div class="bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-xl p-6 space-y-4">
-            <div v-for="diff in diffs" :key="diff.id" class="flex items-center justify-between py-2 border-b border-tan-border/50 last:border-b-0">
-              <div>
-                <span class="text-[11px] text-brown-muted font-medium">{{ diff.category }}</span>
-                <p class="text-[14px] text-brown-dark font-medium">{{ diff.label }}</p>
+
+        <div class="flex-1 overflow-y-auto px-4 pb-4 space-y-1.5">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            class="w-full rounded-xl p-2 transition-all text-left"
+            :class="activeTab === tab.id
+              ? 'bg-cinnabar text-white'
+              : 'bg-cream-dark hover:bg-cream-darker text-brown-dark'"
+          >
+            <div class="flex items-center gap-2">
+              <component :is="tab.icon" :size="16" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
+              <div class="flex-1">
+                <div
+                  class="text-[13px]"
+                  :class="activeTab === tab.id ? 'font-semibold text-white' : 'font-medium text-brown-dark'"
+                >
+                  {{ tab.label }}
+                </div>
+                <div
+                  class="text-[10px]"
+                  :class="activeTab === tab.id ? 'text-white/75' : 'text-brown-muted'"
+                >
+                  {{ tab.sublabel }}
+                </div>
               </div>
-              <div class="text-right">
-                <span class="text-[13px] text-jade-light font-semibold">{{ diff.after }}</span>
-              </div>
+              <div
+                v-if="activeTab === tab.id"
+                class="w-[7px] h-[6px] bg-white rounded-[3px]"
+              ></div>
             </div>
+          </button>
+        </div>
+      </aside>
+
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="px-6 py-4 bg-parchment border-b border-tan-border">
+          <span class="text-[14px] font-semibold text-brown-dark">{{ tabs.find(t => t.id === activeTab)?.label || '' }}参数对比</span>
+          <span class="text-[12px] text-brown-muted ml-3">共 {{ tabFields.length }} 项</span>
+        </div>
+        <div class="flex-1 overflow-y-auto px-6 py-4">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="border-b border-tan-border">
+                <th class="text-[12px] font-semibold text-brown-muted text-left py-3 px-3 w-14">序号</th>
+                <th class="text-[12px] font-semibold text-brown-muted text-left py-3 px-3">字段</th>
+                <th class="text-[12px] font-semibold text-brown-muted text-left py-3 px-3 w-1/3">文件1（原始）</th>
+                <th class="text-[12px] font-semibold text-brown-muted text-left py-3 px-3 w-1/3">文件2（优化）</th>
+                <th class="text-[12px] font-semibold text-brown-muted text-left py-3 px-3 w-24">差异状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(field, idx) in tabFields" :key="field.id" class="border-b border-tan-border/50 hover:bg-cream/50 transition-colors">
+                <td class="py-3 px-3 text-[13px] text-brown-muted">{{ idx + 1 }}</td>
+                <td class="py-3 px-3 text-[13px] font-medium text-brown-dark">{{ field.label }}</td>
+                <td class="py-3 px-3">
+                  <span class="text-[13px] text-brown" :class="{ 'line-through decoration-brown-muted': field.changed }">{{ field.before }}</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="text-[13px]" :class="field.changed ? 'text-jade-dark font-semibold' : 'text-brown'">{{ field.after }}</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span v-if="field.changed" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-diff-green-bg text-jade-light">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="#2D8B57" class="remixicon"><path d="M10.0007 15.1709L19.1931 5.97852L20.6073 7.39273L10.0007 17.9993L3.63672 11.6354L5.05093 10.2212L10.0007 15.1709Z"></path></svg>
+                    已修改
+                  </span>
+                  <span v-else class="text-[11px] text-brown-muted">--</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-if="tabFields.length === 0" class="flex items-center justify-center py-16 text-brown-muted text-[13px]">
+            此标签暂无参数配置
           </div>
         </div>
       </div>
@@ -225,7 +333,7 @@ const exportDoc = async () => {
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
         <button class="flex items-center gap-1 px-3 py-2 bg-cream-darker rounded-lg" @click="prevDiff">
           <RiArrowLeftSLine size="16" class="text-brown" />
           <span class="text-[13px] font-medium text-brown">上一处</span>
@@ -234,6 +342,21 @@ const exportDoc = async () => {
         <button class="flex items-center gap-1 px-3 py-2 bg-cream-darker rounded-lg" @click="nextDiff">
           <span class="text-[13px] font-medium text-brown">下一处</span>
           <RiArrowRightSLine size="16" class="text-brown" />
+        </button>
+        <div class="w-[1px] h-5 bg-tan-border mx-1"></div>
+        <button
+          class="flex items-center gap-1.5 px-4 py-2 bg-jade-light text-white rounded-lg text-[13px] font-semibold"
+          @click="acceptAll"
+        >
+          <RiCheckLine size="16" color="white" />
+          接受全部修改
+        </button>
+        <button
+          class="flex items-center gap-1.5 px-4 py-2 bg-cinnabar text-white rounded-lg text-[13px] font-semibold"
+          @click="exportDoc"
+        >
+          <RiDownloadLine size="16" color="white" />
+          导出文档
         </button>
       </div>
     </div>
