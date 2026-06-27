@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue'
 import VueOfficeDocx from '@vue-office/docx'
 import '@vue-office/docx/lib/index.css'
+import VueOfficePdf from '@vue-office/pdf'
 import { RiCloseLine, RiPagesLine, RiTextSnippet, RiHeading, RiFileTextLine } from '@remixicon/vue'
 import { useDocument } from '../composables/useDocument'
 
@@ -14,8 +15,18 @@ const emit = defineEmits(['close'])
 const { getFile } = useDocument()
 const currentFile = computed(() => getFile())
 
-const docxBuffer = ref(null)
+const docBuffer = ref(null)
+const textContent = ref('')
 const params = computed(() => props.template.formatParams || {})
+
+const fileExtension = computed(() => {
+  if (!currentFile.value) return ''
+  return currentFile.value.name.split('.').pop().toLowerCase()
+})
+
+const isDocx = computed(() => fileExtension.value === 'docx')
+const isPdf = computed(() => fileExtension.value === 'pdf')
+const isText = computed(() => ['txt', 'md', 'markdown'].includes(fileExtension.value))
 
 function readFileAsArrayBuffer(file) {
   return new Promise((resolve, reject) => {
@@ -26,16 +37,27 @@ function readFileAsArrayBuffer(file) {
   })
 }
 
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsText(file)
+  })
+}
+
 watch(() => currentFile.value, async (file) => {
-  docxBuffer.value = null
+  docBuffer.value = null
+  textContent.value = ''
   if (!file) return
-  const ext = file.name.split('.').pop().toLowerCase()
-  if (ext === 'docx') {
-    try {
-      docxBuffer.value = await readFileAsArrayBuffer(file)
-    } catch (e) {
-      console.error('读取文件失败:', e)
+  try {
+    if (isDocx.value || isPdf.value) {
+      docBuffer.value = await readFileAsArrayBuffer(file)
+    } else if (isText.value) {
+      textContent.value = await readFileAsText(file)
     }
+  } catch (e) {
+    console.error('读取文件失败:', e)
   }
 }, { immediate: true })
 
@@ -112,8 +134,14 @@ const sections = computed(() => {
               </h3>
             </div>
             <div class="flex-1 overflow-auto p-6">
-              <div v-if="currentFile && docxBuffer" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
-                <VueOfficeDocx :src="docxBuffer" style="width: 100%;" />
+              <div v-if="currentFile && docBuffer && isDocx" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
+                <VueOfficeDocx :src="docBuffer" style="width: 100%;" />
+              </div>
+              <div v-else-if="currentFile && docBuffer && isPdf" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
+                <VueOfficePdf :src="docBuffer" style="width: 100%;" />
+              </div>
+              <div v-else-if="currentFile && textContent && isText" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[600px] p-8">
+                <pre class="text-[14px] text-brown-dark leading-relaxed whitespace-pre-wrap font-songti">{{ textContent }}</pre>
               </div>
               <div v-else class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[600px] flex flex-col items-center justify-center text-center">
                 <div class="w-20 h-20 rounded-full bg-[#FDF0E0] flex items-center justify-center mb-5">
