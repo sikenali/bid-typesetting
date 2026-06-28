@@ -17,6 +17,21 @@ const selectedLabel = computed(() => {
   return match ? match.label : props.placeholder
 })
 
+const contentWidth = computed(() => {
+  let maxW = 0
+  for (const opt of props.options) {
+    let w = 0
+    for (const ch of opt.label) {
+      w += ch.charCodeAt(0) > 127 ? 14 : 7.5
+    }
+    if (w > maxW) { maxW = w }
+  }
+  return Math.ceil(maxW) + 44
+})
+
+const isAutoWidth = computed(() => props.widthClass === 'auto')
+const resolvedWidth = computed(() => isAutoWidth.value ? `${contentWidth.value}px` : '')
+
 const dropdownRef = ref(null)
 const listRef = ref(null)
 const highlightIndex = ref(-1)
@@ -75,7 +90,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 </script>
 
 <template>
-  <div ref="dropdownRef" class="relative" :class="widthClass" @keydown="onKeydown">
+  <div ref="dropdownRef" class="relative" :class="isAutoWidth ? '' : widthClass" :style="resolvedWidth ? { minWidth: resolvedWidth, width: 'auto' } : undefined" @keydown="onKeydown">
     <button
       type="button"
       @click="toggle"
