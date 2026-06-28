@@ -32,6 +32,7 @@ const zoomLevel = ref(100)
 const currentPage = ref(1)
 const totalPages = ref('--')
 const showNav = ref(false)
+const showPreviewModal = ref(false)
 const headings = ref([])
 const previewScrollRef = ref(null)
 const documentBuffer = ref(null)
@@ -236,6 +237,20 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
                 <RiCheckLine size="16" color="white" />
                 <span>保存</span>
               </button>
+              <div class="flex items-center gap-2">
+                <RiSideBarLine size="15" class="text-brown" />
+                <span class="text-[12px] font-medium text-brown">预览</span>
+                <button
+                  @click="showPreviewModal = !showPreviewModal"
+                  class="w-[40px] h-[22px] rounded-full relative transition-colors"
+                  :class="showPreviewModal ? 'bg-cinnabar' : 'bg-tan-dark'"
+                >
+                  <div
+                    class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"
+                    :class="showPreviewModal ? 'right-0.5' : 'left-0.5'"
+                  ></div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -478,67 +493,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           </div>
         </div>
 
-        <!-- Toolbar bar -->
-        <div class="bg-cream border-b border-tan-border px-6 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-[2px] h-5 bg-tan-border mx-1"></div>
-            <button class="w-7 h-7 flex items-center justify-center bg-cream-darker rounded" @click="zoomOut">
-              <RiZoomOutLine size="14" class="text-brown" />
-            </button>
-            <span class="text-[13px] font-medium text-brown-dark min-w-[44px] text-center">{{ zoomLevel }}%</span>
-            <button class="w-7 h-7 flex items-center justify-center bg-cream-darker rounded" @click="zoomIn">
-              <RiZoomInLine size="14" class="text-brown" />
-            </button>
 
-            <!-- Edit mode toggle (only for .docx files) -->
-            <button
-              v-if="isDocx"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg text-[12px] font-medium transition-colors"
-              :class="isEditMode ? 'text-cinnabar bg-cinnabar/10' : 'text-brown'"
-              @click="toggleEditMode"
-            >
-              <RiEdit2Line v-if="isEditMode" size="14" />
-              <RiEyeLine v-else size="14" />
-              {{ isEditMode ? '编辑模式' : '预览模式' }}
-            </button>
-
-            <!-- File name badge -->
-            <div class="flex items-center gap-2 px-3 py-2 bg-cream-dark rounded-lg">
-              <RiFileTextLine size="18" color="#C43A31" />
-              <span class="truncate max-w-[143px] text-sm font-medium text-brown">{{ currentFile?.name || '未命名文档' }}</span>
-            </div>
-
-            <!-- Page navigation -->
-            <div class="w-[2px] h-5 bg-tan-border mx-1"></div>
-            <RiPagesLine size="16" class="text-brown-muted shrink-0" />
-            <div class="flex items-center gap-1">
-              <span class="text-[13px] font-medium text-brown-dark">第</span>
-              <input
-                type="number"
-                v-model.number="currentPage"
-                class="w-10 px-1 py-0.5 bg-cream-dark border border-tan-border rounded text-[13px] text-brown-dark text-center font-medium"
-                min="1"
-              />
-              <span class="text-[13px] font-medium text-brown-dark">页 / 共 {{ totalPages }} 页</span>
-            </div>
-            <RiFileEditLine size="16" class="text-brown-muted shrink-0" />
-          </div>
-
-          <div class="flex items-center gap-2">
-            <RiSideBarLine size="15" class="text-brown" />
-            <span class="text-[12px] font-medium text-brown">导航目录</span>
-            <button
-              @click="showNav = !showNav"
-              class="w-[40px] h-[22px] rounded-full relative transition-colors"
-              :class="showNav ? 'bg-cinnabar' : 'bg-tan-dark'"
-            >
-              <div
-                class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"
-                :class="showNav ? 'right-0.5' : 'left-0.5'"
-              ></div>
-            </button>
-          </div>
-        </div>
 
         <!-- Bottom area: nav sidebar + preview -->
         <div class="flex-1 flex overflow-hidden">
@@ -572,41 +527,55 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             class="flex-1 overflow-auto"
             :style="{ zoom: `${zoomLevel}%` }"
           >
-            <!-- DocxEditor: edit mode for .docx files -->
-            <div
-              v-if="showEditor && documentBuffer"
-              class="docx-editor-container"
-            >
-              <DocxEditor
-                ref="editorRef"
-                :document-buffer="documentBuffer"
-              />
-            </div>
+            <!-- Show preview only when toggle is on -->
+            <template v-if="showPreviewModal">
+              <!-- DocxEditor: edit mode for .docx files -->
+              <div
+                v-if="showEditor && documentBuffer"
+                class="docx-editor-container"
+              >
+                <DocxEditor
+                  ref="editorRef"
+                  :document-buffer="documentBuffer"
+                />
+              </div>
 
-            <!-- VueOfficeDocx: preview mode for .docx files -->
-            <div
-              v-else-if="!isDocx && isPdf && vueOfficeBuffer"
-              class="max-w-[864px] mx-auto bg-white shadow"
-            >
-              <VueOfficePdf :src="vueOfficeBuffer" style="width: 100%;" />
-            </div>
-            <div
-              v-else-if="!isDocx && isXlsx && vueOfficeBuffer"
-              class="max-w-[864px] mx-auto bg-white shadow"
-            >
-              <VueOfficeExcel :src="vueOfficeBuffer" style="width: 100%;" />
-            </div>
-            <div
-              v-else-if="isDocx && !isEditMode && vueOfficeBuffer"
-              class="max-w-[864px] mx-auto bg-white shadow"
-            >
-              <VueOfficeDocx :src="vueOfficeBuffer" style="width: 100%;" />
-            </div>
+              <!-- VueOfficeDocx: preview mode for .docx files -->
+              <div
+                v-else-if="isDocx && vueOfficeBuffer"
+                class="max-w-[864px] mx-auto bg-white shadow"
+              >
+                <VueOfficeDocx :src="vueOfficeBuffer" style="width: 100%;" />
+              </div>
 
-            <!-- Empty state -->
-            <div v-else class="flex items-center justify-center h-full text-brown-muted">
-              <p class="text-[14px]">请上传文档以开始编辑</p>
-            </div>
+              <!-- VueOfficePdf: preview mode for .pdf files -->
+              <div
+                v-else-if="isPdf && vueOfficeBuffer"
+                class="max-w-[864px] mx-auto bg-white shadow"
+              >
+                <VueOfficePdf :src="vueOfficeBuffer" style="width: 100%;" />
+              </div>
+
+              <!-- VueOfficeExcel: preview mode for .xlsx files -->
+              <div
+                v-else-if="isXlsx && vueOfficeBuffer"
+                class="max-w-[864px] mx-auto bg-white shadow"
+              >
+                <VueOfficeExcel :src="vueOfficeBuffer" style="width: 100%;" />
+              </div>
+
+              <!-- Empty state -->
+              <div v-else class="flex items-center justify-center h-full text-brown-muted">
+                <p class="text-[14px]">暂无预览内容</p>
+              </div>
+            </template>
+
+            <!-- Hidden state: nothing shown by default -->
+            <template v-else>
+              <div class="flex items-center justify-center h-full text-brown-muted">
+                <p class="text-[14px]">点击右上角"预览"开关查看文档</p>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -617,6 +586,35 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
         @close="showSaveModal = false"
         @saved="onTemplateSaved"
       />
+
+      <!-- Preview modal (like template preview) -->
+      <div
+        v-if="showPreviewModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        @click.self="showPreviewModal = false"
+      >
+        <div class="bg-cream rounded-2xl shadow-2xl w-[90vw] h-[85vh] flex flex-col overflow-hidden border border-tan-border">
+          <!-- Modal header -->
+          <div class="flex items-center justify-between px-6 py-4 bg-cream-dark border-b border-tan-border">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-cinnabar flex items-center justify-center">
+                <RiEyeLine size="16" color="white" />
+              </div>
+              <span class="text-[14px] font-semibold text-brown-dark">文档预览</span>
+            </div>
+            <button
+              class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-cream-dark transition-colors"
+              @click="showPreviewModal = false"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4L12 12M12 4L4 12" stroke="#5C4033" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Toolbar inside modal -->
+          <div class="bg-cream border-b border-tan-border px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3
     </div>
   </main>
 </template>
