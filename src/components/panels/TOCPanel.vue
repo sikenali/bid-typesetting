@@ -1,137 +1,207 @@
 <script setup>
 import { ref } from 'vue'
+import { RiCheckLine } from '@remixicon/vue'
+import DropdownSelect from '../DropdownSelect.vue'
 
 const props = defineProps({
   params: { type: Object, required: true },
 })
 
-const expandedLevel = ref(0)
-const cnFonts = ['宋体', '仿宋', '黑体', '楷体', '微软雅黑', '思源宋体']
-const enFonts = ['Times New Roman', 'Arial', 'Calibri', 'Verdana', 'Courier New']
-const sizeCN = ['初号', '小初', '一号', '小一', '二号', '小二', '三号', '四号', '小四', '五号', '小五']
+const activeLevel = ref(0)
+
+const cnFonts = ['宋体', '仿宋', '黑体', '楷体', '微软雅黑', '思源宋体'].map(v => ({ value: v, label: v }))
+const enFonts = ['Times New Roman', 'Arial', 'Calibri', 'Verdana', 'Courier New'].map(v => ({ value: v, label: v }))
+const sizeCN = ['初号', '小初', '一号', '小一', '二号', '小二', '三号', '四号', '小四', '五号', '小五'].map(v => ({ value: v, label: v }))
 const lineSpacingModes = [
   { value: 'EXACT', label: '固定值' },
   { value: 'SINGLE', label: '单倍行距' },
   { value: 'MULTIPLE', label: '多倍行距' },
 ]
+const spacingUnits = ['磅', '行'].map(v => ({ value: v, label: v }))
 const tabLeaders = [
-  { value: 'DOT', label: '点线' },
-  { value: 'DASH', label: '虚线' },
-  { value: 'UNDERSCORE', label: '下划线' },
+  { value: 'DOT', label: '点线（......）' },
+  { value: 'DASH', label: '虚线（----）' },
+  { value: 'UNDERSCORE', label: '下划线（____）' },
   { value: 'NONE', label: '无' },
 ]
-const levelLabels = ['第1层', '第2层', '第3层', '第4层']
+
+function rgbToString(rgb) {
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+}
+
+function onColorChange(e, level) {
+  const hex = e.target.value
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  level.color_rgb = [r, g, b]
+}
+
+function rgbToHex(rgb) {
+  return '#' + rgb.map(c => c.toString(16).padStart(2, '0')).join('')
+}
 </script>
 
 <template>
-  <div class="bg-cream px-6 py-4 border-b border-tan-border space-y-5 max-h-[calc(100vh-16rem)] overflow-y-auto">
-
-    <div class="flex items-center gap-3 mb-2">
-      <label class="relative inline-flex items-center cursor-pointer">
-        <input type="checkbox" v-model="params.enable" class="sr-only peer" />
-        <div class="w-[40px] h-[22px] bg-cream-darker rounded-full peer peer-checked:bg-cinnabar transition-colors"></div>
-        <div class="absolute left-[3px] top-[3px] w-[16px] h-[16px] bg-white rounded-full transition-transform peer-checked:translate-x-[18px]"></div>
-      </label>
-      <span class="text-[13px] font-medium text-brown-dark">启用目录</span>
+  <div class="bg-cream border-b border-tan-border max-h-[calc(100vh-16rem)] overflow-y-auto space-y-5 px-5 py-3">
+    <div class="bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-5">
+      <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
+      <div class="flex items-center gap-[8px]">
+        <div class="w-[5px] h-[18px] rounded-[2px] bg-cinnabar shrink-0"></div>
+        <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">目录标题</span>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-[4px] cursor-pointer" @click="params.enable = !params.enable">
+          <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+            :class="params.enable ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+            <RiCheckLine v-if="params.enable" size="12" class="text-white" />
+          </div>
+          <span class="text-[13px] text-brown">启用目录格式化</span>
+        </div>
+        <div class="w-[2px] h-[24px] bg-tan-border shrink-0"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-[13px] text-brown shrink-0">标题文字</span>
+          <input type="text" v-model="params.title_text"
+            class="w-[140px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+        </div>
+      </div>
+      <template v-if="params.enable">
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] text-brown whitespace-nowrap shrink-0">中文字体</span>
+            <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="w-[120px]" />
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] text-brown whitespace-nowrap shrink-0">英文字体</span>
+            <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="w-[160px]" />
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] text-brown whitespace-nowrap shrink-0">字号</span>
+            <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="w-[100px]" />
+          </div>
+        </div>
+      </template>
     </div>
 
     <template v-if="params.enable">
-      <div>
-        <h4 class="text-[13px] font-semibold text-brown-dark mb-2">目录标题</h4>
-        <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-          <div class="flex items-center gap-3">
-            <span class="text-[12px] text-brown w-[60px] shrink-0">标题文字</span>
-            <input type="text" v-model="params.title_text" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown" />
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-[12px] text-brown w-[60px] shrink-0">中文字体</span>
-            <select v-model="params.title_cn_font" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-              <option v-for="f in cnFonts" :key="f" :value="f">{{ f }}</option>
-            </select>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-[12px] text-brown w-[60px] shrink-0">英文字体</span>
-            <select v-model="params.title_en_font" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-              <option v-for="f in enFonts" :key="f" :value="f">{{ f }}</option>
-            </select>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-[12px] text-brown w-[60px] shrink-0">字号</span>
-            <select v-model="params.title_size_cn" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-              <option v-for="s in sizeCN" :key="s" :value="s">{{ s }}</option>
-            </select>
-          </div>
+      <div class="bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-5">
+        <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
+        <div class="flex items-center gap-[8px]">
+          <div class="w-[5px] h-[18px] rounded-[2px] bg-gold-dark shrink-0"></div>
+          <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">目录层级样式</span>
         </div>
-      </div>
-
-      <div class="w-full h-[1px] bg-tan-border"></div>
-
-      <div>
-        <h4 class="text-[13px] font-semibold text-brown-dark mb-3">层级样式</h4>
-        <div class="space-y-2">
-          <div v-for="(level, idx) in params.level_styles" :key="idx" class="border border-tan-border rounded-lg overflow-hidden">
-            <button
-              @click="expandedLevel = expandedLevel === idx ? -1 : idx"
-              class="w-full flex items-center justify-between px-4 py-3 text-left bg-cream-dark hover:bg-cream-darker transition-colors"
-            >
-              <span class="text-[13px] font-medium text-brown-dark">{{ levelLabels[idx] || '第' + (idx + 1) + '层' }}</span>
-              <svg
-                class="w-4 h-4 text-brown-muted transition-transform"
-                :class="{ 'rotate-180': expandedLevel === idx }"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div v-if="expandedLevel === idx" class="px-4 py-3 space-y-3">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div class="flex items-center gap-3">
-                  <span class="text-[12px] text-brown w-[60px] shrink-0">中文字体</span>
-                  <select v-model="level.cn_font" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-                    <option v-for="f in cnFonts" :key="f" :value="f">{{ f }}</option>
-                  </select>
+        <div class="bg-cream-darker rounded-lg p-1 flex items-center gap-1">
+          <button v-for="(lbl, idx) in ['第1层','第2层','第3层','第4层']" :key="idx"
+            @click="activeLevel = idx"
+            class="px-[16px] py-[8px] text-[13px] rounded-lg transition-all duration-200 cursor-pointer"
+            :class="activeLevel === idx ? 'bg-white text-cinnabar font-semibold shadow-sm' : 'text-brown hover:text-brown-dark'"
+          >{{ lbl }}</button>
+        </div>
+        <Transition name="fade-slide" mode="out-in">
+          <div :key="activeLevel" class="flex flex-col gap-4">
+            <div>
+              <span class="text-[13px] font-semibold text-brown-muted block mb-[10px]">字体</span>
+              <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown whitespace-nowrap shrink-0">中文字体</span>
+                  <DropdownSelect v-model="params.level_styles[activeLevel].cn_font" :options="cnFonts" width-class="w-[100px]" />
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[12px] text-brown w-[60px] shrink-0">英文字体</span>
-                  <select v-model="level.en_font" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-                    <option v-for="f in enFonts" :key="f" :value="f">{{ f }}</option>
-                  </select>
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown whitespace-nowrap shrink-0">英文字体</span>
+                  <DropdownSelect v-model="params.level_styles[activeLevel].en_font" :options="enFonts" width-class="w-[160px]" />
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[12px] text-brown w-[60px] shrink-0">字号</span>
-                  <select v-model="level.size_cn" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-                    <option v-for="s in sizeCN" :key="s" :value="s">{{ s }}</option>
-                  </select>
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown whitespace-nowrap shrink-0">字号</span>
+                  <DropdownSelect v-model="params.level_styles[activeLevel].size_cn" :options="sizeCN" width-class="w-[90px]" />
                 </div>
-                <div class="flex items-center gap-3">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" v-model="level.bold" class="w-4 h-4 rounded border-tan-border text-cinnabar" />
-                    <span class="text-[12px] text-brown">粗体</span>
+                <div class="flex items-center gap-[4px] cursor-pointer" @click="params.level_styles[activeLevel].bold = !params.level_styles[activeLevel].bold">
+                  <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+                    :class="params.level_styles[activeLevel].bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                    <RiCheckLine v-if="params.level_styles[activeLevel].bold" size="12" class="text-white" />
+                  </div>
+                  <span class="text-[13px] text-brown">粗体</span>
+                </div>
+                <div class="flex items-center gap-[4px] cursor-pointer" @click="params.level_styles[activeLevel].italic = !params.level_styles[activeLevel].italic">
+                  <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+                    :class="params.level_styles[activeLevel].italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                    <RiCheckLine v-if="params.level_styles[activeLevel].italic" size="12" class="text-white" />
+                  </div>
+                  <span class="text-[13px] text-brown">斜体</span>
+                </div>
+                <div class="flex items-center gap-[4px]">
+                  <span class="text-[13px] text-brown">字体颜色</span>
+                  <label class="relative cursor-pointer">
+                    <div class="w-[25px] h-[24px] rounded-[4px] border border-tan-border cursor-pointer"
+                      :style="{ backgroundColor: rgbToString(params.level_styles[activeLevel].color_rgb) }"></div>
+                    <input type="color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                      :value="rgbToHex(params.level_styles[activeLevel].color_rgb)"
+                      @input="onColorChange($event, params.level_styles[activeLevel])" />
                   </label>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[12px] text-brown w-[60px] shrink-0">行距</span>
-                  <select v-model="level.line_spacing_mode" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[100px]">
-                    <option v-for="m in lineSpacingModes" :key="m.value" :value="m.value">{{ m.label }}</option>
-                  </select>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[12px] text-brown w-[60px] shrink-0">前导符</span>
-                  <select v-model="level.tab_leader" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown">
-                    <option v-for="t in tabLeaders" :key="t.value" :value="t.value">{{ t.label }}</option>
-                  </select>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[12px] text-brown w-[60px] shrink-0">左缩进</span>
-                  <input type="number" step="0.1" v-model.number="level.left_indent_chars" class="flex-1 px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown" />
-                  <span class="text-[12px] text-brown-muted">字符</span>
                 </div>
               </div>
             </div>
+            <div class="w-full h-[1px] bg-tan-border"></div>
+            <div>
+              <span class="text-[13px] font-semibold text-brown-muted block mb-[10px]">行距与段落间距与缩进</span>
+              <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown whitespace-nowrap shrink-0">行距模式</span>
+                  <DropdownSelect v-model="params.level_styles[activeLevel].line_spacing_mode" :options="lineSpacingModes" width-class="w-[100px]" />
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown">行距值</span>
+                  <input type="number" step="0.1" v-model.number="params.level_styles[activeLevel].line_spacing_value"
+                    class="w-[60px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <span class="text-[13px] text-brown">磅</span>
+                </div>
+                <div class="w-[2px] h-[20px] bg-tan-border shrink-0"></div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown">段前</span>
+                  <input type="number" step="0.1" v-model.number="params.level_styles[activeLevel].space_before_value"
+                    class="w-[55px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <DropdownSelect v-model="params.level_styles[activeLevel].space_before_unit" :options="spacingUnits" width-class="w-[50px]" />
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown">段后</span>
+                  <input type="number" step="0.1" v-model.number="params.level_styles[activeLevel].space_after_value"
+                    class="w-[55px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <DropdownSelect v-model="params.level_styles[activeLevel].space_after_unit" :options="spacingUnits" width-class="w-[50px]" />
+                </div>
+                <div class="w-[2px] h-[20px] bg-tan-border shrink-0"></div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] text-brown">左缩进</span>
+                  <input type="number" step="0.1" v-model.number="params.level_styles[activeLevel].left_indent_value"
+                    class="w-[55px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <span class="text-[13px] text-brown">字符</span>
+                </div>
+              </div>
+            </div>
+            <div class="w-full h-[1px] bg-tan-border"></div>
+            <div>
+              <span class="text-[13px] font-semibold text-brown-muted block mb-[10px]">前导符</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[13px] text-brown">前导符样式</span>
+                <DropdownSelect v-model="params.level_styles[activeLevel].tab_leader" :options="tabLeaders" width-class="w-[160px]" />
+              </div>
+            </div>
           </div>
-        </div>
+        </Transition>
       </div>
     </template>
-
   </div>
 </template>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>
