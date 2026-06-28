@@ -32,15 +32,15 @@ const indentUnits = ['字符', '厘米', '毫米', '英寸'].map(v => ({ value: 
         <div class="flex items-center gap-3 flex-wrap">
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">中文字体</span>
-            <DropdownSelect v-model="figCaption.cn_font" :options="cnFonts" width-class="w-[120px]" />
+            <DropdownSelect v-model="figCaption.cn_font" :options="cnFonts" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">英文字体</span>
-            <DropdownSelect v-model="figCaption.en_font" :options="enFonts" width-class="w-[180px]" />
+            <DropdownSelect v-model="figCaption.en_font" :options="enFonts" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">字号</span>
-            <DropdownSelect v-model="figCaption.size_cn" :options="sizeCN" width-class="w-[100px]" />
+            <DropdownSelect v-model="figCaption.size_cn" :options="sizeCN" width-class="auto" />
           </div>
           <div class="flex items-center gap-[4px] cursor-pointer" @click="figCaption.bold = !figCaption.bold">
             <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
