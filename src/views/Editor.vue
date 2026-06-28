@@ -382,6 +382,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
               v-if="vueOfficeBuffer && isDocx"
               :src="vueOfficeBuffer"
               style="width:100%; height:100%; min-height:842px; overflow: visible;"
+              class="docx-wrapper"
             />
             <VueOfficePdf
               v-else-if="vueOfficeBuffer && isPdf"
@@ -401,6 +402,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             @update:model-value="(v) => vueOfficeBuffer = v"
             style="width:100%; height:100%;"
             :options="{ language: 'zh-CN' }"
+            class="docx-editor-content"
           />
         </div>
       </div>
@@ -409,4 +411,87 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
 </template>
 
 <style scoped>
+.docx-wrapper {
+  background: #f0ebe0 !important;
+  padding: 30px !important;
+  padding-bottom: 0 !important;
+  display: flex !important;
+  flex-flow: column !important;
+  align-items: center !important;
+}
+
+.docx-wrapper > section.docx {
+  background: white !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+  margin-bottom: 30px !important;
+}
+
+.docx {
+  color: black !important;
+  hyphens: auto !important;
+  text-underline-position: from-font !important;
+}
+
+section.docx {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-flow: column nowrap !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+section.docx > article {
+  margin-bottom: auto !important;
+  z-index: 1 !important;
+}
+
+section.docx > footer {
+  z-index: 1 !important;
+}
+
+.docx table {
+  border-collapse: collapse !important;
+}
+
+.docx table td, .docx table th {
+  vertical-align: top !important;
+}
+
+.docx p {
+  margin: 0pt !important;
+  min-height: 1em !important;
+}
+
+.docx span {
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word !important;
+}
+
+.docx a {
+  color: inherit !important;
+  text-decoration: inherit !important;
+}
+
+.docx svg {
+  fill: transparent !important;
+}
+
+/* DocxEditor 编辑内容区域样式 */
+.docx-editor-content :deep(.ep-editor) {
+  height: 100% !important;
+  min-height: 600px !important;
+}
+
+.docx-editor-content :deep(.ep-root) {
+  height: 100% !important;
+}
+
+/* Hide docx-editor-vue title bar */
+.docx-editor-content :deep(.docx-editor-vue__title-bar),
+.docx-editor-content :deep(.docx-editor-vue__title-bar-center),
+.docx-editor-content :deep(.menu-bar),
+.docx-editor-content :deep(.doc-name),
+.docx-editor-content :deep(.doc-name__input) {
+  display: none !important;
+}
 </style>
