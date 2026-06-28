@@ -238,6 +238,43 @@ const formatParams = reactive({
     footer_align: 'CENTER',
     footer_page_number_type: 'standard',
   },
+
+  cleanup: {
+    text_cleanup: {
+      add_space_between_cn_en: true,
+      punctuation_clean: true,
+      clear_superscript: true,
+      soft_enter_to_hard: true,
+      remove_extra_blank_lines: false,
+    },
+    style_cleanup: {
+      clear_all_styles: true,
+      clear_paragraph_indent: true,
+      clear_align_grid: true,
+      clean_after_formatting: false,
+    },
+    object_structure: {
+      object_wrapping: true,
+      collapse_sdt_tags: false,
+      tab_stop_mode: '2',
+    },
+    caption_detection: {
+      fig_detection_enabled: true,
+      fig_detection_spacing: 2,
+      tbl_detection_enabled: true,
+      tbl_detection_spacing: 2,
+    },
+    global_switches: {
+      apply_page: true,
+      apply_body: true,
+      apply_headings: true,
+      apply_figtbl: true,
+      apply_toc: true,
+      apply_header_footer: true,
+      auto_refresh_fields: false,
+      close_word_after_refresh: true,
+    },
+  },
 })
 
 const beforeSnapshot = ref(null)
