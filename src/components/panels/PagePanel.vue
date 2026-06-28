@@ -1,5 +1,6 @@
 <script setup>
-import { RiCheckLine, RiArrowDownSLine } from '@remixicon/vue'
+import { RiCheckLine } from '@remixicon/vue'
+import DropdownSelect from '../DropdownSelect.vue'
 
 defineProps({
   params: { type: Object, required: true },
@@ -56,13 +57,7 @@ const paperSizes = [
           <!-- 第二排：纸张大小 + 选项 -->
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">纸张大小</span>
-            <div class="relative flex-1">
-              <select v-model="params.paper_size"
-                class="w-full bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown appearance-none outline-none focus:border-cinnabar transition-colors pr-8">
-                <option v-for="s in paperSizes" :key="s.value" :value="s.value">{{ s.label }}</option>
-              </select>
-              <RiArrowDownSLine class="absolute right-2 top-1/2 -translate-y-1/2 text-brown-muted pointer-events-none" size="16" />
-            </div>
+            <DropdownSelect v-model="params.paper_size" :options="paperSizes" width-class="flex-1" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">装订线</span>
