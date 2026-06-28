@@ -141,18 +141,20 @@ const ruleNames = ['第1章', '1.1', '1.1.1', '1.1.1.1']
           <div :key="activeLevel" class="flex flex-col gap-3">
             <div>
               <span class="text-[12px] font-semibold text-brown-muted block mb-[6px]">字体</span>
-              <div class="flex flex-wrap items-center gap-[6px]">
-                <div class="flex items-center gap-1">
-                  <span class="text-[12px] text-brown shrink-0">中文</span>
-                  <DropdownSelect v-model="props.params[activeLevel].cn_font" :options="cnFonts" width-class="w-[80px]" />
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-[12px] text-brown shrink-0">英文</span>
-                  <DropdownSelect v-model="props.params[activeLevel].en_font" :options="enFonts" width-class="w-[115px]" />
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-[12px] text-brown shrink-0">字号</span>
-                  <DropdownSelect v-model="props.params[activeLevel].size_cn" :options="sizeCN" width-class="w-[65px]" />
+              <div class="w-full flex flex-col gap-[6px]">
+                <div class="flex items-center gap-[6px]">
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">中文</span>
+                    <DropdownSelect v-model="props.params[activeLevel].cn_font" :options="cnFonts" width-class="auto" />
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">英文</span>
+                    <DropdownSelect v-model="props.params[activeLevel].en_font" :options="enFonts" width-class="auto" />
+                  </div>
+                  <div class="ml-auto flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">字号</span>
+                    <DropdownSelect v-model="props.params[activeLevel].size_cn" :options="sizeCN" width-class="auto" />
+                  </div>
                 </div>
                 <div class="flex items-center gap-[6px] whitespace-nowrap">
                   <div class="flex items-center gap-[3px]">
