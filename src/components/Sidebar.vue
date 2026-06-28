@@ -7,9 +7,7 @@ import {
   RiBarChart2Line,
   RiListCheck2,
   RiLayoutTop2Line,
-  RiPhoneFindFill,
-  RiFootprintLine,
-  RiDoubleQuotesL,
+  RiRefreshLine,
   RiSaveLine,
   RiSparklingLine,
   RiLoader2Line
@@ -79,82 +77,28 @@ const selectTab = (tabId) => {
 
       <div class="w-full h-[1px] bg-tan-border mt-4 mb-4"></div>
 
-      <!-- 页码 -->
+      <!-- 初始化 -->
       <button
-        @click="selectTab('pagenumber')"
+        @click="selectTab('reset')"
         class="w-full rounded-xl p-2 transition-all text-left"
-        :class="activeTab === 'pagenumber'
-          ? 'bg-cinnabar text-white'
+        :class="activeTab === 'reset'
+          ? 'bg-jade-light text-white'
           : 'bg-cream-dark hover:bg-cream-darker text-brown-dark'"
       >
         <div class="flex items-center gap-2">
-          <RiPhoneFindFill :size="16" :color="activeTab === 'pagenumber' ? 'white' : '#5C4033'" />
+          <RiRefreshLine :size="16" :color="activeTab === 'reset' ? 'white' : '#5C4033'" />
           <div class="flex-1">
             <div
               class="text-[13px]"
-              :class="activeTab === 'pagenumber' ? 'font-semibold text-white' : 'font-medium text-brown-dark'"
+              :class="activeTab === 'reset' ? 'font-semibold text-white' : 'font-medium text-brown-dark'"
             >
-              页码
+              初始化
             </div>
             <div
               class="text-[10px]"
-              :class="activeTab === 'pagenumber' ? 'text-white/75' : 'text-brown-muted'"
+              :class="activeTab === 'reset' ? 'text-white/75' : 'text-brown-muted'"
             >
-              Page Number
-            </div>
-          </div>
-        </div>
-      </button>
-
-      <!-- 脚注 -->
-      <button
-        @click="selectTab('footnote')"
-        class="w-full rounded-xl p-2 transition-all text-left"
-        :class="activeTab === 'footnote'
-          ? 'bg-cinnabar text-white'
-          : 'bg-cream-dark hover:bg-cream-darker text-brown-dark'"
-      >
-        <div class="flex items-center gap-2">
-          <RiFootprintLine :size="16" :color="activeTab === 'footnote' ? 'white' : '#5C4033'" />
-          <div class="flex-1">
-            <div
-              class="text-[13px]"
-              :class="activeTab === 'footnote' ? 'font-semibold text-white' : 'font-medium text-brown-dark'"
-            >
-              脚注
-            </div>
-            <div
-              class="text-[10px]"
-              :class="activeTab === 'footnote' ? 'text-white/75' : 'text-brown-muted'"
-            >
-              Footnotes
-            </div>
-          </div>
-        </div>
-      </button>
-
-      <!-- 引用 -->
-      <button
-        @click="selectTab('citation')"
-        class="w-full rounded-xl p-2 transition-all text-left"
-        :class="activeTab === 'citation'
-          ? 'bg-cinnabar text-white'
-          : 'bg-cream-dark hover:bg-cream-darker text-brown-dark'"
-      >
-        <div class="flex items-center gap-2">
-          <RiDoubleQuotesL :size="16" :color="activeTab === 'citation' ? 'white' : '#5C4033'" />
-          <div class="flex-1">
-            <div
-              class="text-[13px]"
-              :class="activeTab === 'citation' ? 'font-semibold text-white' : 'font-medium text-brown-dark'"
-            >
-              引用
-            </div>
-            <div
-              class="text-[10px]"
-              :class="activeTab === 'citation' ? 'text-white/75' : 'text-brown-muted'"
-            >
-              Citations
+              Initialize
             </div>
           </div>
         </div>
