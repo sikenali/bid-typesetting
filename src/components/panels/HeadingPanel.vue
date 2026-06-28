@@ -64,7 +64,7 @@ const ruleNames = ['第1章', '1.1', '1.1.1', '1.1.1.1']
 </script>
 
 <template>
-  <div class="bg-cream border-b border-tan-border max-h-[calc(100vh-16rem)] overflow-y-auto px-5 py-3">
+  <div class="bg-cream border-b border-tan-border h-full px-5 py-3">
     <div class="grid grid-cols-2 gap-4">
       <!-- 标题级别设置 -->
       <div class="bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-4">
