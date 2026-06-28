@@ -67,9 +67,9 @@ function rgbToHex(rgb) {
 
 <template>
   <div class="bg-cream border-b border-tan-border h-full px-5 py-3">
-    <div class="flex flex-col gap-4">
+    <div class="flex gap-4">
       <!-- 目录标题 -->
-      <div class="bg-cream-dark border border-tan-border rounded-2xl p-5 flex flex-col gap-3">
+      <div class="flex-1 bg-cream-dark border border-tan-border rounded-2xl p-5 flex flex-col gap-3">
         <div class="w-full h-[5px] bg-tan-dark rounded-sm shrink-0"></div>
         <div class="flex items-center gap-[6px]">
           <div class="w-[4px] h-[16px] rounded-[2px] bg-cinnabar shrink-0"></div>
@@ -95,15 +95,15 @@ function rgbToHex(rgb) {
           <div class="flex flex-wrap items-center gap-[6px]">
             <div class="flex items-center gap-1">
               <span class="text-[12px] text-brown shrink-0">中文</span>
-              <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="w-[80px]" />
+              <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="auto" />
             </div>
             <div class="flex items-center gap-1">
               <span class="text-[12px] text-brown shrink-0">英文</span>
-              <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="w-[115px]" />
+              <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="auto" />
             </div>
             <div class="flex items-center gap-1">
               <span class="text-[12px] text-brown shrink-0">字号</span>
-              <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="w-[65px]" />
+              <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="auto" />
             </div>
           </div>
         </template>
@@ -111,7 +111,7 @@ function rgbToHex(rgb) {
 
       <!-- 目录层级样式 -->
       <template v-if="params.enable">
-        <div class="bg-cream-dark border border-tan-border rounded-2xl p-5 flex flex-col gap-3">
+        <div class="flex-1 bg-cream-dark border border-tan-border rounded-2xl p-5 flex flex-col gap-3">
           <div class="w-full h-[5px] bg-tan-dark rounded-sm shrink-0"></div>
           <div class="flex items-center gap-[6px]">
             <div class="w-[4px] h-[16px] rounded-[2px] bg-gold-dark shrink-0"></div>
@@ -135,15 +135,15 @@ function rgbToHex(rgb) {
                 <div class="flex flex-wrap items-center gap-[6px]">
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">中文</span>
-                    <DropdownSelect v-model="params.level_styles[activeLevel].cn_font" :options="cnFonts" width-class="w-[80px]" />
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <span class="text-[12px] text-brown shrink-0">英文</span>
-                    <DropdownSelect v-model="params.level_styles[activeLevel].en_font" :options="enFonts" width-class="w-[115px]" />
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <span class="text-[12px] text-brown shrink-0">字号</span>
-                    <DropdownSelect v-model="params.level_styles[activeLevel].size_cn" :options="sizeCN" width-class="w-[65px]" />
+                    <DropdownSelect v-model="params.level_styles[activeLevel].cn_font" :options="cnFonts" width-class="auto" />
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-[12px] text-brown shrink-0">英文</span>
+                      <DropdownSelect v-model="params.level_styles[activeLevel].en_font" :options="enFonts" width-class="auto" />
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-[12px] text-brown shrink-0">字号</span>
+                      <DropdownSelect v-model="params.level_styles[activeLevel].size_cn" :options="sizeCN" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">颜色</span>
