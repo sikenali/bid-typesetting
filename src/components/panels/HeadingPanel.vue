@@ -154,33 +154,35 @@ const ruleNames = ['第1章', '1.1', '1.1.1', '1.1.1.1']
                   <span class="text-[12px] text-brown shrink-0">字号</span>
                   <DropdownSelect v-model="props.params[activeLevel].size_cn" :options="sizeCN" width-class="w-[65px]" />
                 </div>
-                <div class="flex items-center gap-[3px]">
-                  <span class="text-[12px] text-brown shrink-0">颜色</span>
-                  <label class="relative cursor-pointer">
-                    <div class="w-[18px] h-[18px] rounded-[3px] border border-tan-border cursor-pointer"></div>
-                    <input type="color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
-                  </label>
-                </div>
-                <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].bold = !props.params[activeLevel].bold">
-                  <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                    :class="props.params[activeLevel].bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                    <RiCheckLine v-if="props.params[activeLevel].bold" size="10" class="text-white" />
+                <div class="flex items-center gap-[6px] whitespace-nowrap">
+                  <div class="flex items-center gap-[3px]">
+                    <span class="text-[12px] text-brown shrink-0">颜色</span>
+                    <label class="relative cursor-pointer">
+                      <div class="w-[18px] h-[18px] rounded-[3px] border border-tan-border cursor-pointer"></div>
+                      <input type="color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                    </label>
                   </div>
-                  <span class="text-[12px] text-brown shrink-0">粗体</span>
-                </div>
-                <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].italic = !props.params[activeLevel].italic">
-                  <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                    :class="props.params[activeLevel].italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                    <RiCheckLine v-if="props.params[activeLevel].italic" size="10" class="text-white" />
+                  <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].bold = !props.params[activeLevel].bold">
+                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                      :class="props.params[activeLevel].bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                      <RiCheckLine v-if="props.params[activeLevel].bold" size="10" class="text-white" />
+                    </div>
+                    <span class="text-[12px] text-brown shrink-0">粗体</span>
                   </div>
-                  <span class="text-[12px] text-brown shrink-0">斜体</span>
-                </div>
-                <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].underline = !props.params[activeLevel].underline">
-                  <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                    :class="props.params[activeLevel].underline ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                    <RiCheckLine v-if="props.params[activeLevel].underline" size="10" class="text-white" />
+                  <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].italic = !props.params[activeLevel].italic">
+                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                      :class="props.params[activeLevel].italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                      <RiCheckLine v-if="props.params[activeLevel].italic" size="10" class="text-white" />
+                    </div>
+                    <span class="text-[12px] text-brown shrink-0">斜体</span>
                   </div>
-                  <span class="text-[12px] text-brown shrink-0">下划线</span>
+                  <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].underline = !props.params[activeLevel].underline">
+                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                      :class="props.params[activeLevel].underline ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                      <RiCheckLine v-if="props.params[activeLevel].underline" size="10" class="text-white" />
+                    </div>
+                    <span class="text-[12px] text-brown shrink-0">下划线</span>
+                  </div>
                 </div>
               </div>
             </div>
