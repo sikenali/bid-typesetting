@@ -4,8 +4,15 @@ import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
 import { useTemplates } from '../composables/useTemplates'
 import { useFormatState } from '../composables/useFormatState'
+import { formatDocument } from '../api/format'
 import Sidebar from '../components/Sidebar.vue'
 import SaveTemplateModal from '../components/SaveTemplateModal.vue'
+import PagePanel from '../components/panels/PagePanel.vue'
+import BodyPanel from '../components/panels/BodyPanel.vue'
+import HeadingPanel from '../components/panels/HeadingPanel.vue'
+import ChartPanel from '../components/panels/ChartPanel.vue'
+import TOCPanel from '../components/panels/TOCPanel.vue'
+import HeaderFooterPanel from '../components/panels/HeaderFooterPanel.vue'
 import { DocxEditor } from '@eigenpal/docx-editor-vue'
 import '@eigenpal/docx-editor-vue/styles.css'
 import VueOfficeDocx from '@vue-office/docx'
@@ -15,7 +22,7 @@ import VueOfficeExcel from '@vue-office/excel'
 import '@vue-office/excel/lib/index.css'
 import {
   RiZoomOutLine, RiZoomInLine, RiPagesLine, RiTextSnippet, RiHeading,
-  RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiPhoneFindFill,
+  RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiRefreshLine,
   RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
   RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line
 } from '@remixicon/vue'
@@ -64,9 +71,7 @@ const tabIcons = {
   chart: RiBarChart2Line,
   toc: RiListCheck2,
   header: RiLayoutTop2Line,
-  pagenumber: RiPhoneFindFill,
-  footnote: RiFootprintLine,
-  citation: RiDoubleQuotesL,
+  reset: RiRefreshLine,
 }
 
 const tabTitles = {
@@ -76,9 +81,7 @@ const tabTitles = {
   chart: '图表设置',
   toc: '目录设置',
   header: '页眉页脚设置',
-  pagenumber: '页码设置',
-  footnote: '脚注设置',
-  citation: '引用设置',
+  reset: '初始化',
 }
 
 const tabSubtitles = {
@@ -88,9 +91,7 @@ const tabSubtitles = {
   chart: '配置图表样式与位置',
   toc: '设置目录层级与格式',
   header: '配置页眉页脚内容、位置与样式',
-  pagenumber: '配置页码位置、格式与起始页码',
-  footnote: '配置脚注编号格式与位置',
-  citation: '配置引用格式与样式',
+  reset: '重置排版参数',
 }
 
 watch(currentPage, (page) => {
@@ -158,11 +159,22 @@ const handleSave = () => {
 
 const handleOneClickModify = async () => {
   if (!await handleLargeFileWarning()) return
+  if (!currentFile.value) return
   isProcessing.value = true
   try {
     applyFormatting()
-    await new Promise(resolve => setTimeout(resolve, 1500)) // simulate processing
+    const blob = await formatDocument(currentFile.value, formatParams)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'formatted.docx'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
     router.push('/compare')
+  } catch (e) {
+    alert('排版失败：' + e.message)
   } finally {
     isProcessing.value = false
   }
@@ -177,10 +189,6 @@ const onTemplateSaved = ({ name, category }) => {
   showSaveModal.value = false
 }
 
-const updateCitationLabel = () => {
-  const labels = { numeric: '顺序编码制', 'author-year': '著者-出版年制' }
-  formatParams.citation.styleLabel = labels[formatParams.citation.style] || '顺序编码制'
-}
 
 const isDocx = computed(() => {
   const name = currentFile.value?.name?.toLowerCase() || ''
@@ -237,259 +245,48 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
                 <RiCheckLine size="16" color="white" />
                 <span>保存</span>
               </button>
-              <div class="flex items-center gap-2">
-                <RiSideBarLine size="15" class="text-brown" />
-                <span class="text-[12px] font-medium text-brown">预览</span>
-                <button
-                  @click="showPreviewModal = !showPreviewModal"
-                  class="w-[40px] h-[22px] rounded-full relative transition-colors"
-                  :class="showPreviewModal ? 'bg-cinnabar' : 'bg-tan-dark'"
-                >
-                  <div
-                    class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"
-                    :class="showPreviewModal ? 'right-0.5' : 'left-0.5'"
-                  ></div>
-                </button>
-              </div>
+              <button
+                class="flex items-center gap-2 px-6 py-3 bg-[#C23B22] text-white rounded-xl text-[14px] font-semibold hover:bg-[#A83028] transition-colors"
+                @click="showPreviewModal = !showPreviewModal"
+              >
+                <RiEyeLine size="16" color="white" />
+                <span>{{ showPreviewModal ? '关闭预览' : '预览' }}</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Setting panels -->
-        <div v-if="activeTab === 'page'" class="bg-cream px-6 py-4 border-b border-tan-border">
-          <div class="flex items-center gap-8">
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown whitespace-nowrap">纸张大小</span>
-              <select
-                v-model="formatParams.page.paperSize"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[180px]"
-              >
-                <option>A4 (210mm × 297mm)</option>
-                <option>A3 (297mm × 420mm)</option>
-                <option>Letter (216mm × 279mm)</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">页边距</span>
-              <input type="number" v-model.number="formatParams.page.marginTop" placeholder="上" class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center" />
-              <input type="number" v-model.number="formatParams.page.marginBottom" placeholder="下" class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center" />
-              <input type="number" v-model.number="formatParams.page.marginLeft" placeholder="左" class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center" />
-              <input type="number" v-model.number="formatParams.page.marginRight" placeholder="右" class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center" />
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">方向</span>
-              <div class="flex bg-cream-darker rounded-lg p-0.5">
-                <button
-                  class="px-4 py-1.5 rounded-md text-[13px] transition-all"
-                  :class="formatParams.page.orientation === 'portrait' ? 'bg-cinnabar text-white font-semibold' : 'text-brown font-medium'"
-                  @click="formatParams.page.orientation = 'portrait'"
-                >纵向</button>
-                <button
-                  class="px-4 py-1.5 rounded-md text-[13px] transition-all"
-                  :class="formatParams.page.orientation === 'landscape' ? 'bg-cinnabar text-white font-semibold' : 'text-brown font-medium'"
-                  @click="formatParams.page.orientation = 'landscape'"
-                >横向</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div v-else-if="activeTab === 'body'" class="bg-cream px-6 py-4 border-b border-tan-border">
-          <div class="flex items-center gap-8">
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown whitespace-nowrap">字体</span>
-              <select
-                v-model="formatParams.body.font"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[120px]"
-              >
-                <option>宋体</option>
-                <option>仿宋</option>
-                <option>黑体</option>
-                <option>楷体</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">字号</span>
-              <select
-                v-model="formatParams.body.fontSize"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[120px]"
-              >
-                <option>三号 (16pt)</option>
-                <option>四号 (14pt)</option>
-                <option>小四 (12pt)</option>
-                <option>五号 (10.5pt)</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">行距</span>
-              <select
-                v-model="formatParams.body.lineSpacing"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[130px]"
-              >
-                <option>固定值 28磅</option>
-                <option>1.5倍行距</option>
-                <option>双倍行距</option>
-                <option>单倍行距</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">缩进</span>
-              <input type="number" v-model.number="formatParams.body.indentFirst" placeholder="首行" class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center" />
-              <input type="number" v-model.number="formatParams.body.indentLeft" placeholder="左" class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center" />
-            </div>
-          </div>
-        </div>
-
-        <div v-else-if="activeTab === 'heading'" class="bg-cream px-6 py-4 border-b border-tan-border">
-          <div class="flex items-center gap-8">
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown whitespace-nowrap">一级标题</span>
-              <select
-                v-model="formatParams.heading.level1.font"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[100px]"
-              >
-                <option>黑体</option>
-                <option>宋体</option>
-                <option>仿宋</option>
-                <option>楷体</option>
-              </select>
-              <input
-                type="text"
-                v-model="formatParams.heading.level1.fontSize"
-                placeholder="三号"
-                class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center"
-              />
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">二级标题</span>
-              <select
-                v-model="formatParams.heading.level2.font"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[100px]"
-              >
-                <option>楷体</option>
-                <option>宋体</option>
-                <option>仿宋</option>
-                <option>黑体</option>
-              </select>
-              <input
-                type="text"
-                v-model="formatParams.heading.level2.fontSize"
-                placeholder="四号"
-                class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center"
-              />
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-[13px] font-medium text-brown">三级标题</span>
-              <select
-                v-model="formatParams.heading.level3.font"
-                class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[100px]"
-              >
-                <option>仿宋</option>
-                <option>宋体</option>
-                <option>黑体</option>
-                <option>楷体</option>
-              </select>
-              <input
-                type="text"
-                v-model="formatParams.heading.level3.fontSize"
-                placeholder="小四"
-                class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div v-else-if="activeTab === 'citation'" class="bg-cream px-6 py-4 border-b border-tan-border">
-          <div class="flex items-start gap-8">
-            <div class="flex flex-col gap-4">
-              <div class="flex items-center gap-3">
-                <span class="text-[13px] font-medium text-brown whitespace-nowrap w-[80px]">引用样式</span>
-                <select
-                  v-model="formatParams.citation.style"
-                  @change="updateCitationLabel"
-                  class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[160px]"
-                >
-                  <option value="numeric">顺序编码制</option>
-                  <option value="author-year">著者-出版年制</option>
-                </select>
-                <span class="text-[11px] text-brown-muted">GB/T 7714-2015</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-[13px] font-medium text-brown whitespace-nowrap w-[80px]">参考文献字体</span>
-                <select
-                  v-model="formatParams.citation.referenceFont"
-                  class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[120px]"
-                >
-                  <option>宋体</option>
-                  <option>仿宋</option>
-                  <option>黑体</option>
-                  <option>楷体</option>
-                  <option>Times New Roman</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-[13px] font-medium text-brown whitespace-nowrap w-[80px]">参考文献字号</span>
-                <select
-                  v-model="formatParams.citation.referenceFontSize"
-                  class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[140px]"
-                >
-                  <option>五号 (10.5pt)</option>
-                  <option>小五 (9pt)</option>
-                  <option>小四 (12pt)</option>
-                  <option>四号 (14pt)</option>
-                </select>
-              </div>
-            </div>
-            <div class="flex flex-col gap-4">
-              <div class="flex items-center gap-3">
-                <span class="text-[13px] font-medium text-brown whitespace-nowrap w-[100px]">参考文献行距</span>
-                <select
-                  v-model="formatParams.citation.referenceLineSpacing"
-                  class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[130px]"
-                >
-                  <option>固定值 20磅</option>
-                  <option>固定值 22磅</option>
-                  <option>固定值 24磅</option>
-                  <option>1.5倍行距</option>
-                  <option>单倍行距</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-[13px] font-medium text-brown whitespace-nowrap w-[100px]">缩进方式</span>
-                <select
-                  v-model="formatParams.citation.referenceIndent"
-                  class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[120px]"
-                >
-                  <option>悬挂缩进</option>
-                  <option>首行缩进</option>
-                  <option>无缩进</option>
-                </select>
-                <input
-                  type="number"
-                  v-model.number="formatParams.citation.referenceIndentChars"
-                  placeholder="字符"
-                  class="w-16 px-2 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown text-center"
-                />
-                <span class="text-[12px] text-brown-muted">字符</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-[13px] font-medium text-brown whitespace-nowrap w-[100px]">参考文献语言</span>
-                <select
-                  v-model="formatParams.citation.referenceLocale"
-                  class="px-3 py-2 bg-cream border border-tan-border rounded-lg text-[13px] text-brown min-w-[120px]"
-                >
-                  <option value="zh-CN">中文</option>
-                  <option value="en-US">英文</option>
-                  <option value="mixed">中英文混排</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="bg-cream px-6 py-4 border-b border-tan-border">
+        <PagePanel
+          v-if="activeTab === 'page'"
+          :params="formatParams.page"
+          :apply="{ apply_page: formatParams.apply_page }"
+        />
+        <BodyPanel
+          v-else-if="activeTab === 'body'"
+          :params="formatParams.body"
+        />
+        <HeadingPanel
+          v-else-if="activeTab === 'heading'"
+          :params="formatParams.headings"
+          :patterns="formatParams.patterns"
+        />
+        <ChartPanel
+          v-else-if="activeTab === 'chart'"
+          :fig-caption="formatParams.fig_caption"
+          :tbl-caption="formatParams.tbl_caption"
+          :table="formatParams.table"
+        />
+        <TOCPanel
+          v-else-if="activeTab === 'toc'"
+          :params="formatParams.toc"
+        />
+        <HeaderFooterPanel
+          v-else-if="activeTab === 'header'"
+          :params="formatParams.header_footer"
+        />
+        <div v-else-if="activeTab === 'reset'" class="bg-cream px-6 py-4 border-b border-tan-border">
           <div class="flex items-center justify-center py-6 text-brown-muted">
-            <p class="text-[13px]">此功能正在开发中</p>
+            <p class="text-[13px]">点击"重置"按钮恢复初始排版参数</p>
           </div>
         </div>
 
@@ -527,55 +324,45 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             class="flex-1 overflow-auto"
             :style="{ zoom: `${zoomLevel}%` }"
           >
-            <!-- Show preview only when toggle is on -->
-            <template v-if="showPreviewModal">
-              <!-- DocxEditor: edit mode for .docx files -->
-              <div
-                v-if="showEditor && documentBuffer"
-                class="docx-editor-container"
-              >
-                <DocxEditor
-                  ref="editorRef"
-                  :document-buffer="documentBuffer"
-                />
-              </div>
+            <!-- DocxEditor: edit mode for .docx files -->
+            <div
+              v-if="showEditor && documentBuffer"
+              class="docx-editor-container"
+            >
+              <DocxEditor
+                ref="editorRef"
+                :document-buffer="documentBuffer"
+              />
+            </div>
 
-              <!-- VueOfficeDocx: preview mode for .docx files -->
-              <div
-                v-else-if="isDocx && vueOfficeBuffer"
-                class="max-w-[864px] mx-auto bg-white shadow"
-              >
-                <VueOfficeDocx :src="vueOfficeBuffer" style="width: 100%;" />
-              </div>
+            <!-- VueOfficeDocx: preview mode for .docx files -->
+            <div
+              v-else-if="isDocx && vueOfficeBuffer"
+              class="max-w-[864px] mx-auto bg-white shadow"
+            >
+              <VueOfficeDocx :src="vueOfficeBuffer" style="width: 100%;" />
+            </div>
 
-              <!-- VueOfficePdf: preview mode for .pdf files -->
-              <div
-                v-else-if="isPdf && vueOfficeBuffer"
-                class="max-w-[864px] mx-auto bg-white shadow"
-              >
-                <VueOfficePdf :src="vueOfficeBuffer" style="width: 100%;" />
-              </div>
+            <!-- VueOfficePdf: preview mode for .pdf files -->
+            <div
+              v-else-if="isPdf && vueOfficeBuffer"
+              class="max-w-[864px] mx-auto bg-white shadow"
+            >
+              <VueOfficePdf :src="vueOfficeBuffer" style="width: 100%;" />
+            </div>
 
-              <!-- VueOfficeExcel: preview mode for .xlsx files -->
-              <div
-                v-else-if="isXlsx && vueOfficeBuffer"
-                class="max-w-[864px] mx-auto bg-white shadow"
-              >
-                <VueOfficeExcel :src="vueOfficeBuffer" style="width: 100%;" />
-              </div>
+            <!-- VueOfficeExcel: preview mode for .xlsx files -->
+            <div
+              v-else-if="isXlsx && vueOfficeBuffer"
+              class="max-w-[864px] mx-auto bg-white shadow"
+            >
+              <VueOfficeExcel :src="vueOfficeBuffer" style="width: 100%;" />
+            </div>
 
-              <!-- Empty state -->
-              <div v-else class="flex items-center justify-center h-full text-brown-muted">
-                <p class="text-[14px]">暂无预览内容</p>
-              </div>
-            </template>
-
-            <!-- Hidden state: nothing shown by default -->
-            <template v-else>
-              <div class="flex items-center justify-center h-full text-brown-muted">
-                <p class="text-[14px]">点击右上角"预览"开关查看文档</p>
-              </div>
-            </template>
+            <!-- Empty state -->
+            <div v-else class="flex items-center justify-center h-full text-brown-muted">
+              <p class="text-[14px]">暂无预览内容</p>
+            </div>
           </div>
         </div>
       </div>
@@ -611,10 +398,67 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
               </svg>
             </button>
           </div>
-          
+
           <!-- Toolbar inside modal -->
           <div class="bg-cream border-b border-tan-border px-6 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3
+            <div class="flex items-center gap-3">
+              <div class="w-[2px] h-5 bg-tan-border mx-1"></div>
+              <button class="w-7 h-7 flex items-center justify-center bg-cream-darker rounded" @click="zoomOut">
+                <RiZoomOutLine size="14" class="text-brown" />
+              </button>
+              <span class="text-[13px] font-medium text-brown-dark min-w-[44px] text-center">{{ zoomLevel }}%</span>
+              <button class="w-7 h-7 flex items-center justify-center bg-cream-darker rounded" @click="zoomIn">
+                <RiZoomInLine size="14" class="text-brown" />
+              </button>
+
+              <!-- Edit mode toggle (only for .docx files) -->
+              <button
+                v-if="isDocx"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg text-[12px] font-medium transition-colors"
+                :class="isEditMode ? 'text-cinnabar bg-cinnabar/10' : 'text-brown'"
+                @click="toggleEditMode"
+              >
+                <RiEdit2Line v-if="isEditMode" size="14" />
+                <RiEyeLine v-else size="14" />
+                {{ isEditMode ? '编辑模式' : '预览模式' }}
+              </button>
+
+              <!-- File name badge -->
+              <div class="flex items-center gap-2 px-3 py-2 bg-cream-dark rounded-lg">
+                <RiFileTextLine size="18" color="#C43A31" />
+                <span class="truncate max-w-[143px] text-sm font-medium text-brown">{{ currentFile?.name || '未命名文档' }}</span>
+              </div>
+
+              <!-- Page navigation -->
+              <div class="w-[2px] h-5 bg-tan-border mx-1"></div>
+              <RiPagesLine size="16" class="text-brown-muted shrink-0" />
+              <div class="flex items-center gap-1">
+                <span class="text-[13px] font-medium text-brown-dark">第</span>
+                <input
+                  type="number"
+                  v-model.number="currentPage"
+                  class="w-10 px-1 py-0.5 bg-cream-dark border border-tan-border rounded text-[13px] text-brown-dark text-center font-medium"
+                  min="1"
+                />
+                <span class="text-[13px] font-medium text-brown-dark">页 / 共 {{ totalPages }} 页</span>
+              </div>
+              <RiFileEditLine size="16" class="text-brown-muted shrink-0" />
+            </div>
+          </div>
+
+          <!-- Modal body -->
+          <div class="flex-1 overflow-auto p-6 bg-parchment">
+            <div v-if="vueOfficeBuffer" class="max-w-[800px] mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+              <VueOfficeDocx v-if="isDocx" :src="vueOfficeBuffer" style="width: 100%;" />
+              <VueOfficePdf v-else-if="isPdf" :src="vueOfficeBuffer" style="width: 100%;" />
+              <VueOfficeExcel v-else-if="isXlsx" :src="vueOfficeBuffer" style="width: 100%;" />
+            </div>
+            <div v-else class="flex items-center justify-center h-full text-brown-muted">
+              <p class="text-[14px]">暂无预览内容</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </template>
