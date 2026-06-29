@@ -276,7 +276,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           />
         </div>
 
-        <div class="bg-cream border-t border-tan-border flex items-center justify-end px-8 py-5 shrink-0">
+        <div class="bg-cream border-t border-tan-border flex items-center justify-end px-8 py-5 shrink-0" style="height: 61.6px;">
           <button
             @click="handleSaveTemplate"
             class="flex items-center gap-2 px-6 py-3 bg-cream-dark border border-gold-dark/50 rounded-xl text-[14px] font-semibold text-brown transition-all hover:bg-cream-darker"
