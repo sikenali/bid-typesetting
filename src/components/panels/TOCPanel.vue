@@ -283,7 +283,7 @@ function leaderPreview(value) {
                   <span class="text-[12px] text-brown shrink-0 block mb-[6px]">制表样式</span>
                   <div class="flex flex-nowrap gap-[4px] justify-between">
                     <label v-for="tl in tabLeaders" :key="tl.value"
-                      class="flex items-center gap-1 px-[8px] py-[4px] rounded-lg border cursor-pointer transition-all flex-1"
+                      class="flex items-center gap-1 px-[8px] py-[4px] min-h-[30px] rounded-lg border cursor-pointer transition-all flex-1"
                       :class="params.level_styles[activeLevel].tab_leader === tl.value ? 'border-cinnabar bg-cinnabar/5 ring-1 ring-cinnabar/25' : 'border-tan-border bg-white hover:border-brown-muted hover:ring-1 hover:ring-brown-muted/15'"
                       @click="params.level_styles[activeLevel].tab_leader = tl.value">
                       <div class="w-[14px] h-[14px] rounded-full flex items-center justify-center border shrink-0 transition-colors"
