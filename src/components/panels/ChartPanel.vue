@@ -72,71 +72,68 @@ const tocTitleParams = ref({
 
 <template>
   <div v-if="activeSubTab === 'fig'" class="bg-cream border-b border-tan-border h-full px-5 py-3">
-    <!-- 左右布局: 图表标题 | 表格单元格 -->
     <div class="flex gap-5 h-full overflow-hidden">
-        <!-- 左侧: 图表标题 -->
-        <div class="flex-1 min-w-0 bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
-          <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
-          <div class="flex items-center gap-[8px]">
-            <div class="w-[5px] h-[18px] rounded-[2px] bg-cinnabar shrink-0"></div>
-            <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">图表标题</span>
-          </div>
+      <div class="flex-1 min-w-0 bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
+        <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
+        <div class="flex items-center gap-[8px]">
+          <div class="w-[5px] h-[18px] rounded-[2px] bg-cinnabar shrink-0"></div>
+          <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">图表标题</span>
+        </div>
 
-          <!-- 层级选择器 -->
-          <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
-            <div class="absolute top-[3px] bottom-[3px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
-              :style="indicatorStyle">
-            </div>
-            <button
-              v-for="(label, idx) in levelLabels" :key="idx"
-              @click="selectLevel(idx)"
-              class="relative z-10 px-[10px] py-[5px] text-[12px] rounded-lg transition-colors duration-200 cursor-pointer"
-              :class="activeLevel === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
-            >{{ label }}</button>
+        <!-- 层级选择器 -->
+        <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
+          <div class="absolute top-[3px] bottom-[3px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
+            :style="indicatorStyle">
           </div>
+          <button
+            v-for="(label, idx) in levelLabels" :key="idx"
+            @click="selectLevel(idx)"
+            class="relative z-10 px-[10px] py-[5px] text-[12px] rounded-lg transition-colors duration-200 cursor-pointer"
+            :class="activeLevel === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
+          >{{ label }}</button>
+        </div>
 
-          <Transition name="fade-slide" mode="out-in">
-            <div :key="activeLevel" class="flex flex-col gap-3">
-              <!-- 字体设置 -->
-              <div>
-                <span class="text-[12px] font-semibold text-brown-muted block mb-[6px]">字体</span>
-                <div class="w-full flex flex-col gap-[6px]">
-                  <div class="flex items-center justify-between gap-[6px]">
-                    <div class="flex items-center gap-1">
-                      <span class="text-[12px] text-brown shrink-0">中文</span>
-                      <DropdownSelect v-model="currentParams().cn_font" :options="cnFonts" width-class="auto" />
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span class="text-[12px] text-brown shrink-0">英文</span>
-                      <DropdownSelect v-model="currentParams().en_font" :options="enFonts" width-class="auto" />
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span class="text-[12px] text-brown shrink-0">字号</span>
-                      <DropdownSelect v-model="currentParams().size_cn" :options="sizeCN" width-class="auto" />
-                    </div>
+        <Transition name="fade-slide" mode="out-in">
+          <div :key="activeLevel" class="flex flex-col gap-3">
+            <!-- 字体设置 -->
+            <div>
+              <span class="text-[12px] font-semibold text-brown-muted block mb-[6px]">字体</span>
+              <div class="w-full flex flex-col gap-[6px]">
+                <div class="flex items-center gap-[6px]">
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">中文</span>
+                    <DropdownSelect v-model="currentParams().cn_font" :options="cnFonts" width-class="auto" />
                   </div>
-                  <div class="flex items-center gap-[6px]">
-                    <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().bold = !currentParams().bold">
-                      <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                        :class="currentParams().bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                        <RiCheckLine v-if="currentParams().bold" size="10" class="text-white" />
-                      </div>
-                      <span class="text-[12px] text-brown shrink-0">粗体</span>
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">英文</span>
+                    <DropdownSelect v-model="currentParams().en_font" :options="enFonts" width-class="auto" />
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">字号</span>
+                    <DropdownSelect v-model="currentParams().size_cn" :options="sizeCN" width-class="auto" />
+                  </div>
+                </div>
+                <div class="flex items-center gap-[6px]">
+                  <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().bold = !currentParams().bold">
+                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                      :class="currentParams().bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                      <RiCheckLine v-if="currentParams().bold" size="10" class="text-white" />
                     </div>
-                    <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().italic = !currentParams().italic">
-                      <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                        :class="currentParams().italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                        <RiCheckLine v-if="currentParams().italic" size="10" class="text-white" />
-                      </div>
-                      <span class="text-[12px] text-brown shrink-0">斜体</span>
+                    <span class="text-[12px] text-brown shrink-0">粗体</span>
+                  </div>
+                  <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().italic = !currentParams().italic">
+                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                      :class="currentParams().italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                      <RiCheckLine v-if="currentParams().italic" size="10" class="text-white" />
                     </div>
-                    <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().underline = !currentParams().underline">
-                      <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                        :class="currentParams().underline ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                        <RiCheckLine v-if="currentParams().underline" size="10" class="text-white" />
-                      </div>
-                      <span class="text-[12px] text-brown shrink-0">下划线</span>
+                    <span class="text-[12px] text-brown shrink-0">斜体</span>
+                  </div>
+                  <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().underline = !currentParams().underline">
+                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                      :class="currentParams().underline ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                      <RiCheckLine v-if="currentParams().underline" size="10" class="text-white" />
                     </div>
+                    <span class="text-[12px] text-brown shrink-0">下划线</span>
                   </div>
                 </div>
               </div>
