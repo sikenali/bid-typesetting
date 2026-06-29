@@ -17,7 +17,7 @@ const lineSpacingModes = [
   { value: 'SINGLE', label: '单倍行距' },
   { value: 'MULTIPLE', label: '多倍行距' },
 ]
-const indentUnits = ['字符', '厘米', '毫米', '英寸'].map(v => ({ value: v, label: v }))
+const indentUnits = ['行', '厘米', '字符', '磅'].map(v => ({ value: v === '磅' ? 'pt' : v === '行' ? 'line' : v === '字符' ? 'char' : v === '厘米' ? 'cm' : v, label: v }))
 </script>
 
 <template>
@@ -42,26 +42,26 @@ const indentUnits = ['字符', '厘米', '毫米', '英寸'].map(v => ({ value: 
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">字号</span>
             <DropdownSelect v-model="figCaption.size_cn" :options="sizeCN" width-class="auto" />
           </div>
-          <div class="flex items-center gap-[4px] cursor-pointer" @click="figCaption.bold = !figCaption.bold">
-            <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+          <div class="flex items-center gap-[3px] cursor-pointer" @click="figCaption.bold = !figCaption.bold">
+            <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
               :class="figCaption.bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-              <RiCheckLine v-if="figCaption.bold" size="12" class="text-white" />
+              <RiCheckLine v-if="figCaption.bold" size="10" class="text-white" />
             </div>
-            <span class="text-[13px] text-brown">粗体</span>
+            <span class="text-[12px] text-brown shrink-0">粗体</span>
           </div>
-          <div class="flex items-center gap-[4px] cursor-pointer" @click="figCaption.italic = !figCaption.italic">
-            <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+          <div class="flex items-center gap-[3px] cursor-pointer" @click="figCaption.italic = !figCaption.italic">
+            <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
               :class="figCaption.italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-              <RiCheckLine v-if="figCaption.italic" size="12" class="text-white" />
+              <RiCheckLine v-if="figCaption.italic" size="10" class="text-white" />
             </div>
-            <span class="text-[13px] text-brown">斜体</span>
+            <span class="text-[12px] text-brown shrink-0">斜体</span>
           </div>
-          <div class="flex items-center gap-[4px] cursor-pointer" @click="figCaption.underline = !figCaption.underline">
-            <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+          <div class="flex items-center gap-[3px] cursor-pointer" @click="figCaption.underline = !figCaption.underline">
+            <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
               :class="figCaption.underline ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-              <RiCheckLine v-if="figCaption.underline" size="12" class="text-white" />
+              <RiCheckLine v-if="figCaption.underline" size="10" class="text-white" />
             </div>
-            <span class="text-[13px] text-brown">下划线</span>
+            <span class="text-[12px] text-brown shrink-0">下划线</span>
           </div>
         </div>
       </div>
@@ -79,19 +79,19 @@ const indentUnits = ['字符', '厘米', '毫米', '英寸'].map(v => ({ value: 
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">行距值</span>
-            <input type="number" step="0.5" v-model.number="figCaption.line_spacing_value"
+            <input type="number" min="0" step="0.5" v-model.number="figCaption.line_spacing_value"
               class="w-[70px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown">磅</span>
           </div>
           <div class="w-[2px] h-[24px] bg-tan-border shrink-0"></div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">段前</span>
-            <input type="number" step="0.5" v-model.number="figCaption.space_before_value"
+            <input type="number" min="0" step="0.5" v-model.number="figCaption.space_before_value"
               class="w-[65px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">段后</span>
-            <input type="number" step="0.5" v-model.number="figCaption.space_after_value"
+            <input type="number" min="0" step="0.5" v-model.number="figCaption.space_after_value"
               class="w-[65px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
           </div>
         </div>
@@ -106,20 +106,20 @@ const indentUnits = ['字符', '厘米', '毫米', '英寸'].map(v => ({ value: 
         <div class="flex items-center gap-3 flex-wrap">
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">左缩进</span>
-            <input type="number" step="0.1" v-model.number="figCaption.left_indent_value"
+            <input type="number" min="0" step="0.1" v-model.number="figCaption.left_indent_value"
               class="w-[65px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <DropdownSelect v-model="figCaption.left_indent_unit" :options="indentUnits" width-class="w-[70px]" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">右缩进</span>
-            <input type="number" step="0.1" v-model.number="figCaption.right_indent_value"
+            <input type="number" min="0" step="0.1" v-model.number="figCaption.right_indent_value"
               class="w-[65px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <DropdownSelect v-model="figCaption.right_indent_unit" :options="indentUnits" width-class="w-[70px]" />
           </div>
           <div class="w-[2px] h-[24px] bg-tan-border shrink-0"></div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">首行缩进</span>
-            <input type="number" step="0.1" v-model.number="figCaption.first_line_indent_chars"
+            <input type="number" min="0" step="0.1" v-model.number="figCaption.first_line_indent_chars"
               class="w-[65px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown">字符</span>
           </div>
@@ -145,12 +145,12 @@ const indentUnits = ['字符', '厘米', '毫米', '英寸'].map(v => ({ value: 
             </button>
           </div>
           <div class="w-[2px] h-[24px] bg-tan-border shrink-0"></div>
-          <div class="flex items-center gap-[4px] cursor-pointer" @click="figCaption.add_space = !figCaption.add_space">
-            <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
+          <div class="flex items-center gap-[3px] cursor-pointer" @click="figCaption.add_space = !figCaption.add_space">
+            <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
               :class="figCaption.add_space ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-              <RiCheckLine v-if="figCaption.add_space" size="12" class="text-white" />
+              <RiCheckLine v-if="figCaption.add_space" size="10" class="text-white" />
             </div>
-            <span class="text-[13px] text-brown whitespace-nowrap">中英文间加空格</span>
+            <span class="text-[12px] text-brown shrink-0">中英文间加空格</span>
           </div>
           <div v-if="figCaption.add_space" class="flex items-center gap-2">
             <span class="text-[13px] text-brown">空格数</span>
