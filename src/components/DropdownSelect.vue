@@ -8,6 +8,7 @@ const props = defineProps({
   placeholder: { type: String, default: '' },
   widthClass: { type: String, default: 'w-[100px]' },
   compact: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -94,10 +95,11 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   <div ref="dropdownRef" class="relative" :class="isAutoWidth ? '' : widthClass" :style="resolvedWidth ? { minWidth: resolvedWidth, width: 'auto' } : undefined" @keydown="onKeydown">
     <button
       type="button"
-      @click="toggle"
+      @click="!disabled && toggle()"
       :aria-expanded="isOpen"
+      :disabled="disabled"
       class="w-full bg-white border border-tan-border rounded-lg px-[12px] text-[13px] text-left outline-none transition-all duration-150 flex items-center gap-1 cursor-pointer"
-      :class="[isOpen ? 'border-cinnabar ring-1 ring-cinnabar/25' : 'hover:border-tan-dark', compact ? 'py-[4px]' : 'py-[8px]']"
+      :class="[isOpen ? 'border-cinnabar ring-1 ring-cinnabar/25' : 'hover:border-tan-dark', compact ? 'py-[4px]' : 'py-[8px]', disabled ? 'opacity-60 cursor-not-allowed' : '']"
     >
       <span class="flex-1 truncate" :class="modelValue ? 'text-brown' : 'text-brown-muted'">{{ selectedLabel }}</span>
       <RiArrowDownSLine

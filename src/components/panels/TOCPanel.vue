@@ -126,23 +126,23 @@ function leaderPreview(value) {
         <div class="flex-1 overflow-y-auto flex flex-col gap-3">
           <div class="flex items-center gap-1">
             <span class="text-[12px] text-brown shrink-0">标题文字</span>
-            <input type="text" v-model="params.title_text"
-              class="flex-1 max-w-[240px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+            <input type="text" v-model="params.title_text" :disabled="!params.enable"
+              class="flex-1 max-w-[240px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors disabled:opacity-60 disabled:cursor-not-allowed" />
           </div>
           <div :class="params.enable ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-3">
             <div class="w-full h-[1px] bg-tan-border"></div>
             <div class="flex flex-wrap items-center gap-[6px]">
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">中文字体</span>
-                <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="auto" />
+                <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="auto" :disabled="!params.enable" />
               </div>
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">英文字体</span>
-                <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="auto" />
+                <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="auto" :disabled="!params.enable" />
               </div>
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">字号</span>
-                <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="auto" />
+                <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="auto" :disabled="!params.enable" />
               </div>
             </div>
           </div>

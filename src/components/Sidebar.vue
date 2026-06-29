@@ -13,16 +13,15 @@ import {
 
 const emit = defineEmits(['tab-change', 'cancel', 'apply', 'reset'])
 const activeTab = ref('page')
-const props = defineProps({
-})
 
 const tabs = [
-  { id: 'page', label: '页面', sublabel: 'Page Layout', icon: RiPagesLine },
-  { id: 'heading', label: '标题', sublabel: 'Headings', icon: RiHeading },
-  { id: 'body', label: '正文', sublabel: 'Body Text', icon: RiTextSnippet },
-  { id: 'toc', label: '目录', sublabel: 'Table of Contents', icon: RiListCheck2 },
-  { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line },
-  { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line },
+  { id: 'page', label: '页面', sublabel: 'Page Layout', icon: RiPagesLine, activeBg: 'bg-cinnabar' },
+  { id: 'heading', label: '标题', sublabel: 'Headings', icon: RiHeading, activeBg: 'bg-cinnabar' },
+  { id: 'body', label: '正文', sublabel: 'Body Text', icon: RiTextSnippet, activeBg: 'bg-cinnabar' },
+  { id: 'toc', label: '目录', sublabel: 'Table of Contents', icon: RiListCheck2, activeBg: 'bg-cinnabar' },
+  { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line, activeBg: 'bg-cinnabar' },
+  { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line, activeBg: 'bg-cinnabar' },
+  { id: 'reset', label: '初始化', sublabel: 'Initialize', icon: RiRefreshLine, activeBg: 'bg-[#C8A45C]' },
 ]
 
 const selectTab = (tabId) => {
@@ -33,16 +32,15 @@ const selectTab = (tabId) => {
 
 const tabContainerRef = ref(null)
 const indicatorStyle = ref({ top: '0px', height: '0px' })
-const isInitialized = ref(false) // 首次加载完成后标记
+const isInitialized = ref(false)
 
 function positionIndicator() {
   const container = tabContainerRef.value
   if (!container) return
   const btns = container.querySelectorAll('button')
-  const targetId = activeTab.value === 'reset' ? 'reset' : activeTab.value
   let targetBtn = null
   for (const btn of btns) {
-    if (btn.dataset.tabId === targetId) {
+    if (btn.dataset.tabId === activeTab.value) {
       targetBtn = btn
       break
     }
@@ -57,10 +55,8 @@ function positionIndicator() {
 }
 
 onMounted(() => {
-  // 延迟确保 DOM 完全渲染
   setTimeout(() => {
     positionIndicator()
-    // 首次加载完成后启用动效
     isInitialized.value = true
   }, 100)
 })
@@ -68,70 +64,37 @@ onMounted(() => {
 
 <template>
   <aside class="w-[280px] bg-cream border-r border-tan-border flex flex-col shrink-0">
-    <div class="px-6 pt-5 pb-4">
+    <div class="px-6 pt-5 pb-5">
       <h3 class="text-[16px] font-semibold text-brown-dark">文档排版标签</h3>
-      <div class="w-full h-[2px] bg-tan-border mt-1"></div>
+      <div class="w-full h-[1px] bg-tan-border mt-[2px]"></div>
       <p class="text-[12px] text-brown-muted mt-2">选择需要识别的排版元素</p>
     </div>
 
-    <div ref="tabContainerRef" class="flex-1 overflow-y-auto px-4 pb-3 space-y-2 relative bg-cream-darker rounded-xl mx-4 mt-5">
+    <div ref="tabContainerRef" class="flex-1 px-4 pb-4 relative">
       <div class="absolute left-4 right-4 rounded-xl shadow-sm pointer-events-none z-0"
-        :class="[activeTab === 'reset' ? 'bg-[#C8A45C]' : 'bg-cinnabar', isInitialized ? 'transition-all duration-300 ease-out' : '']"
+        :class="[tabs.find(t => t.id === activeTab)?.activeBg || 'bg-cinnabar', isInitialized ? 'transition-all duration-300 ease-out' : '']"
         :style="indicatorStyle">
       </div>
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        :data-tab-id="tab.id"
-        @click="selectTab(tab.id)"
-        class="relative z-10 w-full rounded-xl py-3 px-4 flex items-center gap-3 transition-colors text-left"
-        :class="activeTab === tab.id
-          ? 'text-white'
-          : 'text-brown-dark hover:text-brown-dark'"
-      >
-        <component :is="tab.icon" :size="20" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
-        <div class="flex-1">
-          <div
-            class="text-[15px]"
-            :class="activeTab === tab.id ? 'font-semibold' : 'font-medium'"
-          >
-            {{ tab.label }}
+      <div class="space-y-[2px] relative">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          :data-tab-id="tab.id"
+          @click="selectTab(tab.id)"
+          class="relative z-10 w-full rounded-xl py-3 px-4 flex items-center gap-3 transition-colors text-left"
+          :class="activeTab === tab.id ? 'text-white' : 'text-brown-dark hover:text-brown-dark'"
+        >
+          <component :is="tab.icon" :size="20" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
+          <div class="flex-1">
+            <div class="text-[15px] font-semibold" :class="activeTab === tab.id ? 'text-white' : 'text-brown-dark'">
+              {{ tab.label }}
+            </div>
+            <div class="text-[11px]" :class="activeTab === tab.id ? 'text-white/75' : 'text-brown-muted'">
+              {{ tab.sublabel }}
+            </div>
           </div>
-          <div
-            class="text-[11px]"
-            :class="activeTab === tab.id ? 'text-white/75' : 'text-brown-muted'"
-          >
-            {{ tab.sublabel }}
-          </div>
-        </div>
-      </button>
-
-      <div class="w-full h-[1px] bg-tan-border my-[14px]"></div>
-
-      <button
-        data-tab-id="reset"
-        @click="selectTab('reset')"
-        class="relative z-10 w-full rounded-xl py-3 px-4 flex items-center gap-3 transition-colors text-left"
-        :class="activeTab === 'reset'
-          ? 'text-white'
-          : 'text-brown-dark hover:text-brown-dark'"
-      >
-        <RiRefreshLine :size="20" :color="activeTab === 'reset' ? 'white' : '#5C4033'" />
-        <div class="flex-1">
-          <div
-            class="text-[15px]"
-            :class="activeTab === 'reset' ? 'font-semibold' : 'font-medium'"
-          >
-            初始化
-          </div>
-          <div
-            class="text-[11px]"
-            :class="activeTab === 'reset' ? 'text-white/75' : 'text-brown-muted'"
-          >
-            Initialize
-          </div>
-        </div>
-      </button>
+        </button>
+      </div>
     </div>
 
     <div class="px-4 py-3 flex items-center gap-2 border-t border-tan-border">
