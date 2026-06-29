@@ -23,7 +23,7 @@ import VueOfficeExcel from '@vue-office/excel'
 import '@vue-office/excel/lib/index.css'
 import {
   RiZoomOutLine, RiZoomInLine, RiPagesLine, RiTextSnippet, RiHeading,
-  RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiRefreshLine,
+  RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiBrushLine,
   RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
   RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line,
   RiSaveLine, RiSparklingLine
@@ -72,7 +72,7 @@ const tabIcons = {
   chart: RiBarChart2Line,
   toc: RiListCheck2,
   header: RiLayoutTop2Line,
-  reset: RiRefreshLine,
+  reset: RiBrushLine,
 }
 
 const tabTitles = {

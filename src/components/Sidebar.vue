@@ -7,7 +7,7 @@ import {
   RiBarChart2Line,
   RiListCheck2,
   RiLayoutTop2Line,
-  RiRefreshLine,
+  RiBrushLine,
   RiCheckLine,
 } from '@remixicon/vue'
 
@@ -21,7 +21,7 @@ const tabs = [
   { id: 'toc', label: '目录', sublabel: 'Table of Contents', icon: RiListCheck2, activeBg: 'bg-cinnabar' },
   { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line, activeBg: 'bg-cinnabar' },
   { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line, activeBg: 'bg-cinnabar' },
-  { id: 'reset', label: '初始化', sublabel: 'Initialize', icon: RiRefreshLine, activeBg: 'bg-[#C8A45C]' },
+  { id: 'reset', label: '初始化', sublabel: 'Initialize', icon: RiBrushLine, activeBg: 'bg-[#C8A45C]' },
 ]
 
 const selectTab = (tabId) => {
