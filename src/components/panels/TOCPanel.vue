@@ -128,19 +128,21 @@ function leaderPreview(value) {
           <input type="text" v-model="params.title_text"
             class="flex-1 max-w-[240px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
         </div>
-        <div class="w-full h-[1px] bg-tan-border"></div>
-        <div class="flex flex-wrap items-center gap-[6px]">
-          <div class="flex items-center gap-1">
-            <span class="text-[12px] text-brown shrink-0">中文字体</span>
-            <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="auto" />
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="text-[12px] text-brown shrink-0">英文字体</span>
-            <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="auto" />
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="text-[12px] text-brown shrink-0">字号</span>
-            <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="auto" />
+        <div :class="params.enable ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-3">
+          <div class="w-full h-[1px] bg-tan-border"></div>
+          <div class="flex flex-wrap items-center gap-[6px]">
+            <div class="flex items-center gap-1">
+              <span class="text-[12px] text-brown shrink-0">中文字体</span>
+              <DropdownSelect v-model="params.title_cn_font" :options="cnFonts" width-class="auto" />
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-[12px] text-brown shrink-0">英文字体</span>
+              <DropdownSelect v-model="params.title_en_font" :options="enFonts" width-class="auto" />
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-[12px] text-brown shrink-0">字号</span>
+              <DropdownSelect v-model="params.title_size_cn" :options="sizeCN" width-class="auto" />
+            </div>
           </div>
         </div>
       </div>
@@ -152,6 +154,13 @@ function leaderPreview(value) {
             <div class="w-[5px] h-[18px] rounded-[2px] bg-gold-dark shrink-0"></div>
             <span class="text-[14px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">目录层级样式</span>
             <div class="flex-1"></div>
+            <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="params.enable_level_styles = !params.enable_level_styles">
+              <span class="text-[12px] text-brown shrink-0">启用</span>
+              <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+                :class="params.enable_level_styles ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+                <RiCheckLine v-if="params.enable_level_styles" size="10" class="text-white" />
+              </div>
+            </div>
             <div class="flex items-center gap-1">
               <button @click="addLevel"
                 class="w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200 text-brown-muted hover:text-cinnabar hover:bg-cream-darker" title="新增层级">
@@ -163,7 +172,8 @@ function leaderPreview(value) {
               </button>
             </div>
           </div>
-          <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
+          <div :class="params.enable_level_styles ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-3">
+            <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
             <div class="absolute top-[3px] bottom-[3px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
               :style="indicatorStyle">
             </div>
@@ -285,7 +295,8 @@ function leaderPreview(value) {
               </div>
             </div>
           </Transition>
-        </div>
+          </div>
+      </div>
     </div>
   </div>
 </template>

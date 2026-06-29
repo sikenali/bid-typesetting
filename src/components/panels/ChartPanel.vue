@@ -242,9 +242,17 @@ const tocTitleParams = ref({
         <div class="flex items-center gap-[8px]">
           <div class="w-[5px] h-[18px] rounded-[2px] bg-cloud-blue shrink-0"></div>
           <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">表格单元格</span>
+          <div class="flex-1"></div>
+          <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="tocTitleParams.enable = !tocTitleParams.enable">
+            <span class="text-[12px] text-brown shrink-0">启用</span>
+            <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
+              :class="tocTitleParams.enable ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
+              <RiCheckLine v-if="tocTitleParams.enable" size="10" class="text-white" />
+            </div>
+          </div>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div :class="tocTitleParams.enable ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-3">
           <!-- 字体设置 -->
           <div>
             <span class="text-[12px] font-semibold text-brown-muted block mb-[6px]">字体</span>
@@ -333,6 +341,7 @@ const tocTitleParams = ref({
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
