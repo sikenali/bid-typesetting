@@ -195,10 +195,10 @@ const wrappers = [
       </div>
 
       <!-- 标题级别设置 -->
-      <div class="bg-cream-dark border border-tan-border rounded-2xl p-5 flex flex-col gap-3">
-        <div class="w-full h-[5px] bg-tan-dark rounded-sm shrink-0"></div>
-        <div class="flex items-center gap-[6px]">
-          <div class="w-[4px] h-[16px] rounded-[2px] bg-cinnabar shrink-0"></div>
+      <div class="bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-4">
+        <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
+        <div class="flex items-center gap-[8px]">
+          <div class="w-[5px] h-[18px] rounded-[2px] bg-cinnabar shrink-0"></div>
           <span class="text-[14px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">标题级别</span>
         </div>
         <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
