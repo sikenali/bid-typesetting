@@ -193,6 +193,7 @@ const formatParams = reactive({
   },
 
   table: {
+    enable: true,
     cn_font: '宋体',
     en_font: 'Times New Roman',
     size_cn: '五号',
