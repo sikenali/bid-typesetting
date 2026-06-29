@@ -195,14 +195,14 @@ function leaderPreview(value) {
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">中文</span>
                     <DropdownSelect v-model="params.level_styles[activeLevel].cn_font" :options="cnFonts" width-class="auto" />
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span class="text-[12px] text-brown shrink-0">英文</span>
-                      <DropdownSelect v-model="params.level_styles[activeLevel].en_font" :options="enFonts" width-class="auto" />
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span class="text-[12px] text-brown shrink-0">字号</span>
-                      <DropdownSelect v-model="params.level_styles[activeLevel].size_cn" :options="sizeCN" width-class="auto" />
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">英文</span>
+                    <DropdownSelect v-model="params.level_styles[activeLevel].en_font" :options="enFonts" width-class="auto" />
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-[12px] text-brown shrink-0">字号</span>
+                    <DropdownSelect v-model="params.level_styles[activeLevel].size_cn" :options="sizeCN" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">颜色</span>
