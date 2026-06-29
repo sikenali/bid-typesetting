@@ -94,6 +94,7 @@ onMounted(() => {
             </div>
           </div>
         </button>
+        <div class="w-full h-[1px] bg-tan-border my-[14px]"></div>
       </div>
     </div>
 
