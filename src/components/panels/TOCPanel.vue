@@ -155,6 +155,17 @@ function leaderPreview(value) {
         <div class="flex items-center gap-[8px]">
           <div class="w-[5px] h-[18px] rounded-[2px] bg-gold-dark shrink-0"></div>
           <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">目录层级样式</span>
+          <div class="flex-1"></div>
+          <div class="flex items-center gap-1">
+            <button @click="addLevel"
+              class="w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200 text-brown-muted hover:text-cinnabar hover:bg-cream-darker" title="新增层级">
+              <RiAddLine size="14" />
+            </button>
+            <button @click="removeLevel" :disabled="props.params.level_styles.length <= 1"
+              class="w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200 text-brown-muted hover:text-cinnabar hover:bg-cream-darker disabled:opacity-30 disabled:cursor-not-allowed" title="删除最末层级">
+              <RiSubtractLine size="14" />
+            </button>
+          </div>
         </div>
         <div class="flex-1 overflow-y-auto flex flex-col gap-3">
           <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
@@ -166,16 +177,6 @@ function leaderPreview(value) {
               class="relative z-10 px-[10px] py-[5px] text-[12px] rounded-lg transition-colors duration-200 cursor-pointer"
               :class="activeLevel === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
             >第{{ idx + 1 }}层</button>
-          </div>
-          <div class="flex items-center gap-1">
-            <button @click="addLevel"
-              class="w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200 text-brown-muted hover:text-cinnabar hover:bg-cream-darker" title="新增层级">
-              <RiAddLine size="14" />
-            </button>
-            <button @click="removeLevel" :disabled="props.params.level_styles.length <= 1"
-              class="w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200 text-brown-muted hover:text-cinnabar hover:bg-cream-darker disabled:opacity-30 disabled:cursor-not-allowed" title="删除最末层级">
-              <RiSubtractLine size="14" />
-            </button>
           </div>
         </div>
         <div :class="params.enable_level_styles ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-3">
