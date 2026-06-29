@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettings } from '../composables/useSettings'
 import { RiPaletteLine, RiBookmark3Line, RiEyeLine, RiCheckLine, RiFileTextLine, RiBuildingLine, RiBook2Line, RiBarChart2Line, RiFileEditLine, RiSettings3Line } from '@remixicon/vue'
@@ -8,6 +8,40 @@ const router = useRouter()
 const { theme: currentTheme, template: currentTemplate, annotationEnabled, highlightEnabled, setTheme, setTemplate, toggleAnnotation, toggleHighlight } = useSettings()
 
 const activeSection = ref('theme')
+const sectionContainerRef = ref(null)
+const indicatorStyle = ref({ top: '0px', height: '0px' })
+const sectionTabs = [
+  { id: 'theme', label: '主题设置', sublabel: 'Theme', icon: RiPaletteLine, activeBg: 'bg-cinnabar' },
+  { id: 'template', label: '标准模板', sublabel: 'Standards', icon: RiBookmark3Line, activeBg: 'bg-gold-dark' },
+  { id: 'display', label: '显示模式', sublabel: 'Display', icon: RiEyeLine, activeBg: 'bg-jade-light' },
+]
+
+function selectSection(id) {
+  activeSection.value = id
+  nextTick(positionIndicator)
+}
+
+function positionIndicator() {
+  const container = sectionContainerRef.value
+  if (!container) return
+  const btns = container.querySelectorAll('button')
+  let targetBtn = null
+  for (const btn of btns) {
+    if (btn.dataset.sectionId === activeSection.value) {
+      targetBtn = btn
+      break
+    }
+  }
+  if (!targetBtn) return
+  const containerRect = container.getBoundingClientRect()
+  const btnRect = targetBtn.getBoundingClientRect()
+  indicatorStyle.value = {
+    top: `${btnRect.top - containerRect.top}px`,
+    height: `${btnRect.height}px`,
+  }
+}
+
+onMounted(() => { nextTick(positionIndicator) })
 
 const themes = [
   { id: 'light', name: '浅色主题', desc: '经典羊皮纸底色', previewBg: '#FDF6E3' },
@@ -37,51 +71,26 @@ const displayOptions = [
         <p class="text-xs text-brown-muted mt-2">配置主题、模板与显示方式</p>
       </div>
 
-      <div class="flex-1 px-4 pb-4 space-y-2">
-        <button
-          @click="activeSection = 'theme'"
-          class="w-full rounded-xl p-3 transition-all text-left"
-          :class="activeSection === 'theme' ? 'bg-cinnabar text-white' : 'bg-cream-dark hover:bg-cream-darker'"
-        >
-          <div class="flex items-center gap-3">
-            <RiPaletteLine size="20" :color="activeSection === 'theme' ? 'white' : '#5C4033'" />
+      <div ref="sectionContainerRef" class="flex-1 px-4 pb-4 relative">
+        <div class="absolute left-4 right-4 rounded-xl shadow-sm transition-all duration-300 ease-out pointer-events-none z-0"
+          :class="sectionTabs.find(t => t.id === activeSection)?.activeBg || 'bg-cinnabar'"
+          :style="indicatorStyle">
+        </div>
+        <div class="space-y-[2px] relative">
+          <button
+            v-for="tab in sectionTabs" :key="tab.id"
+            :data-section-id="tab.id"
+            @click="selectSection(tab.id)"
+            class="relative z-10 w-full rounded-xl py-3 px-4 flex items-center gap-3 transition-colors text-left"
+            :class="activeSection === tab.id ? 'text-white' : 'text-brown-dark hover:text-brown-dark'"
+          >
+            <component :is="tab.icon" :size="20" :color="activeSection === tab.id ? 'white' : '#5C4033'" />
             <div class="flex-1">
-              <div class="text-[15px] font-semibold" :class="activeSection === 'theme' ? 'text-white' : 'text-brown-dark'">主题设置</div>
-              <div class="text-[11px]" :class="activeSection === 'theme' ? 'text-white/75' : 'text-brown-muted'">Theme</div>
+              <div class="text-[15px] font-semibold" :class="activeSection === tab.id ? 'text-white' : 'text-brown-dark'">{{ tab.label }}</div>
+              <div class="text-[11px]" :class="activeSection === tab.id ? 'text-white/75' : 'text-brown-muted'">{{ tab.sublabel }}</div>
             </div>
-            <div v-if="activeSection === 'theme'" class="w-[9px] h-[8px] bg-white rounded-[4px]"></div>
-          </div>
-        </button>
-
-        <button
-          @click="activeSection = 'template'"
-          class="w-full rounded-xl p-3 transition-all text-left"
-          :class="activeSection === 'template' ? 'bg-gold-dark text-white' : 'bg-cream-dark hover:bg-cream-darker'"
-        >
-          <div class="flex items-center gap-3">
-            <RiBookmark3Line size="20" :color="activeSection === 'template' ? 'white' : '#5C4033'" />
-            <div class="flex-1">
-              <div class="text-[15px] font-semibold" :class="activeSection === 'template' ? 'text-white' : 'text-brown-dark'">标准模板</div>
-              <div class="text-[11px]" :class="activeSection === 'template' ? 'text-white/75' : 'text-brown-muted'">Standards</div>
-            </div>
-            <div v-if="activeSection === 'template'" class="w-[9px] h-[8px] bg-white rounded-[4px]"></div>
-          </div>
-        </button>
-
-        <button
-          @click="activeSection = 'display'"
-          class="w-full rounded-xl p-3 transition-all text-left"
-          :class="activeSection === 'display' ? 'bg-jade-light text-white' : 'bg-cream-dark hover:bg-cream-darker'"
-        >
-          <div class="flex items-center gap-3">
-            <RiEyeLine size="20" :color="activeSection === 'display' ? 'white' : '#5C4033'" />
-            <div class="flex-1">
-              <div class="text-[15px] font-semibold" :class="activeSection === 'display' ? 'text-white' : 'text-brown-dark'">显示模式</div>
-              <div class="text-[11px]" :class="activeSection === 'display' ? 'text-white/75' : 'text-brown-muted'">Display</div>
-            </div>
-            <div v-if="activeSection === 'display'" class="w-[9px] h-[8px] bg-white rounded-[4px]"></div>
-          </div>
-        </button>
+          </button>
+        </div>
       </div>
 
     </div>
