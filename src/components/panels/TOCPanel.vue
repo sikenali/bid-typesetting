@@ -186,6 +186,7 @@ function leaderPreview(value) {
               :class="activeLevel === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
             >第{{ idx + 1 }}层</button>
           </div>
+        </div>
           <Transition name="fade-slide" mode="out-in">
             <div :key="activeLevel" class="flex flex-col gap-3">
               <!-- 字体 -->
