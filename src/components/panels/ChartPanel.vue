@@ -58,7 +58,7 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
 
 // 表格单元格参数
 const tocTitleParams = ref({
-  enable: true,
+  enable: false,
   cn_font: '宋体',
   en_font: 'Times New Roman',
   size_cn: '四号',
