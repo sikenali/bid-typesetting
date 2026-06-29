@@ -36,7 +36,6 @@ const { formatParams, applyFormatting, takeBeforeSnapshot } = useFormatState()
 const { saveTemplate } = useTemplates()
 
 const activeTab = ref('page')
-const activeChartTab = ref('fig')
 const showSaveModal = ref(false)
 const zoomLevel = ref(100)
 const currentPage = ref(1)
@@ -228,25 +227,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             <div class="text-[12px] text-brown-muted leading-tight">{{ tabSubtitles[activeTab] || '配置文档排版参数' }}</div>
           </div>
           <div class="flex-1"></div>
-          <div v-if="activeTab === 'chart'" class="bg-cream-darker rounded-lg p-1 flex items-center gap-1">
-            <button
-              @click="activeChartTab = 'fig'"
-              class="px-[14px] py-[8px] text-[13px] rounded-lg transition-all duration-200"
-              :class="activeChartTab === 'fig' ? 'bg-white text-cinnabar font-semibold shadow-sm' : 'text-brown hover:text-brown-dark'"
-            >图题</button>
-            <button
-              @click="activeChartTab = 'tbl'"
-              class="px-[14px] py-[8px] text-[13px] rounded-lg transition-all duration-200"
-              :class="activeChartTab === 'tbl' ? 'bg-white text-cinnabar font-semibold shadow-sm' : 'text-brown hover:text-brown-dark'"
-            >表题</button>
-            <button
-              @click="activeChartTab = 'table'"
-              class="px-[14px] py-[8px] text-[13px] rounded-lg transition-all duration-200"
-              :class="activeChartTab === 'table' ? 'bg-white text-cinnabar font-semibold shadow-sm' : 'text-brown hover:text-brown-dark'"
-            >表格</button>
-          </div>
           <button
-            v-else
             @click="showPreviewModal = !showPreviewModal"
             class="flex items-center gap-1 px-3 py-2 bg-cream-dark border border-tan-border rounded-lg text-[12px] font-medium text-brown-muted transition-colors hover:bg-cream-darker"
           >
@@ -274,7 +255,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             :fig-caption="formatParams.fig_caption"
             :tbl-caption="formatParams.tbl_caption"
             :table="formatParams.table"
-            :active-sub-tab="activeChartTab"
+            :active-sub-tab="'fig'"
           />
           <TOCPanel
             v-else-if="activeTab === 'toc'"
