@@ -74,7 +74,7 @@ onMounted(() => {
       <p class="text-[12px] text-brown-muted mt-2">选择需要识别的排版元素</p>
     </div>
 
-    <div ref="tabContainerRef" class="flex-1 overflow-y-auto px-4 pb-3 space-y-2 relative bg-cream-darker rounded-xl mx-4 mt-3">
+    <div ref="tabContainerRef" class="flex-1 overflow-y-auto px-4 pb-3 space-y-2 relative bg-cream-darker rounded-xl mx-4 mt-3 -translate-y-2">
       <div class="absolute left-4 right-4 rounded-xl shadow-sm pointer-events-none z-0"
         :class="[activeTab === 'reset' ? 'bg-[#C8A45C]' : 'bg-cinnabar', isInitialized ? 'transition-all duration-300 ease-out' : '']"
         :style="indicatorStyle">
@@ -105,6 +105,8 @@ onMounted(() => {
           </div>
         </div>
       </button>
+
+      <div class="w-full h-[1px] bg-tan-border my-[14px]"></div>
 
       <button
         data-tab-id="reset"
