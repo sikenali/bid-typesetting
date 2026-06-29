@@ -11,7 +11,7 @@ import {
   RiCheckLine,
 } from '@remixicon/vue'
 
-const emit = defineEmits(['tab-change', 'cancel', 'apply'])
+const emit = defineEmits(['tab-change', 'cancel', 'apply', 'reset'])
 const activeTab = ref('page')
 const props = defineProps({
 })
@@ -74,7 +74,7 @@ onMounted(() => {
       <p class="text-[12px] text-brown-muted mt-2">选择需要识别的排版元素</p>
     </div>
 
-    <div ref="tabContainerRef" class="flex-1 overflow-y-auto px-4 pb-3 space-y-2 relative bg-cream-darker rounded-xl mx-4">
+    <div ref="tabContainerRef" class="flex-1 overflow-y-auto px-4 pb-3 space-y-2 relative bg-cream-darker rounded-xl mx-4 mt-3">
       <div class="absolute left-4 right-4 rounded-xl shadow-sm pointer-events-none z-0"
         :class="[activeTab === 'reset' ? 'bg-[#C8A45C]' : 'bg-cinnabar', isInitialized ? 'transition-all duration-300 ease-out' : '']"
         :style="indicatorStyle">
@@ -106,8 +106,6 @@ onMounted(() => {
         </div>
       </button>
 
-      <div class="w-full h-[1px] bg-tan-border my-[14px]"></div>
-
       <button
         data-tab-id="reset"
         @click="selectTab('reset')"
@@ -134,19 +132,25 @@ onMounted(() => {
       </button>
     </div>
 
-    <div class="px-4 py-4 space-y-3 border-t border-tan-border">
+    <div class="px-4 py-3 flex items-center gap-2 border-t border-tan-border">
       <button
         @click="emit('cancel')"
-        class="w-full flex items-center justify-center py-3 bg-cream-dark border border-tan-border rounded-xl text-[14px] font-medium text-brown transition-colors hover:bg-cream-darker"
+        class="flex-1 flex items-center justify-center py-2 bg-cream-dark border border-tan-border rounded-lg text-[13px] font-medium text-brown transition-colors hover:bg-cream-darker"
       >
         取消
       </button>
       <button
-        @click="emit('apply')"
-        class="w-full flex items-center justify-center gap-2 py-3 bg-cinnabar text-white rounded-xl text-[14px] font-semibold transition-colors hover:bg-cinnabar-dark"
+        @click="emit('reset')"
+        class="flex-1 flex items-center justify-center py-2 bg-[#5B8C5A]/10 border border-[#5B8C5A] rounded-lg text-[13px] font-medium text-[#5B8C5A] transition-colors hover:bg-[#5B8C5A]/20"
       >
-        <RiCheckLine size="18" />
-        <span>应用设置</span>
+        重置
+      </button>
+      <button
+        @click="emit('apply')"
+        class="flex-1 flex items-center justify-center gap-1 py-2 bg-cinnabar text-white rounded-lg text-[13px] font-semibold transition-colors hover:bg-cinnabar-dark"
+      >
+        <RiCheckLine size="14" />
+        <span>保存</span>
       </button>
     </div>
   </aside>

@@ -214,6 +214,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
       <Sidebar
         @tab-change="activeTab = $event"
         @cancel="handleReset"
+        @reset="handleReset"
         @apply="handleSave"
       />
 
