@@ -155,14 +155,6 @@ function leaderPreview(value) {
         <div class="flex items-center gap-[8px]">
           <div class="w-[5px] h-[18px] rounded-[2px] bg-gold-dark shrink-0"></div>
           <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">目录层级样式</span>
-          <div class="flex-1"></div>
-          <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="params.enable_level_styles = !params.enable_level_styles">
-            <span class="text-[12px] text-brown shrink-0">启用</span>
-            <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-              :class="params.enable_level_styles ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-              <RiCheckLine v-if="params.enable_level_styles" size="10" class="text-white" />
-            </div>
-          </div>
         </div>
         <div class="flex-1 overflow-y-auto flex flex-col gap-3">
           <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
