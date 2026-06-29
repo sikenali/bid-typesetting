@@ -29,25 +29,25 @@ const paperSizes = [
           <!-- 第一排：边距 -->
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">上边距</span>
-            <input type="number" step="0.1" v-model.number="params.top_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.top_cm"
               class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">下边距</span>
-            <input type="number" step="0.1" v-model.number="params.bottom_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.bottom_cm"
               class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">左边距</span>
-            <input type="number" step="0.1" v-model.number="params.left_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.left_cm"
               class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">右边距</span>
-            <input type="number" step="0.1" v-model.number="params.right_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.right_cm"
               class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
@@ -61,13 +61,13 @@ const paperSizes = [
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">装订线</span>
-            <input type="number" step="0.1" v-model.number="params.gutter_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.gutter_cm"
               class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">页眉</span>
-            <input type="number" step="0.1" v-model.number="params.header_margin_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.header_margin_cm"
               class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
@@ -93,9 +93,9 @@ const paperSizes = [
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">栏数</span>
             <div class="bg-cream-darker rounded-lg p-[4px] flex items-center gap-1 relative">
               <div class="absolute top-[4px] bottom-[4px] w-[40px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
-                :style="{ left: `${4 + [1, 2, 3].indexOf(params.columns) * 44}px` }">
+                :style="{ left: `${4 + [1, 2, 3, 4].indexOf(params.columns) * 44}px` }">
               </div>
-              <button v-for="(n, i) in [1, 2, 3]" :key="n"
+              <button v-for="(n, i) in [1, 2, 3, 4]" :key="n"
                 @click="params.columns = n"
                 class="relative z-10 w-[40px] h-[34px] rounded-lg text-[13px] font-semibold transition-colors duration-200 cursor-pointer"
                 :class="params.columns === n ? 'text-cinnabar' : 'text-brown hover:text-brown-dark'"
@@ -105,7 +105,7 @@ const paperSizes = [
           <div class="w-[2px] h-[24px] bg-tan-border shrink-0"></div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">栏间距</span>
-            <input type="number" step="0.1" v-model.number="params.column_spacing_cm"
+            <input type="number" min="0" step="0.1" v-model.number="params.column_spacing_cm"
               class="w-[64px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
             <span class="text-[13px] text-brown">厘米</span>
           </div>
