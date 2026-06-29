@@ -7,6 +7,7 @@ import { useFormatState } from '../composables/useFormatState'
 import { formatDocument } from '../api/format'
 import Sidebar from '../components/Sidebar.vue'
 import SaveTemplateModal from '../components/SaveTemplateModal.vue'
+import LoadTemplateModal from '../components/LoadTemplateModal.vue'
 import PagePanel from '../components/panels/PagePanel.vue'
 import BodyPanel from '../components/panels/BodyPanel.vue'
 import HeadingPanel from '../components/panels/HeadingPanel.vue'
@@ -26,7 +27,8 @@ import {
   RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiBrushLine,
   RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
   RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line,
-  RiSaveLine, RiSparklingLine, RiBook2Line
+  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine,
+  RiScrollLine
 } from '@remixicon/vue'
 
 const router = useRouter()
@@ -35,8 +37,9 @@ const currentFile = computed(() => getFile())
 const { formatParams, applyFormatting, takeBeforeSnapshot } = useFormatState()
 const { saveTemplate, templates } = useTemplates()
 
-const activeTab = ref('page')
+const activeTab = ref('reset')
 const showSaveModal = ref(false)
+const showLoadModal = ref(false)
 const zoomLevel = ref(100)
 const currentPage = ref(1)
 const totalPages = ref('--')
@@ -49,6 +52,9 @@ const editorRef = ref(null)
 const isEditMode = ref(false)
 const vueOfficeBuffer = ref(null)
 const isProcessing = ref(false)
+const formatProgress = ref(0)
+const formatLog = ref([])
+const showFormatLog = ref(false)
 
 const LARGE_FILE_SIZE = 50 * 1024 * 1024
 const LARGE_PAGE_COUNT = 200
@@ -157,13 +163,45 @@ const handleSave = () => {
   alert('排版参数已保存')
 }
 
+const handleLoadTemplate = () => {
+  showLoadModal.value = true
+}
+
+const handleLoadSelected = (tpl) => {
+  if (tpl.formatParams) {
+    Object.assign(formatParams, JSON.parse(JSON.stringify(tpl.formatParams)))
+    alert(`已载入模板：${tpl.name}`)
+  }
+  showLoadModal.value = false
+}
+
+const handleDeleteTemplate = (id) => {
+  templates.value = templates.value.filter(t => t.id !== id)
+  try {
+    const userTemplates = templates.value.filter(t => !t.builtIn)
+    localStorage.setItem('bid-page-user-templates', JSON.stringify(userTemplates))
+  } catch {}
+}
+
 const handleOneClickModify = async () => {
   if (!await handleLargeFileWarning()) return
   if (!currentFile.value) return
   isProcessing.value = true
+  formatProgress.value = 0
+  formatLog.value = ['开始排版处理...', '']
+  showFormatLog.value = true
   try {
+    addLog('正在应用排版参数...')
     applyFormatting()
+    
+    addLog('正在读取文档内容...')
+    formatProgress.value = 30
+    
+    addLog('正在执行格式化操作...')
     const blob = await formatDocument(currentFile.value, formatParams)
+    formatProgress.value = 70
+    
+    addLog('正在生成排版结果...')
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -172,12 +210,26 @@ const handleOneClickModify = async () => {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+    
+    formatProgress.value = 100
+    addLog('排版完成！文档已开始下载。')
+    
+    setTimeout(() => {
+      showFormatLog.value = false
+    }, 1500)
+    
     router.push('/compare')
   } catch (e) {
+    addLog('排版失败：' + e.message, 'error')
+    addLog(e.stack || '', 'error')
     alert('排版失败：' + e.message)
   } finally {
     isProcessing.value = false
   }
+}
+
+const addLog = (msg, type = 'info') => {
+  formatLog.value.push({ msg, type, time: new Date().toLocaleTimeString() })
 }
 
 const handleReset = () => {
@@ -239,6 +291,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           </div>
           <div class="flex-1"></div>
           <button
+            v-if="activeTab !== 'reset'"
             @click="showPreviewModal = !showPreviewModal"
             class="flex items-center gap-1 px-3 py-2 bg-cream-dark border border-tan-border rounded-lg text-[12px] font-medium text-brown-muted transition-colors hover:bg-cream-darker"
           >
@@ -248,6 +301,23 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
         </div>
 
         <div class="flex-1 overflow-y-auto bg-warm-gray px-8 py-6 space-y-5">
+          <div v-if="showFormatLog" class="mb-4 p-4 bg-white border border-tan-border rounded-lg shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-semibold text-brown-dark">排版进度</h3>
+              <button @click="showFormatLog = false" class="text-brown-muted hover:text-brown">
+                <RiCloseLine size="16" />
+              </button>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div class="bg-cinnabar h-2.5 rounded-full transition-all duration-300" :style="{ width: formatProgress + '%' }"></div>
+            </div>
+            <div class="text-xs text-brown-muted mb-2">{{ formatProgress }}%</div>
+            <div class="max-h-32 overflow-y-auto space-y-1 text-xs font-mono text-brown">
+              <div v-for="(log, index) in formatLog" :key="index" :class="{'text-red-500': log.type === 'error'}">
+                {{ log.time }} - {{ log.msg }}
+              </div>
+            </div>
+          </div>
           <PagePanel
             v-if="activeTab === 'page'"
             :params="formatParams.page"
@@ -297,19 +367,19 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           <div class="w-3"></div>
           <button
             @click="handleLoadTemplate"
-            class="flex items-center gap-1 py-2 bg-[#5B8C5A]/10 border border-[#5B8C5A] rounded-lg text-[13px] font-medium text-[#5B8C5A] transition-colors hover:bg-[#5B8C5A]/20"
+            class="flex items-center gap-2 px-6 py-3 bg-[#5B8C5A]/10 border border-[#5B8C5A] rounded-xl text-[14px] font-semibold text-[#5B8C5A] transition-all hover:bg-[#5B8C5A]/20"
           >
-            <RiBook2Line size="14" />
+            <RiBook2Line size="18" color="#5B8C5A" />
             <span>载入模板</span>
           </button>
-          <div class="w-2"></div>
+          <div class="w-3"></div>
           <button
             @click="handleOneClickModify"
-            class="flex items-center gap-1 py-2 bg-cinnabar text-white rounded-lg text-[13px] font-semibold transition-all hover:bg-cinnabar-dark disabled:opacity-60 disabled:cursor-not-allowed"
+            class="flex items-center gap-2 px-6 py-3 bg-cinnabar text-white rounded-xl text-[14px] font-semibold transition-all hover:bg-cinnabar-dark disabled:opacity-60 disabled:cursor-not-allowed"
             :disabled="isProcessing"
           >
-            <RiLoader2Line v-if="isProcessing" size="14" color="white" class="animate-spin" />
-            <RiSparklingLine v-else size="14" color="white" />
+            <RiLoader2Line v-if="isProcessing" size="18" color="white" class="animate-spin" />
+            <RiSparklingLine v-else size="18" color="white" />
             <span>{{ isProcessing ? '排版中...' : '一键排版' }}</span>
           </button>
         </div>
@@ -321,6 +391,14 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
       :params="formatParams"
       @close="showSaveModal = false"
       @saved="onTemplateSaved"
+    />
+
+    <LoadTemplateModal
+      v-if="showLoadModal"
+      :templates="templates"
+      @close="showLoadModal = false"
+      @select="handleLoadSelected"
+      @delete="handleDeleteTemplate"
     />
 
     <div v-if="showPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showPreviewModal = false">
