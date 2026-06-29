@@ -71,10 +71,9 @@ const tocTitleParams = ref({
 </script>
 
 <template>
-  <div class="bg-cream border-b border-tan-border h-full px-5 py-3">
-    <template v-if="activeSubTab === 'fig'">
-      <!-- 左右布局: 图表标题 | 表格单元格 -->
-      <div class="flex gap-5 h-full overflow-hidden">
+  <div v-if="activeSubTab === 'fig'" class="bg-cream border-b border-tan-border h-full px-5 py-3">
+    <!-- 左右布局: 图表标题 | 表格单元格 -->
+    <div class="flex gap-5 h-full overflow-hidden">
         <!-- 左侧: 图表标题 -->
         <div class="flex-1 min-w-0 bg-cream-dark border border-tan-border rounded-2xl p-6 flex flex-col gap-4 overflow-hidden">
           <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
@@ -340,7 +339,6 @@ const tocTitleParams = ref({
           </div>
         </div>
       </div>
-    </template>
   </div>
 </template>
 
