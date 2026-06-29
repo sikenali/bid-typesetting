@@ -7,6 +7,7 @@ const props = defineProps({
   options: { type: Array, required: true },
   placeholder: { type: String, default: '' },
   widthClass: { type: String, default: 'w-[100px]' },
+  compact: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -95,8 +96,8 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
       type="button"
       @click="toggle"
       :aria-expanded="isOpen"
-      class="w-full bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-left outline-none transition-all duration-150 flex items-center gap-1 cursor-pointer"
-      :class="isOpen ? 'border-cinnabar ring-1 ring-cinnabar/25' : 'hover:border-tan-dark'"
+      class="w-full bg-white border border-tan-border rounded-lg px-[12px] text-[13px] text-left outline-none transition-all duration-150 flex items-center gap-1 cursor-pointer"
+      :class="[isOpen ? 'border-cinnabar ring-1 ring-cinnabar/25' : 'hover:border-tan-dark', compact ? 'py-[4px]' : 'py-[8px]']"
     >
       <span class="flex-1 truncate" :class="modelValue ? 'text-brown' : 'text-brown-muted'">{{ selectedLabel }}</span>
       <RiArrowDownSLine
