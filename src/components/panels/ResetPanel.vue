@@ -115,7 +115,7 @@ const objectFields = [
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown">间距</span>
-            <input type="number" v-model.number="captionDetection.fig_detection_spacing"
+            <input type="number" min="0" v-model.number="captionDetection.fig_detection_spacing"
               class="w-[60px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
           </div>
           <div class="w-[2px] h-[24px] bg-tan-border shrink-0"></div>
@@ -129,7 +129,7 @@ const objectFields = [
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown">间距</span>
-            <input type="number" v-model.number="captionDetection.tbl_detection_spacing"
+            <input type="number" min="0" v-model.number="captionDetection.tbl_detection_spacing"
               class="w-[60px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
           </div>
         </div>
