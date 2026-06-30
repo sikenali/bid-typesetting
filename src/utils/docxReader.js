@@ -148,8 +148,15 @@ export async function readDocxParams(file) {
       const styleId = attr(el, 'styleId') || ''
       if (type === 'paragraph' && isDefault === '1') defaultStyle = el
       if (type === 'paragraph') {
-        const m = styleId.match(/^(?:Heading)?([1-4])$/)
-        if (m) headingStyles.push({ el, level: parseInt(m[1]) - 1 })
+        const m = styleId.match(/^(?:Heading|heading|标题|標題)?\s*([1-4一-四])$/)
+        if (m) {
+          let level = parseInt(m[1])
+          if (Number.isNaN(level)) {
+            const cnMap = { '一': 1, '二': 2, '三': 3, '四': 4 }
+            level = cnMap[m[1]] || 1
+          }
+          headingStyles.push({ el, level: level - 1 })
+        }
       }
     }
 
