@@ -84,7 +84,7 @@ onMounted(() => {
           class="relative z-10 w-full rounded-xl py-3 px-4 flex items-center gap-3 transition-colors text-left"
           :class="activeTab === tab.id ? 'text-white' : 'text-brown-dark hover:text-brown-dark'"
         >
-          <component :is="tab.icon" :size="20" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
+          <component :is="tab.icon" :size="'20'" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
           <div class="flex-1">
             <div class="text-[15px] font-semibold" :class="activeTab === tab.id ? 'text-white' : 'text-brown-dark'">
               {{ tab.label }}
