@@ -44,7 +44,7 @@ func handleFormat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := r.ParseMultipartForm(64 << 20); err != nil {
+	if err := r.ParseMultipartForm(200 << 20); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "failed to parse multipart form: " + err.Error()})
 		return
 	}
@@ -75,9 +75,9 @@ func handleFormat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check file size (C5: 32MB limit)
-	if header.Size > 32*1024*1024 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "file size exceeds 32MB limit"})
+	// Check file size (max 150MB)
+	if header.Size > 150*1024*1024 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "file size exceeds 150MB limit"})
 		return
 	}
 
