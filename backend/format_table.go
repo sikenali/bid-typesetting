@@ -8,12 +8,22 @@ import (
 )
 
 func applyCellBorders(cell document.Cell, style string) {
+	zero := measurement.Distance(0)
+	black := color.FromHex("#000000")
 	if style == "" || style == "无" || style == "none" {
+		// Clear all borders
+		borders := cell.Properties().Borders()
+		borders.SetTop(wml.ST_BorderNone, black, zero)
+		borders.SetBottom(wml.ST_BorderNone, black, zero)
+		borders.SetLeft(wml.ST_BorderNone, black, zero)
+		borders.SetRight(wml.ST_BorderNone, black, zero)
+		borders.SetInsideHorizontal(wml.ST_BorderNone, black, zero)
+		borders.SetInsideVertical(wml.ST_BorderNone, black, zero)
 		return
 	}
 	borders := cell.Properties().Borders()
-	black := color.FromHex("#000000")
-	thickness := measurement.Distance(8) * measurement.Point
+	// Standard border thickness: 4pt (4 * 8 = 32 eighths of point)
+	thickness := measurement.Distance(4) * measurement.Point
 	switch style {
 	case "全部", "ALL", "all":
 		borders.SetAll(wml.ST_BorderSingle, black, thickness)
