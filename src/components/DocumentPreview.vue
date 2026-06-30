@@ -9,18 +9,23 @@ import VueOfficePptx from '@vue-office/pptx'
 
 const props = defineProps({
   file: {
-    type: File,
+    type: [File, Blob],
     default: null,
+  },
+  src: {
+    type: String,
+    default: '',
   },
 })
 
 const docBuffer = ref(null)
-const textContent = ref('')
-
-const fileExtension = computed(() => {
-  if (!props.file) return ''
-  return props.file.name.split('.').pop().toLowerCase()
+const fileName = computed(() => {
+  if (props.file?.name) return props.file.name
+  if (props.src) return 'document.docx'
+  return 'document'
 })
+
+const fileExtension = computed(() => fileName.value.split('.').pop().toLowerCase())
 
 const isDocx = computed(() => fileExtension.value === 'docx')
 const isPdf = computed(() => fileExtension.value === 'pdf')
@@ -36,45 +41,38 @@ const readFileAsArrayBuffer = (file) => {
   })
 }
 
-const readFileAsText = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
-    reader.readAsText(file)
-  })
-}
-
-watch(() => props.file, async (newFile) => {
+watch(() => [props.file, props.src], async () => {
   docBuffer.value = null
-  textContent.value = ''
-  if (!newFile) return
-  try {
-    if (['docx', 'pdf', 'xlsx', 'pptx'].includes(fileExtension.value)) {
-      docBuffer.value = await readFileAsArrayBuffer(newFile)
+  if (props.file) {
+    try {
+      if (['docx', 'pdf', 'xlsx', 'pptx'].includes(fileExtension.value)) {
+        docBuffer.value = await readFileAsArrayBuffer(props.file)
+      }
+    } catch (e) {
+      console.error('读取文件失败:', e)
     }
-  } catch (e) {
-    console.error('读取文件失败:', e)
+  } else if (props.src) {
+    docBuffer.value = props.src
   }
 }, { immediate: true })
 </script>
 
 <template>
   <div class="w-full min-h-full bg-warm-gray overflow-auto py-8">
-    <div v-if="!file" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[842px] flex items-center justify-center">
+    <div v-if="!file && !src" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[842px] flex items-center justify-center">
       <p class="text-brown-muted text-lg font-xiaowei">请先上传文档</p>
     </div>
       <div v-else class="max-w-[864px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl p-[1px]">
-      <div v-if="isDocx && docBuffer" class="w-full">
+      <div v-if="isDocx && docBuffer && (file || src)" class="w-full">
         <VueOfficeDocx :src="docBuffer" style="width: 100%;" />
       </div>
-      <div v-else-if="isPdf && docBuffer" class="w-full">
+      <div v-else-if="isPdf && docBuffer && (file || src)" class="w-full">
         <VueOfficePdf :src="docBuffer" style="width: 100%;" />
       </div>
-      <div v-else-if="isXlsx && docBuffer" class="w-full">
+      <div v-else-if="isXlsx && docBuffer && (file || src)" class="w-full">
         <VueOfficeExcel :src="docBuffer" style="width: 100%;" />
       </div>
-      <div v-else-if="isPptx && docBuffer" class="w-full">
+      <div v-else-if="isPptx && docBuffer && (file || src)" class="w-full">
         <VueOfficePptx :src="docBuffer" style="width: 100%;" />
       </div>
       <div v-else-if="docBuffer" class="flex items-center justify-center py-12 text-brown-muted font-xiaowei">
