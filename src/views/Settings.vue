@@ -326,7 +326,7 @@ const previewCurrentTemplate = () => {
                           <RiBook2Line size="28" :color="categoryMeta[tpl.category]?.iconColor || '#5B8C5A'" />
                         </div>
                         <div class="mt-4 text-center">
-                          <div class="text-[16px] font-bold text-brown-dark">{{ tpl.name }}</div>
+                          <div class="text-[13px] font-bold text-brown-dark truncate">{{ tpl.name }}</div>
                           <div class="h-2"></div>
                           <div class="text-[12px] text-brown-muted leading-relaxed">{{ tpl.builtIn ? tpl.description : '用户保存的自定义模板' }}</div>
                         </div>
