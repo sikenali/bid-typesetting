@@ -15,8 +15,11 @@ func ApplyPageSetup(doc *document.Document, m *Margins) error {
 	right := measurement.Distance(twipsFromCM(m.RightCM))
 	bottom := measurement.Distance(twipsFromCM(m.BottomCM))
 	left := measurement.Distance(twipsFromCM(m.LeftCM))
+	header := measurement.Distance(twipsFromCM(m.HeaderMarginCM))
+	footer := header
+	gutter := measurement.Distance(twipsFromCM(m.GutterCM))
 
-	section.SetPageMargins(top, right, bottom, left, 0, 0, 0)
+	section.SetPageMargins(top, right, bottom, left, header, footer, gutter)
 
 	if !m.KeepOriginalOrientation {
 		var w, h measurement.Distance
@@ -30,14 +33,28 @@ func ApplyPageSetup(doc *document.Document, m *Margins) error {
 		case "A5":
 			w = measurement.Distance(8391)
 			h = measurement.Distance(11906)
+		case "B5":
+			w = measurement.Distance(9979)
+			h = measurement.Distance(14175)
+		case "Letter":
+			w = measurement.Distance(12240)
+			h = measurement.Distance(15840)
+		case "Legal":
+			w = measurement.Distance(12240)
+			h = measurement.Distance(20160)
 		default:
 			w = measurement.Distance(twipsFromCM(m.PaperWidthCM))
 			h = measurement.Distance(twipsFromCM(m.PaperHeightCM))
 		}
+		orient := wml.ST_PageOrientationPortrait
+		if m.Orientation == "landscape" || m.PaperSize == "A4-L" || m.PaperSize == "A3-L" {
+			orient = wml.ST_PageOrientationLandscape
+			w, h = h, w
+		}
 		section.SetPageSizeAndOrientation(
 			w*measurement.Twips,
 			h*measurement.Twips,
-			wml.ST_PageOrientationPortrait)
+			orient)
 	}
 
 	if m.Columns > 1 {
@@ -47,7 +64,11 @@ func ApplyPageSetup(doc *document.Document, m *Margins) error {
 		}
 		colNum := int64(m.Columns)
 		sectPr.Cols.NumAttr = &colNum
-		spaceNum := uint64(twipsFromCM(m.ColumnSpacingCM))
+		spaceVal := twipsFromCM(m.ColumnSpacingCM)
+		if spaceVal < 0 {
+			spaceVal = 0
+		}
+		spaceNum := uint64(spaceVal)
 		sectPr.Cols.SpaceAttr = &sharedTypes.ST_TwipsMeasure{
 			ST_UnsignedDecimalNumber: &spaceNum,
 		}
@@ -64,6 +85,8 @@ func twipsFromLineSpacing(mode string, value float64) measurement.Distance {
 	switch mode {
 	case "EXACT", "FIXED":
 		return measurement.Distance(value * 20)
+	case "AT_LEAST":
+		return measurement.Distance(value * 20)
 	case "SINGLE":
 		return 240
 	case "MULTIPLE":
@@ -76,6 +99,8 @@ func lineSpacingEnum(mode string) wml.ST_LineSpacingRule {
 	switch mode {
 	case "EXACT", "FIXED":
 		return wml.ST_LineSpacingRuleExact
+	case "AT_LEAST":
+		return wml.ST_LineSpacingRuleAtLeast
 	case "SINGLE", "MULTIPLE", "AUTO":
 		return wml.ST_LineSpacingRuleAuto
 	}
@@ -84,12 +109,26 @@ func lineSpacingEnum(mode string) wml.ST_LineSpacingRule {
 
 func twipsFromSpacing(value float64, unit string) measurement.Distance {
 	switch unit {
-	case "磅", "PT":
+	case "磅", "PT", "pt":
 		return measurement.Distance(value * 20)
-	case "行", "LINE":
+	case "行", "LINE", "line":
 		return measurement.Distance(value * 240)
+	case "char", "CHAR":
+		return measurement.Distance(value * 200)
 	}
 	return measurement.Distance(value * 20)
+}
+
+func twipsFromIndentValue(value float64, unit string) measurement.Distance {
+	switch unit {
+	case "磅", "PT", "pt":
+		return measurement.Distance(value * 20)
+	case "cm", "CM":
+		return measurement.Distance(twipsFromCM(value))
+	case "char", "CHAR", "":
+		return measurement.Distance(value * 200)
+	}
+	return measurement.Distance(value * 200)
 }
 
 func cnSizeToHalfPoints(cn string) measurement.Distance {
@@ -129,18 +168,37 @@ func parseFloatFromCN(s string) float64 {
 
 func alignFromString(s string) wml.ST_Jc {
 	switch s {
-	case "JUSTIFY", "BOTH":
+	case "JUSTIFY", "BOTH", "两端对齐":
 		return wml.ST_JcBoth
-	case "LEFT":
+	case "LEFT", "居左":
 		return wml.ST_JcStart
-	case "CENTER":
+	case "CENTER", "居中":
 		return wml.ST_JcCenter
-	case "RIGHT":
+	case "RIGHT", "居右":
 		return wml.ST_JcEnd
 	}
 	return wml.ST_JcBoth
 }
 
 func colorFromHex(hex string) color.Color {
-	return color.FromHex("#" + hex)
+	if len(hex) > 0 && hex[0] != '#' {
+		hex = "#" + hex
+	}
+	return color.FromHex(hex)
+}
+
+func underlineFromType(t string) wml.ST_Underline {
+	switch t {
+	case "single", "SINGLE":
+		return wml.ST_UnderlineSingle
+	case "double", "DOUBLE":
+		return wml.ST_UnderlineDouble
+	case "dotted", "DOTTED":
+		return wml.ST_UnderlineDotted
+	case "dashed", "DASHED":
+		return wml.ST_UnderlineDash
+	case "wavy", "WAVY":
+		return wml.ST_UnderlineWave
+	}
+	return wml.ST_UnderlineNone
 }
