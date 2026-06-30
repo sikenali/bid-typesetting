@@ -3,6 +3,7 @@ package wordformat
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/unidoc/unioffice/document"
@@ -14,9 +15,11 @@ var arabicPattern = `\d+`
 
 var wrapperMap = map[string]string{
 	"DUNHAO":       `、`,
-	"DOUBLE_PAREN": `[）\)]`,
+	"DOUBLE_PAREN": `[）)]`,
 	"DOT":          `\.`,
-	"SINGLE_PAREN": `[）\)]`,
+	"SINGLE_PAREN": `[)]`,
+	"PAREN":        `[)]`,
+	"BRACKET":      `[]]`,
 }
 
 func buildPatternRegex(rule *PatternRule) *regexp.Regexp {
@@ -28,22 +31,31 @@ func buildPatternRegex(rule *PatternRule) *regexp.Regexp {
 	if !ok {
 		return nil
 	}
-	return regexp.MustCompile(fmt.Sprintf(`^(%s)%s\s*(.*)`, scheme, wrapper))
+	return regexp.MustCompile(fmt.Sprintf(`^(%s)%s?\s*(.*)`, scheme, wrapper))
 }
 
 type NumberingManager struct {
 	doc       *document.Document
-	nextNumID int32
+	ruleCache map[string]document.NumberingDefinition
 }
 
 func NewNumberingManager(doc *document.Document) *NumberingManager {
 	return &NumberingManager{
 		doc:       doc,
-		nextNumID: 1,
+		ruleCache: make(map[string]document.NumberingDefinition),
 	}
 }
 
+func (nm *NumberingManager) ruleKey(rule *PatternRule) string {
+	return fmt.Sprintf("%s|%s|%s", rule.Scheme, rule.Wrapper, rule.CustomExample)
+}
+
 func (nm *NumberingManager) EnsureAbstractNum(rule *PatternRule) (document.NumberingDefinition, error) {
+	key := nm.ruleKey(rule)
+	if cached, ok := nm.ruleCache[key]; ok {
+		return cached, nil
+	}
+
 	num := nm.doc.Numbering
 	nd := num.AddDefinition()
 	nd.SetMultiLevelType(wml.ST_MultiLevelTypeMultilevel)
@@ -55,13 +67,14 @@ func (nm *NumberingManager) EnsureAbstractNum(rule *PatternRule) (document.Numbe
 			lvl.SetFormat(wml.ST_NumberFormatChineseCounting)
 		case "ARABIC":
 			lvl.SetFormat(wml.ST_NumberFormatDecimal)
+		default:
+			lvl.SetFormat(wml.ST_NumberFormatDecimal)
 		}
 		lvl.SetAlignment(wml.ST_JcStart)
 		lvl.SetText(fmt.Sprintf("%%%d.", level+1))
-		lvl.X().Start = wml.NewCT_DecimalNumber()
-		lvl.X().Start.ValAttr = 1
 	}
 
+	nm.ruleCache[key] = nd
 	return nd, nil
 }
 
@@ -77,6 +90,7 @@ func ApplyNumbering(doc *document.Document, cfg *PatternConfig) error {
 	}
 
 	nm := NewNumberingManager(doc)
+	defCache := make(map[string]int64)
 
 	for _, p := range doc.Paragraphs() {
 		text := paragraphText(p)
@@ -99,13 +113,16 @@ func ApplyNumbering(doc *document.Document, cfg *PatternConfig) error {
 			run := p.AddRun()
 			run.AddText(stripped)
 
-			nd, err := nm.EnsureAbstractNum(&rule)
-			if err != nil {
-				continue
+			key := nm.ruleKey(&rule)
+			if _, ok := defCache[key]; !ok {
+				nd, err := nm.EnsureAbstractNum(&rule)
+				if err != nil {
+					continue
+				}
+				defCache[key] = nd.AbstractNumberID()
 			}
-			_ = nd
 
-			p.SetNumberingDefinitionByID(nd.AbstractNumberID())
+			p.SetNumberingDefinitionByID(defCache[key])
 			level := countDepthLevel(rule.MultiDepth)
 			p.SetNumberingLevel(level)
 
@@ -115,9 +132,22 @@ func ApplyNumbering(doc *document.Document, cfg *PatternConfig) error {
 	return nil
 }
 
-func countDepthLevel(depth string) int {
+func countDepthLevel(depth int) int {
+	if depth < 0 {
+		return 0
+	}
+	if depth > 8 {
+		return 8
+	}
+	return depth
+}
+
+func countDepthLevelFromString(depth string) int {
 	if depth == "" {
 		return 0
+	}
+	if n, err := strconv.Atoi(depth); err == nil {
+		return countDepthLevel(n)
 	}
 	return strings.Count(depth, ".")
 }
