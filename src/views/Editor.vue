@@ -450,10 +450,9 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           <DocxEditor
             v-if="vueOfficeBuffer && isDocx && isEditMode"
             ref="editorRef"
-            :model-value="vueOfficeBuffer"
-            @update:model-value="(v) => vueOfficeBuffer = v"
+            :document-buffer="vueOfficeBuffer"
+            mode="editing"
             style="width:100%; height:100%;"
-            :options="{ language: 'zh-CN' }"
             class="docx-editor-content"
           />
         </div>
