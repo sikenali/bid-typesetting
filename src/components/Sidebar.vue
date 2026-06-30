@@ -11,8 +11,11 @@ import {
   RiCheckLine,
 } from '@remixicon/vue'
 
+const props = defineProps({
+  activeTab: { type: String, default: 'page' },
+})
 const emit = defineEmits(['tab-change', 'cancel', 'apply', 'reset'])
-const activeTab = ref('page')
+const activeTab = ref(props.activeTab)
 
 const tabs = [
   { id: 'page', label: '页面', sublabel: 'Page Layout', icon: RiPagesLine, activeBg: 'bg-cinnabar' },

@@ -262,6 +262,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
   <main class="pt-16 bg-parchment">
     <div class="h-[calc(100vh-4rem)] flex">
       <Sidebar
+        :activeTab="activeTab"
         @tab-change="activeTab = $event"
         @cancel="handleReset"
         @reset="handleReset"
