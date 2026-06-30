@@ -258,7 +258,7 @@ const exportDoc = async () => {
               : 'bg-cream-dark hover:bg-cream-darker text-brown-dark'"
           >
             <div class="flex items-center gap-2">
-              <component :is="tab.icon" :size="16" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
+              <component :is="tab.icon" :size="'16'" :color="activeTab === tab.id ? 'white' : '#5C4033'" />
               <div class="flex-1">
                 <div
                   class="text-[13px]"
