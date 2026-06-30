@@ -1,6 +1,7 @@
 <script setup>
 import { useSettings } from './composables/useSettings'
 import Navbar from './components/Navbar.vue'
+import ToastContainer from './components/ToastContainer.vue'
 
 const { currentThemeClasses } = useSettings()
 </script>
@@ -11,5 +12,6 @@ const { currentThemeClasses } = useSettings()
     <main :class="currentThemeClasses.bg">
       <router-view />
     </main>
+    <ToastContainer />
   </div>
 </template>

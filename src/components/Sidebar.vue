@@ -10,6 +10,9 @@ import {
   RiBrushLine,
   RiCheckLine,
 } from '@remixicon/vue'
+import { useToast } from '../composables/useToast'
+
+const { success } = useToast()
 
 const props = defineProps({
   activeTab: { type: String, default: 'page' },
@@ -103,26 +106,26 @@ onMounted(() => {
 
     <div class="px-4 py-3 flex items-center gap-2 border-t border-tan-border">
       <button
-        @click="emit('cancel')"
+        @click="emit('cancel'); success('已保存为草稿')"
         class="group relative flex-1 flex items-center justify-center py-2 bg-cream-dark border border-tan-border rounded-lg text-[13px] font-medium text-brown transition-colors hover:bg-cream-darker"
       >
-        下朝
-        <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">取消</span>
+        草稿
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存草稿</span>
       </button>
       <button
-        @click="emit('reset')"
+        @click="emit('reset'); success('已重置为默认值')"
         class="group relative flex-1 flex items-center justify-center py-2 bg-[#5B8C5A]/10 border border-[#5B8C5A] rounded-lg text-[13px] font-medium text-[#5B8C5A] transition-colors hover:bg-[#5B8C5A]/20"
       >
         复位
-        <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">重置</span>
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">重置设置</span>
       </button>
       <button
-        @click="emit('apply')"
+        @click="emit('apply'); success('设置已保存')"
         class="group relative flex-1 flex items-center justify-center gap-1 py-2 bg-cinnabar text-white rounded-lg text-[13px] font-semibold transition-colors hover:bg-cinnabar-dark"
       >
         <RiCheckLine size="14" />
         <span>准奏</span>
-        <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存</span>
+        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存设置</span>
       </button>
     </div>
   </aside>

@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router'
 import { useSettings } from '../composables/useSettings'
 import { useTemplates } from '../composables/useTemplates'
 import { useFormatState } from '../composables/useFormatState'
+import { useToast } from '../composables/useToast'
 import PreviewTemplateModal from '../components/PreviewTemplateModal.vue'
 import { RiPaletteLine, RiBookmark3Line, RiEyeLine, RiCheckLine, RiFileTextLine, RiBuildingLine, RiBook2Line, RiBarChart2Line, RiFileEditLine, RiSettings3Line, RiBrushLine, RiDeleteBinLine, RiSearchLine, RiLayout3Line, RiArrowRightLine } from '@remixicon/vue'
 
+const { success } = useToast()
 const router = useRouter()
 const { theme: currentTheme, template: currentTemplate, previewEnabled, clearStylesEnabled, annotationEnabled, highlightEnabled, setTheme, setTemplate, togglePreview, toggleClearStyles, toggleAnnotation, toggleHighlight } = useSettings()
 const { templates, deleteTemplate, categoryMeta } = useTemplates()
@@ -211,18 +213,20 @@ const previewCurrentTemplate = () => {
         </div>
         <div class="flex items-center gap-3">
           <button
+            @click="success('已保存为草稿')"
             class="group relative px-6 py-3 bg-cream-dark border border-tan-border rounded-xl text-[14px] font-medium text-brown hover:bg-brown/10 hover:border-brown/20 hover:text-brown-dark transition-all duration-200"
           >
-            下朝
-            <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">取消</span>
+            草稿
+            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存草稿</span>
           </button>
           <button
+            @click="success('设置已保存')"
             class="group relative flex items-center gap-2 px-6 py-3 text-white rounded-xl text-[14px] font-semibold transition-all duration-200"
             :class="activeSection === 'template' ? 'bg-gold-dark hover:bg-gold-dark/85' : activeSection === 'display' ? 'bg-jade-light hover:bg-jade-light/85' : 'bg-cinnabar hover:bg-cinnabar/85'"
           >
             <RiCheckLine size="16" color="white" />
             <span>准奏</span>
-            <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存</span>
+            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存设置</span>
           </button>
         </div>
       </div>
