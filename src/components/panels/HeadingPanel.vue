@@ -11,7 +11,7 @@ const props = defineProps({
 function addRule() {
   const defaultHeading = {
     cn_font: '仿宋', en_font: 'Times New Roman', size_cn: '五号',
-    bold: false, italic: false, underline: false,
+    color: '#000000', bold: false, italic: false, underline: false,
     line_spacing_mode: 'SINGLE', line_spacing_value: 28,
     space_before_value: 6, space_before_unit: 'pt',
     space_after_value: 3, space_after_unit: 'pt',
@@ -179,7 +179,7 @@ const wrappers = [
                 </td>
                 <template v-if="!rule.enabled">
                   <td class="py-2 px-2">
-                    <DropdownSelect v-model="rule.wrapper" :options="wrappers" width-class="w-[130px]" />
+                    <DropdownSelect v-model="rule.wrapper" :options="wrappers" width-class="auto" />
                   </td>
                   <td class="py-2 px-2 text-cinnabar text-[13px] font-semibold text-center">{{ getPreview(rule) }}</td>
                 </template>
@@ -234,8 +234,8 @@ const wrappers = [
                   <div class="flex items-center gap-[3px]">
                     <span class="text-[12px] text-brown shrink-0">颜色</span>
                     <label class="relative cursor-pointer">
-                      <div class="w-[18px] h-[18px] rounded-[3px] border border-tan-border cursor-pointer"></div>
-                      <input type="color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                      <div class="w-[18px] h-[18px] rounded-[3px] border border-tan-border cursor-pointer" :style="{ backgroundColor: props.params[activeLevel].color || '#000000' }"></div>
+                      <input type="color" v-model="props.params[activeLevel].color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
                     </label>
                   </div>
                   <div class="flex items-center gap-[3px] cursor-pointer" @click="props.params[activeLevel].bold = !props.params[activeLevel].bold">
@@ -269,7 +269,7 @@ const wrappers = [
               <div class="flex flex-wrap items-center gap-[6px]">
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">行距</span>
-                  <DropdownSelect v-model="props.params[activeLevel].line_spacing_mode" :options="lineSpacingModes" width-class="w-[80px]" />
+                  <DropdownSelect v-model="props.params[activeLevel].line_spacing_mode" :options="lineSpacingModes" width-class="auto" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">值</span>
@@ -281,13 +281,13 @@ const wrappers = [
                   <span class="text-[12px] text-brown shrink-0">段前</span>
                   <input type="number" min="0" step="0.5" v-model.number="props.params[activeLevel].space_before_value"
                     class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <DropdownSelect v-model="props.params[activeLevel].space_before_unit" :options="spacingUnits" width-class="w-[65px]" />
+                    <DropdownSelect v-model="props.params[activeLevel].space_before_unit" :options="spacingUnits" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">段后</span>
                     <input type="number" min="0" step="0.5" v-model.number="props.params[activeLevel].space_after_value"
                       class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <DropdownSelect v-model="props.params[activeLevel].space_after_unit" :options="spacingUnits" width-class="w-[65px]" />
+                    <DropdownSelect v-model="props.params[activeLevel].space_after_unit" :options="spacingUnits" width-class="auto" />
                 </div>
               </div>
             </div>
@@ -300,13 +300,13 @@ const wrappers = [
                   <span class="text-[12px] text-brown shrink-0">左</span>
                   <input type="number" min="0" step="0.1" v-model.number="props.params[activeLevel].left_indent_value"
                     class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <DropdownSelect v-model="props.params[activeLevel].left_indent_unit" :options="indentUnits" width-class="w-[65px]" />
+                    <DropdownSelect v-model="props.params[activeLevel].left_indent_unit" :options="indentUnits" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">右</span>
                     <input type="number" min="0" step="0.1" v-model.number="props.params[activeLevel].right_indent_value"
                       class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <DropdownSelect v-model="props.params[activeLevel].right_indent_unit" :options="indentUnits" width-class="w-[65px]" />
+                    <DropdownSelect v-model="props.params[activeLevel].right_indent_unit" :options="indentUnits" width-class="auto" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">首行</span>
