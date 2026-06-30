@@ -244,20 +244,14 @@ const previewCurrentTemplate = () => {
             </button>
           </div>
           <div class="flex items-center gap-3">
-            <div v-if="hasSelectedTemplate" class="flex items-center gap-3">
-              <div class="flex items-center gap-2">
-                <RiLayout3Line size="18" color="#C43A31" />
-                <span class="text-[13px] font-medium text-brown">已选：</span>
-                <span class="px-2.5 py-0.5 bg-cinnabar text-white rounded-full text-[12px] font-semibold">{{ selectedTemplate.name }}</span>
-              </div>
-              <button
-                @click="previewCurrentTemplate"
-                class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F5EFE0] border-[0.7px] border-tan-border rounded-lg text-[12px] font-medium text-brown"
-              >
-                <RiEyeLine size="14" color="#5C4033" />
-                <span>预览</span>
-              </button>
-            </div>
+            <button
+              v-if="hasSelectedTemplate"
+              @click="previewCurrentTemplate"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F5EFE0] border-[0.7px] border-tan-border rounded-lg text-[12px] font-medium text-brown"
+            >
+              <RiEyeLine size="14" color="#5C4033" />
+              <span>预览</span>
+            </button>
             <div class="flex items-center gap-2 w-[220px] bg-[#FBF7EF] border-[0.7px] border-tan-border rounded-xl px-4 py-2">
               <RiSearchLine size="16" color="#8B7355" class="shrink-0" />
             <input
@@ -346,15 +340,13 @@ const previewCurrentTemplate = () => {
                     </div>
                     <div class="h-3"></div>
                     <Transition name="sel" mode="out-in">
-                      <div v-if="currentTemplate == tpl.id" key="selected" class="flex items-center justify-center gap-2">
+                      <div v-if="currentTemplate == tpl.id" key="selected" class="flex items-center justify-center">
                         <div class="w-[18px] h-[18px] rounded-full bg-cinnabar flex items-center justify-center transition-all duration-300">
                           <RiCheckLine size="10" color="white" />
                         </div>
-                        <span class="text-[13px] font-semibold text-cinnabar">已选择</span>
                       </div>
-                      <div v-else key="unselected" class="flex items-center justify-center gap-2">
+                      <div v-else key="unselected" class="flex items-center justify-center">
                         <div class="w-[18px] h-[18px] rounded-full border-[0.7px] border-tan-dark bg-cream-darker transition-all duration-300"></div>
-                        <span class="text-[13px] font-medium text-brown-muted">选择</span>
                       </div>
                     </Transition>
                   </div>
