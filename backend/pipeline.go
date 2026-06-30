@@ -16,7 +16,7 @@ func RunPipeline(doc *document.Document, cfg *Config) error {
 		{"预处理", Preprocess},
 		{"页面设置", func(d *document.Document, c *Config) error {
 			if c.ApplyPage {
-				return ApplyPageSetup(d, &c.Margins)
+				return ApplyPageSetupWithHF(d, &c.Margins, &c.HeaderFooter)
 			}
 			return nil
 		}},
