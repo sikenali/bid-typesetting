@@ -82,7 +82,7 @@ const spacingUnits = [
         <div class="h-2"></div>
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-[13px] text-brown whitespace-nowrap shrink-0">行距模式</span>
-          <DropdownSelect v-model="params.line_spacing_mode" :options="lineSpacingModes" width-class="w-[130px]" />
+          <DropdownSelect v-model="params.line_spacing_mode" :options="lineSpacingModes" width-class="auto" />
           <span class="text-[13px] text-brown whitespace-nowrap shrink-0">行距数值</span>
           <input type="number" min="0" step="0.1" v-model.number="params.line_spacing_value"
             class="w-[70px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
@@ -94,13 +94,13 @@ const spacingUnits = [
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">段前间距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.space_before_value"
               class="w-[70px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
-            <DropdownSelect v-model="params.space_before_unit" :options="spacingUnits" width-class="w-[70px]" />
+            <DropdownSelect v-model="params.space_before_unit" :options="spacingUnits" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">段后间距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.space_after_value"
               class="w-[70px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
-            <DropdownSelect v-model="params.space_after_unit" :options="spacingUnits" width-class="w-[70px]" />
+            <DropdownSelect v-model="params.space_after_unit" :options="spacingUnits" width-class="auto" />
           </div>
         </div>
       </div>
@@ -117,13 +117,13 @@ const spacingUnits = [
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">左缩进</span>
             <input type="number" min="0" step="0.1" v-model.number="params.left_indent_value"
               class="w-full bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
-            <DropdownSelect v-model="params.left_indent_unit" :options="spacingUnits" width-class="w-[65px]" />
+            <DropdownSelect v-model="params.left_indent_unit" :options="spacingUnits" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">右缩进</span>
             <input type="number" min="0" step="0.1" v-model.number="params.right_indent_value"
               class="w-full bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
-            <DropdownSelect v-model="params.right_indent_unit" :options="spacingUnits" width-class="w-[65px]" />
+            <DropdownSelect v-model="params.right_indent_unit" :options="spacingUnits" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">首行缩进</span>
