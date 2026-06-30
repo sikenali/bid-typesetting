@@ -210,14 +210,19 @@ const previewCurrentTemplate = () => {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <button class="px-6 py-3 bg-cream-dark border border-tan-border rounded-xl text-[14px] font-medium text-brown" @click="router.back()">取消</button>
           <button
-            class="flex items-center gap-2 px-6 py-3 text-white rounded-xl text-[14px] font-semibold"
-            :class="activeSection === 'template' ? 'bg-gold-dark' : activeSection === 'display' ? 'bg-jade-light' : 'bg-cinnabar'"
-            @click="router.back()"
+            class="group relative px-6 py-3 bg-cream-dark border border-tan-border rounded-xl text-[14px] font-medium text-brown hover:bg-brown/10 hover:border-brown/20 hover:text-brown-dark transition-all duration-200"
+          >
+            下朝
+            <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">取消</span>
+          </button>
+          <button
+            class="group relative flex items-center gap-2 px-6 py-3 text-white rounded-xl text-[14px] font-semibold transition-all duration-200"
+            :class="activeSection === 'template' ? 'bg-gold-dark hover:bg-gold-dark/85' : activeSection === 'display' ? 'bg-jade-light hover:bg-jade-light/85' : 'bg-cinnabar hover:bg-cinnabar/85'"
           >
             <RiCheckLine size="16" color="white" />
-            <span>应用设置</span>
+            <span>准奏</span>
+            <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">保存</span>
           </button>
         </div>
       </div>
