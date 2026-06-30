@@ -3,20 +3,21 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
 import { useFormatState } from '../composables/useFormatState'
-import { useDocumentExport } from '../composables/useDocumentExport'
-import { RiFileTextLine, RiEditLine, RiCheckLine, RiDownloadLine, RiArrowLeftSLine, RiArrowRightSLine, RiLayout2Line, RiCollageLine, RiLinksLine, RiPagesLine, RiTextSnippet, RiHeading, RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiPhoneFindFill, RiFootprintLine, RiDoubleQuotesL, RiCheckDoubleLine } from '@remixicon/vue'
+import { RiFileTextLine, RiEditLine, RiCheckLine, RiDownloadLine, RiArrowLeftSLine, RiArrowRightSLine, RiLayout2Line, RiCollageLine, RiLinksLine, RiPagesLine, RiTextSnippet, RiHeading, RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiFootprintLine, RiDoubleQuotesL, RiCheckDoubleLine } from '@remixicon/vue'
 import DocumentPreview from '../components/DocumentPreview.vue'
 
 const router = useRouter()
-const { getFile } = useDocument()
+const { getFile, getFormatted, getFormattedBlob } = useDocument()
 const { beforeSnapshot, afterSnapshot, diffs, formatParams } = useFormatState()
-const { exportFormattedDoc } = useDocumentExport()
 const currentFile = getFile()
+const formattedFile = computed(() => getFormatted())
+const formattedBlobUrl = computed(() => getFormattedBlob())
 
 const today = new Date()
 const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`
 
 const modifiedFileName = computed(() => {
+  if (formattedFile.value?.name) return formattedFile.value.name
   if (!currentFile) return '未命名文档-M'
   const name = currentFile.name
   const dot = name.lastIndexOf('.')
@@ -56,40 +57,67 @@ const g = (obj, path) => {
   return v ?? '--'
 }
 
+const formatHeadingLevel = (p, level) => {
+  if (!p) return '--'
+  const h = p.headings?.[level - 1]
+  if (!h) return '--'
+  return `${h.cn_font || '--'} / ${h.en_font || '--'} · ${h.size_cn || '--'}`
+}
+
+const formatHeadingAll = (p) => {
+  if (!p) return '--'
+  return (p.headings || []).map((h, i) => `H${i+1}: ${h.cn_font}/${h.size_cn}`).join('；')
+}
+
 const tabs = [
   { id: 'page', label: '页面', sublabel: 'Page Layout', icon: RiPagesLine,
     fields: [
-      { id: 'page-paper', label: '纸张大小', before: p => g(p, 'page.paperSize'), after: p => g(p, 'page.paperSize') },
-      { id: 'page-margins', label: '页边距', before: p => `上${g(p,'page.marginTop')} 下${g(p,'page.marginBottom')} 左${g(p,'page.marginLeft')} 右${g(p,'page.marginRight')}`, after: p => `上${g(p,'page.marginTop')} 下${g(p,'page.marginBottom')} 左${g(p,'page.marginLeft')} 右${g(p,'page.marginRight')}` },
-      { id: 'page-orientation', label: '方向', before: p => g(p, 'page.orientation'), after: p => g(p, 'page.orientation') },
+      { id: 'page-paper', label: '纸张大小', before: p => g(p, 'page.paper_size'), after: p => g(p, 'page.paper_size') },
+      { id: 'page-margins', label: '页边距 (上/下/左/右 cm)', before: p => `${g(p,'page.top_cm')} / ${g(p,'page.bottom_cm')} / ${g(p,'page.left_cm')} / ${g(p,'page.right_cm')}`, after: p => `${g(p,'page.top_cm')} / ${g(p,'page.bottom_cm')} / ${g(p,'page.left_cm')} / ${g(p,'page.right_cm')}` },
+      { id: 'page-gutter', label: '装订线 (cm)', before: p => g(p, 'page.gutter_cm'), after: p => g(p, 'page.gutter_cm') },
+      { id: 'page-header-margin', label: '页眉距 (cm)', before: p => g(p, 'page.header_margin_cm'), after: p => g(p, 'page.header_margin_cm') },
+      { id: 'page-columns', label: '分栏', before: p => `${g(p,'page.columns')} 栏 · 间距 ${g(p,'page.column_spacing_cm')} cm`, after: p => `${g(p,'page.columns')} 栏 · 间距 ${g(p,'page.column_spacing_cm')} cm` },
+      { id: 'page-keep-orientation', label: '保持原方向', before: p => g(p, 'page.keep_original_orientation') ? '是' : '否', after: p => g(p, 'page.keep_original_orientation') ? '是' : '否' },
     ] },
   { id: 'body', label: '正文', sublabel: 'Body Text', icon: RiTextSnippet,
     fields: [
-      { id: 'body-font', label: '字体', before: p => g(p, 'body.font'), after: p => g(p, 'body.font') },
-      { id: 'body-font-size', label: '字号', before: p => g(p, 'body.fontSize'), after: p => g(p, 'body.fontSize') },
-      { id: 'body-line-spacing', label: '行距', before: p => g(p, 'body.lineSpacing'), after: p => g(p, 'body.lineSpacing') },
-      { id: 'body-indent', label: '缩进', before: p => `首行${g(p,'body.indentFirst')} 左${g(p,'body.indentLeft')}`, after: p => `首行${g(p,'body.indentFirst')} 左${g(p,'body.indentLeft')}` },
+      { id: 'body-font', label: '中文字体', before: p => g(p, 'body.cn_font'), after: p => g(p, 'body.cn_font') },
+      { id: 'body-en-font', label: '英文字体', before: p => g(p, 'body.en_font'), after: p => g(p, 'body.en_font') },
+      { id: 'body-font-size', label: '正文字号', before: p => g(p, 'body.size_cn'), after: p => g(p, 'body.size_cn') },
+      { id: 'body-bold', label: '加粗', before: p => g(p, 'body.bold') ? '是' : '否', after: p => g(p, 'body.bold') ? '是' : '否' },
+      { id: 'body-line-spacing', label: '行距', before: p => `${g(p,'body.line_spacing_mode')} ${g(p,'body.line_spacing_value')}`, after: p => `${g(p,'body.line_spacing_mode')} ${g(p,'body.line_spacing_value')}` },
+      { id: 'body-indent', label: '首行缩进', before: p => `${g(p,'body.first_line_indent_chars')} 字符`, after: p => `${g(p,'body.first_line_indent_chars')} 字符` },
+      { id: 'body-align', label: '对齐方式', before: p => g(p, 'body.align'), after: p => g(p, 'body.align') },
     ] },
   { id: 'heading', label: '标题', sublabel: 'Headings', icon: RiHeading,
     fields: [
-      { id: 'heading-level1', label: '一级标题', before: p => `${g(p,'heading.level1.font')} ${g(p,'heading.level1.fontSize')}`, after: p => `${g(p,'heading.level1.font')} ${g(p,'heading.level1.fontSize')}` },
-      { id: 'heading-level2', label: '二级标题', before: p => `${g(p,'heading.level2.font')} ${g(p,'heading.level2.fontSize')}`, after: p => `${g(p,'heading.level2.font')} ${g(p,'heading.level2.fontSize')}` },
-      { id: 'heading-level3', label: '三级标题', before: p => `${g(p,'heading.level3.font')} ${g(p,'heading.level3.fontSize')}`, after: p => `${g(p,'heading.level3.font')} ${g(p,'heading.level3.fontSize')}` },
+      { id: 'heading-level1', label: '一级标题', before: p => formatHeadingLevel(p, 1), after: p => formatHeadingLevel(p, 1) },
+      { id: 'heading-level2', label: '二级标题', before: p => formatHeadingLevel(p, 2), after: p => formatHeadingLevel(p, 2) },
+      { id: 'heading-level3', label: '三级标题', before: p => formatHeadingLevel(p, 3), after: p => formatHeadingLevel(p, 3) },
+      { id: 'heading-level4', label: '四级标题', before: p => formatHeadingLevel(p, 4), after: p => formatHeadingLevel(p, 4) },
     ] },
-  { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line, fields: [] },
-  { id: 'toc', label: '目录', sublabel: 'Table of Contents', icon: RiListCheck2, fields: [] },
-  { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line, fields: [] },
-  { id: 'pagenumber', label: '页码', sublabel: 'Page Number', icon: RiPhoneFindFill, fields: [] },
-  { id: 'footnote', label: '脚注', sublabel: 'Footnotes', icon: RiFootprintLine, fields: [] },
-  { id: 'citation', label: '引用', sublabel: 'Citations', icon: RiDoubleQuotesL,
+  { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line,
     fields: [
-      { id: 'citation-style', label: '引用样式', before: p => g(p, 'citation.styleLabel'), after: p => g(p, 'citation.styleLabel') },
-      { id: 'citation-font', label: '参考文献字体', before: p => g(p, 'citation.referenceFont'), after: p => g(p, 'citation.referenceFont') },
-      { id: 'citation-font-size', label: '参考文献字号', before: p => g(p, 'citation.referenceFontSize'), after: p => g(p, 'citation.referenceFontSize') },
-      { id: 'citation-line-spacing', label: '参考文献行距', before: p => g(p, 'citation.referenceLineSpacing'), after: p => g(p, 'citation.referenceLineSpacing') },
-      { id: 'citation-indent', label: '缩进方式', before: p => `${g(p,'citation.referenceIndent')} ${g(p,'citation.referenceIndentChars')}字符`, after: p => `${g(p,'citation.referenceIndent')} ${g(p,'citation.referenceIndentChars')}字符` },
-      { id: 'citation-locale', label: '参考文献语言', before: p => g(p, 'citation.referenceLocale'), after: p => g(p, 'citation.referenceLocale') },
+      { id: 'fig-caption', label: '图标题字体', before: p => `${g(p,'fig_caption.cn_font')} / ${g(p,'fig_caption.size_cn')}`, after: p => `${g(p,'fig_caption.cn_font')} / ${g(p,'fig_caption.size_cn')}` },
+      { id: 'tbl-caption', label: '表标题字体', before: p => `${g(p,'tbl_caption.cn_font')} / ${g(p,'tbl_caption.size_cn')}`, after: p => `${g(p,'tbl_caption.cn_font')} / ${g(p,'tbl_caption.size_cn')}` },
+      { id: 'table-font', label: '表格字体', before: p => `${g(p,'table.cn_font')} / ${g(p,'table.size_cn')}`, after: p => `${g(p,'table.cn_font')} / ${g(p,'table.size_cn')}` },
     ] },
+  { id: 'toc', label: '目录', sublabel: 'Table of Contents', icon: RiListCheck2,
+    fields: [
+      { id: 'toc-enable', label: '生成目录', before: p => g(p, 'toc.enable') ? '是' : '否', after: p => g(p, 'toc.enable') ? '是' : '否' },
+      { id: 'toc-title', label: '目录标题', before: p => g(p, 'toc.title_text'), after: p => g(p, 'toc.title_text') },
+      { id: 'toc-title-font', label: '目录标题字体', before: p => `${g(p,'toc.title_cn_font')} / ${g(p,'toc.title_size_cn')}`, after: p => `${g(p,'toc.title_cn_font')} / ${g(p,'toc.title_size_cn')}` },
+    ] },
+  { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line,
+    fields: [
+      { id: 'header-enable', label: '启用页眉', before: p => g(p, 'header_footer.enable_header') ? '是' : '否', after: p => g(p, 'header_footer.enable_header') ? '是' : '否' },
+      { id: 'header-text', label: '页眉文字', before: p => g(p, 'header_footer.header_text') || '(无)', after: p => g(p, 'header_footer.header_text') || '(无)' },
+      { id: 'header-font', label: '页眉字体', before: p => `${g(p,'header_footer.header_cn_font')} / ${g(p,'header_footer.header_size_cn')}`, after: p => `${g(p,'header_footer.header_cn_font')} / ${g(p,'header_footer.header_size_cn')}` },
+      { id: 'footer-enable', label: '启用页脚', before: p => g(p, 'header_footer.enable_footer') ? '是' : '否', after: p => g(p, 'header_footer.enable_footer') ? '是' : '否' },
+      { id: 'footer-page-number', label: '页码类型', before: p => g(p, 'header_footer.footer_page_number_type'), after: p => g(p, 'header_footer.footer_page_number_type') },
+    ] },
+  { id: 'footnote', label: '脚注', sublabel: 'Footnotes', icon: RiFootprintLine, fields: [] },
+  { id: 'citation', label: '引用', sublabel: 'Citations', icon: RiDoubleQuotesL, fields: [] },
 ]
 
 const activeTab = ref('page')
@@ -104,7 +132,7 @@ const tabFields = computed(() => {
     label: f.label,
     before: f.before(before),
     after: f.after(after),
-    changed: f.before(before) !== f.after(after),
+    changed: JSON.stringify(f.before(before)) !== JSON.stringify(f.after(after)),
   }))
 })
 
@@ -113,18 +141,46 @@ const currentDiff = computed(() => diffs.value[diffIndex.value] || null)
 const prevDiff = () => { if (diffIndex.value > 0) diffIndex.value-- }
 const nextDiff = () => { if (diffIndex.value < totalDiffs.value - 1) diffIndex.value++ }
 const acceptAll = () => {
-  if (confirm('确认接受全部修改？')) {
+  if (totalDiffs.value === 0) {
+    alert('当前文档无参数差异')
+    return
+  }
+  if (confirm(`确认接受全部 ${totalDiffs.value} 处修改？`)) {
+    if (afterSnapshot.value) {
+      const merged = JSON.parse(JSON.stringify(afterSnapshot.value))
+      for (const key of Object.keys(merged)) {
+        if (key in formatParams) {
+          if (typeof merged[key] === 'object' && !Array.isArray(merged[key])) {
+            Object.assign(formatParams[key], merged[key])
+          }
+        }
+      }
+    }
+    beforeSnapshot.value = JSON.parse(JSON.stringify(formatParams))
+    diffs.value = []
+    diffIndex.value = 0
     alert('已接受全部修改')
   }
 }
+const downloadBlob = (blob, filename) => {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 100)
+}
+
 const exportDoc = async () => {
-  const file = getFile()
-  if (!file) {
-    alert('未找到原始文档，请先上传')
+  const formatted = getFormatted()
+  if (!formatted) {
+    alert('未找到排版后的文件，请先点击"一键排版"')
     return
   }
   try {
-    await exportFormattedDoc(file, formatParams)
+    downloadBlob(formatted, modifiedFileName.value)
   } catch (e) {
     console.error('导出失败:', e)
     alert('文档导出失败，请重试')
@@ -225,7 +281,8 @@ const exportDoc = async () => {
           <div class="flex items-center gap-2">
             <RiFileTextLine size="14" color="#5B8C5A" />
             <span class="text-[13px] font-medium text-brown-dark">{{ modifiedFileName }}</span>
-            <div class="px-2 py-0.5 bg-jade-light text-white rounded-full text-[11px] font-semibold">推荐</div>
+            <div v-if="!formattedFile" class="px-2 py-0.5 bg-tan-dark text-white rounded-full text-[11px] font-semibold">未生成</div>
+            <div v-else class="px-2 py-0.5 bg-jade-light text-white rounded-full text-[11px] font-semibold">推荐</div>
           </div>
         </div>
         <div
@@ -233,7 +290,8 @@ const exportDoc = async () => {
           class="flex-1 bg-warm-gray overflow-y-auto py-6"
           @scroll="onRightScroll"
         >
-          <DocumentPreview :file="currentFile" />
+          <DocumentPreview v-if="formattedFile" :file="formattedFile" />
+          <DocumentPreview v-else :file="currentFile" />
         </div>
       </div>
     </div>
