@@ -4,52 +4,80 @@ import (
 	"fmt"
 
 	"github.com/unidoc/unioffice/document"
-	"github.com/unidoc/unioffice/measurement"
-	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func ApplyHeadingFormats(doc *document.Document, hs []HeadingStyle) error {
-	for _, p := range doc.Paragraphs() {
-		styleID := p.Style()
-		for level, h := range hs {
-			if styleID == fmt.Sprintf("Heading%d", level+1) {
-				p.SetAlignment(wml.ST_JcStart)
+func headingStyleIDs(level int) []string {
+	cn := map[int]string{1: "一", 2: "二", 3: "三", 4: "四"}
+	cnChar := cn[level]
+	return []string{
+		fmt.Sprintf("Heading%d", level),
+		fmt.Sprintf("heading%d", level),
+		fmt.Sprintf("标题%s", cnChar),
+		fmt.Sprintf("標題%s", cnChar),
+		fmt.Sprintf("标题 %d", level),
+	}
+}
 
-				p.SetLineSpacing(
-					twipsFromLineSpacing(h.LineSpacingMode, h.LineSpacingValue)*measurement.Twips,
-					lineSpacingEnum(h.LineSpacingMode))
-				p.SetBeforeSpacing(twipsFromSpacing(h.SpaceBeforeValue, h.SpaceBeforeUnit) * measurement.Twips)
-				p.SetAfterSpacing(twipsFromSpacing(h.SpaceAfterValue, h.SpaceAfterUnit) * measurement.Twips)
-
-				if h.FirstLineIndentChars > 0 {
-					p.SetFirstLineIndent(measurement.Distance(h.FirstLineIndentChars*200) * measurement.Twips)
+func matchHeadingLevel(styleID string) int {
+	if len(styleID) >= 7 && (styleID[:7] == "Heading" || styleID[:7] == "heading") {
+		var lvl int
+		if _, err := fmt.Sscanf(styleID[7:], "%d", &lvl); err == nil {
+			return lvl
+		}
+	}
+	cnMap := map[string]int{"一": 1, "二": 2, "三": 3, "四": 4}
+	cnHeadings := []string{"标题", "標題"}
+	for _, prefix := range cnHeadings {
+		if len(styleID) > len(prefix) {
+			if styleID[:len(prefix)] == prefix {
+				rest := styleID[len(prefix):]
+				rest = trimSpace(rest)
+				if c, ok := cnMap[rest]; ok {
+					return c
 				}
-				if h.LeftIndentValue > 0 {
-					p.SetLeftIndent(measurement.Distance(h.LeftIndentValue*200) * measurement.Twips)
-				}
-				if h.RightIndentValue > 0 {
-					p.SetRightIndent(measurement.Distance(h.RightIndentValue*200) * measurement.Twips)
-				}
-
-				for _, r := range p.Runs() {
-					rPr := r.Properties()
-					if h.ENFont != "" || h.CNFont != "" {
-						font := h.ENFont
-						if font == "" {
-							font = h.CNFont
-						}
-						rPr.SetFontFamily(font)
-						if h.CNFont != "" && h.CNFont != h.ENFont {
-							rPr.X().RFonts.EastAsiaAttr = &h.CNFont
-						}
-					}
-					rPr.SetSize(cnSizeToHalfPoints(h.SizeCN) * measurement.HalfPoint)
-					rPr.SetBold(h.Bold)
-					if h.Italic {
-						rPr.SetItalic(true)
-					}
+				var lvl int
+				if _, err := fmt.Sscanf(rest, "%d", &lvl); err == nil {
+					return lvl
 				}
 			}
+		}
+	}
+	return -1
+}
+
+func trimSpace(s string) string {
+	start := 0
+	end := len(s)
+	for start < end && (s[start] == ' ' || s[start] == '\t') {
+		start++
+	}
+	for end > start && (s[end-1] == ' ' || s[end-1] == '\t') {
+		end--
+	}
+	return s[start:end]
+}
+
+func ApplyHeadingFormats(doc *document.Document, hs []HeadingStyle) error {
+	if len(hs) == 0 {
+		return nil
+	}
+
+	for _, p := range doc.Paragraphs() {
+		styleID := p.Style()
+		lvl := matchHeadingLevel(styleID)
+		if lvl < 1 || lvl > len(hs) {
+			continue
+		}
+		h := hs[lvl-1]
+
+		if h.Align != "" {
+			p.SetAlignment(alignFromString(h.Align))
+		}
+
+		applyParagraphSpacing(p, &h.BodyStyle)
+
+		for _, r := range p.Runs() {
+			applyStyleToRun(r, &h.BodyStyle)
 		}
 	}
 	return nil
