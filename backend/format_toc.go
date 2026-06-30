@@ -3,8 +3,8 @@ package wordformat
 import (
 	"fmt"
 
-	"github.com/unidoc/unioffice/color"
 	"github.com/unidoc/unioffice/measurement"
+	"github.com/unidoc/unioffice/schema/soo/wml"
 
 	"github.com/unidoc/unioffice/document"
 )
@@ -57,13 +57,16 @@ func ApplyTOCFormat(doc *document.Document, toc *TOCConfig) error {
 					p.SetAfterSpacing(twipsFromSpacing(ls.SpaceAfterValue, ls.SpaceAfterUnit) * measurement.Twips)
 				}
 				if ls.FirstLineIndentChars > 0 {
-					p.SetFirstLineIndent(measurement.Distance(ls.FirstLineIndentChars*200) * measurement.Twips)
+					p.SetFirstLineIndent(measurement.Distance(ls.FirstLineIndentChars*charWidthTwips(ls.CNFont)) * measurement.Twips)
 				}
 				if ls.LeftIndentChars > 0 {
-					p.SetLeftIndent(measurement.Distance(ls.LeftIndentChars*200) * measurement.Twips)
+					p.SetLeftIndent(measurement.Distance(ls.LeftIndentChars*charWidthTwips(ls.CNFont)) * measurement.Twips)
 				}
 				if ls.RightIndentValue > 0 {
 					p.SetRightIndent(twipsFromIndentValue(ls.RightIndentValue, ls.RightIndentUnit) * measurement.Twips)
+				}
+				if ls.TabLeader != "" {
+					setTOCParagraphTabLeader(p, ls.TabLeader)
 				}
 
 				for _, r := range p.Runs() {
@@ -87,15 +90,51 @@ func ApplyTOCFormat(doc *document.Document, toc *TOCConfig) error {
 						rPr.SetItalic(true)
 					}
 					if ls.ColorRGB != [3]int{0, 0, 0} {
-						hex := fmt.Sprintf("%02X%02X%02X", ls.ColorRGB[0], ls.ColorRGB[1], ls.ColorRGB[2])
+						hex := fmt.Sprintf("#%02X%02X%02X", ls.ColorRGB[0], ls.ColorRGB[1], ls.ColorRGB[2])
 						rPr.SetColor(colorFromHex(hex))
-					}
-					if ls.TabLeader != "" {
-						rPr.SetUnderline(underlineFromType("none"), color.FromHex("#000000"))
 					}
 				}
 			}
 		}
 	}
 	return nil
+}
+
+func setTOCParagraphTabLeader(p document.Paragraph, leader string) {
+	pPr := p.X().PPr
+	if pPr == nil {
+		return
+	}
+	if pPr.Tabs == nil {
+		pPr.Tabs = wml.NewCT_Tabs()
+	}
+	leaderVal := tocLeaderValue(leader)
+	if leaderVal == wml.ST_TabTlcUnset {
+		return
+	}
+	if len(pPr.Tabs.Tab) == 0 {
+		tab := wml.NewCT_TabStop()
+		tab.LeaderAttr = leaderVal
+		pos := wml.ST_SignedTwipsMeasure{}
+		tab.PosAttr = pos
+		pPr.Tabs.Tab = append(pPr.Tabs.Tab, tab)
+		return
+	}
+	for _, t := range pPr.Tabs.Tab {
+		t.LeaderAttr = leaderVal
+	}
+}
+
+func tocLeaderValue(leader string) wml.ST_TabTlc {
+	switch leader {
+	case "DOT", "点", "点号":
+		return wml.ST_TabTlcDot
+	case "HYPHEN", "连字符":
+		return wml.ST_TabTlcHyphen
+	case "UNDERSCORE", "下划线":
+		return wml.ST_TabTlcUnderscore
+	case "MIDDLE_DOT", "中点":
+		return wml.ST_TabTlcMiddleDot
+	}
+	return wml.ST_TabTlcNone
 }
