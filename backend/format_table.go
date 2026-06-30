@@ -21,9 +21,13 @@ func applyCellBorders(cell document.Cell, style string) {
 		borders.SetInsideVertical(wml.ST_BorderNone, black, zero)
 		return
 	}
+	// Skip if preserving original borders
+	if style == "保留" || style == "preserve" || style == "原样" || style == "original" {
+		return
+	}
 	borders := cell.Properties().Borders()
-	// Standard border thickness: 4pt (4 * 8 = 32 eighths of point)
-	thickness := measurement.Distance(4) * measurement.Point
+	// 1px ≈ 0.75pt ≈ 6 eighths of point
+	thickness := measurement.Distance(0.75) * measurement.Point
 	switch style {
 	case "全部", "ALL", "all":
 		borders.SetAll(wml.ST_BorderSingle, black, thickness)
