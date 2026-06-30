@@ -1,12 +1,42 @@
 package wordformat
 
 import (
+	"github.com/unidoc/unioffice/color"
 	"github.com/unidoc/unioffice/document"
 	"github.com/unidoc/unioffice/measurement"
 	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
+func configureRun(run document.Run, cnFont, enFont, sizeCN string, bold, italic bool, underlineType string) {
+	if enFont != "" || cnFont != "" {
+		font := enFont
+		if font == "" {
+			font = cnFont
+		}
+		run.Properties().SetFontFamily(font)
+		if cnFont != "" && cnFont != enFont {
+			cf := cnFont
+			run.Properties().X().RFonts.EastAsiaAttr = &cf
+		}
+	}
+	if sizeCN != "" {
+		run.Properties().SetSize(cnSizeToHalfPoints(sizeCN) * measurement.HalfPoint)
+	}
+	if bold {
+		run.Properties().SetBold(true)
+	}
+	if italic {
+		run.Properties().SetItalic(true)
+	}
+	if underlineType != "" {
+		run.Properties().SetUnderline(underlineFromType(underlineType), color.FromHex("#000000"))
+	}
+}
+
 func ApplyHeaderFooter(doc *document.Document, hf *HeaderFooter) error {
+	if hf == nil {
+		return nil
+	}
 	section := doc.BodySection()
 
 	if hf.EnableHeader {
@@ -17,27 +47,9 @@ func ApplyHeaderFooter(doc *document.Document, hf *HeaderFooter) error {
 		}
 		hdr.Clear()
 		hp := hdr.AddParagraph()
-		switch hf.HeaderAlign {
-		case "居中", "CENTER":
-			hp.SetAlignment(wml.ST_JcCenter)
-		case "居左", "LEFT":
-			hp.SetAlignment(wml.ST_JcStart)
-		case "居右", "RIGHT":
-			hp.SetAlignment(wml.ST_JcEnd)
-		}
+		hp.SetAlignment(alignFromString(hf.HeaderAlign))
 		run := hp.AddRun()
-		if hf.HeaderENFont != "" || hf.HeaderCNFont != "" {
-			font := hf.HeaderENFont
-			if font == "" {
-				font = hf.HeaderCNFont
-			}
-			run.Properties().SetFontFamily(font)
-			if hf.HeaderCNFont != "" && hf.HeaderCNFont != hf.HeaderENFont {
-				run.Properties().X().RFonts.EastAsiaAttr = &hf.HeaderCNFont
-			}
-		}
-		run.Properties().SetSize(cnSizeToHalfPoints(hf.HeaderSizeCN) * measurement.HalfPoint)
-		run.Properties().SetBold(hf.HeaderBold)
+		configureRun(run, hf.HeaderCNFont, hf.HeaderENFont, hf.HeaderSizeCN, hf.HeaderBold, hf.HeaderItalic, hf.HeaderUnderlineType)
 		run.AddText(hf.HeaderText)
 	}
 
@@ -51,30 +63,21 @@ func ApplyHeaderFooter(doc *document.Document, hf *HeaderFooter) error {
 			ftr.Clear()
 		}
 		fp := ftr.AddParagraph()
-		switch hf.FooterAlign {
-		case "居中", "CENTER":
-			fp.SetAlignment(wml.ST_JcCenter)
-		case "居左", "LEFT":
-			fp.SetAlignment(wml.ST_JcStart)
-		case "居右", "RIGHT":
-			fp.SetAlignment(wml.ST_JcEnd)
-		}
+		fp.SetAlignment(alignFromString(hf.FooterAlign))
 		run := fp.AddRun()
-		if hf.FooterENFont != "" || hf.FooterCNFont != "" {
-			font := hf.FooterENFont
-			if font == "" {
-				font = hf.FooterCNFont
-			}
-			run.Properties().SetFontFamily(font)
-			if hf.FooterCNFont != "" && hf.FooterCNFont != hf.FooterENFont {
-				run.Properties().X().RFonts.EastAsiaAttr = &hf.FooterCNFont
+		configureRun(run, hf.FooterCNFont, hf.FooterENFont, hf.FooterSizeCN, false, hf.FooterItalic, "")
+
+		if !hf.PageNumberFromBody {
+			switch hf.FooterPageNumberType {
+			case "page_only", "PAGE_ONLY", "仅页码":
+				run.AddField("PAGE")
+			case "none", "NONE", "无":
+			default:
+				run.AddField("PAGE")
+				run.AddText(" / ")
+				run.AddField("NUMPAGES")
 			}
 		}
-		run.Properties().SetSize(cnSizeToHalfPoints(hf.FooterSizeCN) * measurement.HalfPoint)
-
-		run.AddField("PAGE")
-		run.AddText(" / ")
-		run.AddField("NUMPAGES")
 	}
 
 	return nil
