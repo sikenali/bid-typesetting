@@ -44,7 +44,7 @@ const tabSpaceOptions = [
               <span class="text-[13px] text-brown">清理多余空格</span>
             </div>
             <div class="relative group/tip">
-              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center">
                 <RiInformationLine size="12" class="text-brown-muted" />
               </div>
               <div class="absolute right-0 bottom-full mb-2 hidden group-hover/tip:block bg-brown-dark text-white text-[11px] rounded-lg px-3 py-2 whitespace-nowrap shadow-lg z-10">
@@ -118,7 +118,7 @@ const tabSpaceOptions = [
               <span class="text-[13px] text-brown">清理图表格式</span>
             </div>
             <div class="relative group/tip">
-              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center">
                 <RiInformationLine size="12" class="text-brown-muted" />
               </div>
               <div class="absolute right-0 bottom-full mb-2 hidden group-hover/tip:block bg-brown-dark text-white text-[11px] rounded-lg px-3 py-2 whitespace-nowrap shadow-lg z-10">
@@ -144,7 +144,7 @@ const tabSpaceOptions = [
                 :class="textCleanup.soft_enter_to_hard ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
                 <RiCheckLine v-if="textCleanup.soft_enter_to_hard" size="12" class="text-white" />
               </div>
-              <span class="text-[13px] text-brown">I符号转换回车</span>
+              <span class="text-[13px] text-brown">↓符号转换回车</span>
             </div>
           </div>
 
@@ -154,7 +154,7 @@ const tabSpaceOptions = [
                 :class="textCleanup.tab_to_spaces_enabled ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
                 <RiCheckLine v-if="textCleanup.tab_to_spaces_enabled" size="12" class="text-white" />
               </div>
-              <span class="text-[13px] text-brown">Tab符号转换空格</span>
+              <span class="text-[13px] text-brown">格（→）符号转换空格</span>
             </div>
             <div @click.stop><DropdownSelect v-if="textCleanup.tab_to_spaces_enabled" v-model="textCleanup.tab_to_spaces" :options="tabSpaceOptions" width-class="w-[90px]" compact /></div>
           </div>
@@ -168,7 +168,7 @@ const tabSpaceOptions = [
               <span class="text-[13px] text-brown">上标数学单位自动设置</span>
             </div>
             <div class="relative group/tip">
-              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center">
                 <RiInformationLine size="12" class="text-brown-muted" />
               </div>
               <div class="absolute right-0 bottom-full mb-2 hidden group-hover/tip:block bg-brown-dark text-white text-[11px] rounded-lg px-3 py-2 whitespace-nowrap shadow-lg z-10">
@@ -197,7 +197,7 @@ const tabSpaceOptions = [
               <span class="text-[13px] text-brown">标签符转换纯文本</span>
             </div>
             <div class="relative group/tip">
-              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="w-[22px] h-[22px] rounded-full bg-cream-darker border border-tan-border flex items-center justify-center">
                 <RiInformationLine size="12" class="text-brown-muted" />
               </div>
               <div class="absolute right-0 bottom-full mb-2 hidden group-hover/tip:block bg-brown-dark text-white text-[11px] rounded-lg px-3 py-2 whitespace-nowrap shadow-lg z-10">
