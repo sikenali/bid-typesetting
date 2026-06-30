@@ -66,8 +66,8 @@ function loadTemplates() {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
-      const hasBuiltins = localStorage.getItem(BUILTIN_INIT_KEY) === 'true'
-      return hasBuiltins ? parsed : [...builtinTemplates, ...parsed]
+      localStorage.setItem(BUILTIN_INIT_KEY, 'true')
+      return [...builtinTemplates, ...parsed]
     }
     localStorage.setItem(BUILTIN_INIT_KEY, 'true')
     return [...builtinTemplates]
