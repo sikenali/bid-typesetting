@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
 import { useTemplates } from '../composables/useTemplates'
@@ -27,8 +27,7 @@ import {
   RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiBrushLine,
   RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
   RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line,
-  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine,
-  RiScrollLine
+  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine
 } from '@remixicon/vue'
 
 const router = useRouter()
@@ -154,6 +153,12 @@ watch(currentFile, async (file) => {
   }
 }, { immediate: true })
 
+onMounted(() => {
+  nextTick(() => {
+    activeTab.value = 'reset'
+  })
+})
+
 const handleSaveTemplate = () => {
   showSaveModal.value = true
 }
@@ -185,7 +190,10 @@ const handleDeleteTemplate = (id) => {
 
 const handleOneClickModify = async () => {
   if (!await handleLargeFileWarning()) return
-  if (!currentFile.value) return
+  if (!currentFile.value) {
+    alert('未上传文件，请上传后再进行排版~')
+    return
+  }
   isProcessing.value = true
   formatProgress.value = 0
   formatLog.value = ['开始排版处理...', '']
@@ -202,23 +210,13 @@ const handleOneClickModify = async () => {
     formatProgress.value = 70
     
     addLog('正在生成排版结果...')
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'formatted.docx'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    
     formatProgress.value = 100
-    addLog('排版完成！文档已开始下载。')
+    addLog('排版完成！')
     
     setTimeout(() => {
       showFormatLog.value = false
-    }, 1500)
-    
-    router.push('/compare')
+      router.push('/compare')
+    }, 800)
   } catch (e) {
     addLog('排版失败：' + e.message, 'error')
     addLog(e.stack || '', 'error')
@@ -234,16 +232,6 @@ const addLog = (msg, type = 'info') => {
 
 const handleReset = () => {
   router.push('/')
-}
-
-const handleLoadTemplate = () => {
-  const selected = templates.value.find(t => t.selected)
-  if (selected && selected.formatParams) {
-    Object.assign(formatParams, JSON.parse(JSON.stringify(selected.formatParams)))
-    alert(`已载入模板：${selected.name}`)
-  } else {
-    alert('请先在模板页面选择一个模板')
-  }
 }
 
 const onTemplateSaved = ({ name, category }) => {
@@ -301,23 +289,6 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
         </div>
 
         <div class="flex-1 overflow-y-auto bg-warm-gray px-8 py-6 space-y-5">
-          <div v-if="showFormatLog" class="mb-4 p-4 bg-white border border-tan-border rounded-lg shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-sm font-semibold text-brown-dark">排版进度</h3>
-              <button @click="showFormatLog = false" class="text-brown-muted hover:text-brown">
-                <RiCloseLine size="16" />
-              </button>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-              <div class="bg-cinnabar h-2.5 rounded-full transition-all duration-300" :style="{ width: formatProgress + '%' }"></div>
-            </div>
-            <div class="text-xs text-brown-muted mb-2">{{ formatProgress }}%</div>
-            <div class="max-h-32 overflow-y-auto space-y-1 text-xs font-mono text-brown">
-              <div v-for="(log, index) in formatLog" :key="index" :class="{'text-red-500': log.type === 'error'}">
-                {{ log.time }} - {{ log.msg }}
-              </div>
-            </div>
-          </div>
           <PagePanel
             v-if="activeTab === 'page'"
             :params="formatParams.page"
@@ -484,6 +455,64 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             :options="{ language: 'zh-CN' }"
             class="docx-editor-content"
           />
+        </div>
+      </div>
+    </div>
+
+    <!-- Format Progress Modal -->
+    <div v-if="showFormatLog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showFormatLog = false">
+      <div class="bg-cream rounded-2xl shadow-2xl w-[500px] overflow-hidden border border-tan-border">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-tan-border bg-cream-dark">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-cinnabar flex items-center justify-center">
+              <RiSparklingLine v-if="isProcessing" size="16" color="white" class="animate-spin" />
+              <RiCheckLine v-else size="16" color="white" />
+            </div>
+            <span class="text-[14px] font-semibold text-brown-dark">{{ isProcessing ? '排版处理中...' : '排版完成' }}</span>
+          </div>
+          <button
+            @click="showFormatLog = false"
+            class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-cream transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4L12 12M12 4L4 12" stroke="#5C4033" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-6 py-5 space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[13px] font-medium text-brown-dark">进度</span>
+              <span class="text-[13px] font-semibold text-cinnabar">{{ formatProgress }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                class="bg-cinnabar h-2.5 rounded-full transition-all duration-300"
+                :style="{ width: formatProgress + '%' }"
+              ></div>
+            </div>
+          </div>
+
+          <div class="max-h-48 overflow-y-auto bg-white border border-tan-border rounded-lg p-3 space-y-1">
+            <div
+              v-for="(log, index) in formatLog"
+              :key="index"
+              class="text-xs font-mono leading-relaxed"
+              :class="log.type === 'error' ? 'text-red-500' : 'text-brown'"
+            >
+              <span class="text-brown-muted">[{{ log.time }}]</span> {{ log.msg }}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end px-6 py-4 bg-cream-dark border-t border-tan-border">
+          <button
+            @click="showFormatLog = false"
+            class="px-5 py-2 bg-white border border-tan-border rounded-lg text-[13px] font-medium text-brown hover:bg-cream transition-colors"
+          >
+            {{ isProcessing ? '请稍候...' : '关闭' }}
+          </button>
         </div>
       </div>
     </div>
