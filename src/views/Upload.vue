@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
-import { RiFileWordLine, RiFilePdfLine, RiFileExcelLine, RiFilePptLine, RiUploadCloud2Line, RiBook2Line, RiQuillPenFill } from '@remixicon/vue'
+import { RiFileWordLine, RiUploadCloud2Line, RiBook2Line, RiQuillPenFill } from '@remixicon/vue'
 
 const router = useRouter()
 const { setFile } = useDocument()
@@ -92,13 +92,13 @@ const handleFileChange = (e) => {
           <p class="text-sm text-brown-muted mt-2">{{ Math.round(uploadProgress) }}%</p>
         </div>
 
-        <p v-if="!uploading" class="text-sm text-brown-muted mb-6">        支持竹简、文牒等格式，最大支持100MB+</p>
+        <p v-if="!uploading" class="text-sm text-brown-muted mb-6">只支持 DOCX 格式，最大支持150MB</p>
 
         <input
           type="file"
           id="file-input"
           class="hidden"
-          accept=".docx,.xlsx,.pptx,.pdf"
+          accept=".docx"
           :disabled="uploading"
           @change="handleFileChange"
         />
@@ -117,18 +117,6 @@ const handleFileChange = (e) => {
         <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
           <RiFileWordLine size="14" color="#5B8C5A" />
           <span class="text-xs font-medium text-brown">DOCX</span>
-        </div>
-        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
-          <RiFileExcelLine size="14" color="#2D8B57" />
-          <span class="text-xs font-medium text-brown">XLSX</span>
-        </div>
-        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
-          <RiFilePptLine size="14" color="#C8A45C" />
-          <span class="text-xs font-medium text-brown">PPTX</span>
-        </div>
-        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
-          <RiFilePdfLine size="14" color="#C43A31" />
-          <span class="text-xs font-medium text-brown">PDF</span>
         </div>
       </div>
     </div>
