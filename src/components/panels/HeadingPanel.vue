@@ -148,7 +148,7 @@ const levelLabels = computed(() =>
         <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
         <div class="flex items-center gap-[8px]">
           <div class="w-[5px] h-[18px] rounded-[2px] bg-cinnabar shrink-0"></div>
-          <span class="text-[14px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">标题级别</span>
+          <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">标题级别</span>
         </div>
         <LevelBar v-model="activeLevel" :labels="levelLabels" />
         <Transition name="fade-slide" mode="out-in">
