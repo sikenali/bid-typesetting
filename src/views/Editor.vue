@@ -1,12 +1,19 @@
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
-import { useTemplates } from '../composables/useTemplates'
 import { useFormatState } from '../composables/useFormatState'
+import { useTemplates } from '../composables/useTemplates'
 import { useToast } from '../composables/useToast'
-import { formatDocument, healthCheck } from '../api/format'
 import { readDocxParams } from '../utils/docxReader'
+import { healthCheck, formatDocument } from '../api/format'
+import {
+  RiZoomOutLine, RiZoomInLine, RiPagesLine, RiTextSnippet, RiHeading,
+  RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiBrushLine,
+  RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
+  RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line,
+  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine
+} from '@remixicon/vue'
 import Sidebar from '../components/Sidebar.vue'
 import SaveTemplateModal from '../components/SaveTemplateModal.vue'
 import LoadTemplateModal from '../components/LoadTemplateModal.vue'
@@ -24,13 +31,6 @@ import '@vue-office/docx/lib/index.css'
 import VueOfficePdf from '@vue-office/pdf'
 import VueOfficeExcel from '@vue-office/excel'
 import '@vue-office/excel/lib/index.css'
-import {
-  RiZoomOutLine, RiZoomInLine, RiPagesLine, RiTextSnippet, RiHeading,
-  RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiBrushLine,
-  RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
-  RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line,
-  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine
-} from '@remixicon/vue'
 
 const router = useRouter()
 const { getFile, setFormatted } = useDocument()
