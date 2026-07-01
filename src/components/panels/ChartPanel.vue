@@ -6,7 +6,7 @@ import AlignButtonGroup from '../ui/AlignButtonGroup.vue'
 import CheckboxToggle from '../ui/CheckboxToggle.vue'
 import SpacingInput from '../ui/SpacingInput.vue'
 import LevelBar from '../ui/LevelBar.vue'
-import { cnFonts, enFonts, sizeCN, spacingUnits } from '../../constants/ui'
+import { cnFonts, enFonts, sizeCN, lineSpacingModes, spacingUnits } from '../../constants/ui'
 
 const props = defineProps({
   figCaption: { type: Object, required: true },
