@@ -1,7 +1,12 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
-import { RiCheckLine, RiAlignLeft, RiAlignCenter, RiAlignRight, RiArrowDownSLine, RiArrowUpSLine } from '@remixicon/vue'
-import DropdownSelect from '../DropdownSelect.vue'
+import { ref } from 'vue'
+import { RiCheckLine, RiAlignLeft, RiAlignCenter, RiAlignRight } from '@remixicon/vue'
+import DropdownSelect from '../ui/DropdownSelect.vue'
+import AlignButtonGroup from '../ui/AlignButtonGroup.vue'
+import CheckboxToggle from '../ui/CheckboxToggle.vue'
+import SpacingInput from '../ui/SpacingInput.vue'
+import LevelBar from '../ui/LevelBar.vue'
+import { cnFonts, enFonts, sizeCN, spacingUnits } from '../../constants/ui'
 
 const props = defineProps({
   figCaption: { type: Object, required: true },
@@ -11,15 +16,6 @@ const props = defineProps({
   activeSubTab: { type: String, default: 'fig' },
 })
 
-const cnFonts = ['宋体', '仿宋', '黑体', '楷体', '微软雅黑', '思源宋体'].map(v => ({ value: v, label: v }))
-const enFonts = ['Times New Roman', 'Arial', 'Calibri', 'Verdana', 'Courier New'].map(v => ({ value: v, label: v }))
-const sizeCN = ['初号', '小初', '一号', '小一', '二号', '小二', '三号', '四号', '小四', '五号', '小五'].map(v => ({ value: v, label: v }))
-const lineSpacingModes = [
-  { value: 'EXACT', label: '固定值' },
-  { value: 'SINGLE', label: '单倍行距' },
-  { value: 'MULTIPLE', label: '多倍行距' },
-]
-const indentUnits = ['行', '厘米', '字符', '磅'].map(v => ({ value: v === '磅' ? 'pt' : v === '行' ? 'line' : v === '字符' ? 'char' : v === '厘米' ? 'cm' : v, label: v }))
 const borderStyles = [
   { value: 'none', label: '无边框' },
   { value: 'single', label: '单线边框' },
@@ -29,30 +25,11 @@ const borderStyles = [
 
 // 层级选择器
 const activeLevel = ref(0) // 0=图标题样式, 1=表标题样式
-const levelBarRef = ref(null)
-const indicatorStyle = ref({ left: '4px', width: '80px' })
 const levelLabels = ['图标题样式', '表标题样式']
-
-function positionIndicator() {
-  const bar = levelBarRef.value
-  if (!bar) return
-  const btns = bar.querySelectorAll('button')
-  const btn = btns[activeLevel.value]
-  if (!btn) return
-  const barRect = bar.getBoundingClientRect()
-  const btnRect = btn.getBoundingClientRect()
-  indicatorStyle.value = {
-    left: `${btnRect.left - barRect.left}px`,
-    width: `${btnRect.width}px`,
-  }
-}
 
 function selectLevel(idx) {
   activeLevel.value = idx
-  nextTick(positionIndicator)
 }
-
-onMounted(() => { nextTick(positionIndicator) })
 
 // 获取当前层级的参数
 const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.tblCaption
@@ -68,18 +45,7 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
           <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">图表标题</span>
         </div>
 
-        <!-- 层级选择器 -->
-        <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
-          <div class="absolute top-[3px] bottom-[3px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
-            :style="indicatorStyle">
-          </div>
-          <button
-            v-for="(label, idx) in levelLabels" :key="idx"
-            @click="selectLevel(idx)"
-            class="relative z-10 px-[10px] py-[5px] text-[12px] rounded-lg transition-colors duration-200 cursor-pointer"
-            :class="activeLevel === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
-          >{{ label }}</button>
-        </div>
+        <LevelBar v-model="activeLevel" :labels="levelLabels" />
 
         <Transition name="fade-slide" mode="out-in">
           <div :key="activeLevel" class="flex flex-col gap-3">
@@ -102,27 +68,9 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
                   </div>
                 </div>
                 <div class="flex items-center gap-[6px]">
-                  <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().bold = !currentParams().bold">
-                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                      :class="currentParams().bold ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                      <RiCheckLine v-if="currentParams().bold" size="10" class="text-white" />
-                    </div>
-                    <span class="text-[12px] text-brown shrink-0">粗体</span>
-                  </div>
-                  <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().italic = !currentParams().italic">
-                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                      :class="currentParams().italic ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                      <RiCheckLine v-if="currentParams().italic" size="10" class="text-white" />
-                    </div>
-                    <span class="text-[12px] text-brown shrink-0">斜体</span>
-                  </div>
-                  <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().underline = !currentParams().underline">
-                    <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
-                      :class="currentParams().underline ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
-                      <RiCheckLine v-if="currentParams().underline" size="10" class="text-white" />
-                    </div>
-                    <span class="text-[12px] text-brown shrink-0">下划线</span>
-                  </div>
+                  <CheckboxToggle v-model="currentParams().bold" label="粗体" />
+                  <CheckboxToggle v-model="currentParams().italic" label="斜体" />
+                  <CheckboxToggle v-model="currentParams().underline" label="下划线" />
                 </div>
               </div>
             </div>
@@ -139,9 +87,7 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">值</span>
-                  <input type="number" min="0" step="0.5" v-model.number="currentParams().line_spacing_value"
-                    class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                  <span class="text-[12px] text-brown shrink-0">磅</span>
+                  <SpacingInput v-model="currentParams().line_spacing_value" unit="磅" step="0.5" width="w-[50px]" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">段前</span>
@@ -166,13 +112,13 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
                   <span class="text-[12px] text-brown shrink-0">左边距</span>
                   <input type="number" min="0" step="0.1" v-model.number="currentParams().left_indent_value"
                     class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                  <DropdownSelect v-model="currentParams().left_indent_unit" :options="indentUnits" width-class="auto" />
+                  <DropdownSelect v-model="currentParams().left_indent_unit" :options="spacingUnits" width-class="auto" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">右边距</span>
                   <input type="number" min="0" step="0.1" v-model.number="currentParams().right_indent_value"
                     class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                  <DropdownSelect v-model="currentParams().right_indent_unit" :options="indentUnits" width-class="auto" />
+                  <DropdownSelect v-model="currentParams().right_indent_unit" :options="spacingUnits" width-class="auto" />
                 </div>
               </div>
             </div>
@@ -185,26 +131,11 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
               <div class="flex flex-wrap items-center gap-[6px]">
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">对齐方式</span>
-                  <div class="bg-cream-darker rounded-lg p-[3px] flex items-center relative">
-                    <div class="absolute top-[3px] bottom-[3px] w-7 bg-white rounded-[3px] shadow-sm transition-all duration-300 ease-out pointer-events-none"
-                      :style="{ left: `${3 + ['LEFT', 'CENTER', 'RIGHT'].indexOf(currentParams().align) * 28}px` }">
-                    </div>
-                    <button @click="currentParams().align = 'LEFT'"
-                      class="relative z-10 w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200"
-                      :class="currentParams().align === 'LEFT' ? 'text-cinnabar' : 'text-brown-muted hover:text-brown'">
-                      <RiAlignLeft size="13" />
-                    </button>
-                    <button @click="currentParams().align = 'CENTER'"
-                      class="relative z-10 w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200"
-                      :class="currentParams().align === 'CENTER' ? 'text-cinnabar' : 'text-brown-muted hover:text-brown'">
-                      <RiAlignCenter size="13" />
-                    </button>
-                    <button @click="currentParams().align = 'RIGHT'"
-                      class="relative z-10 w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200"
-                      :class="currentParams().align === 'RIGHT' ? 'text-cinnabar' : 'text-brown-muted hover:text-brown'">
-                      <RiAlignRight size="13" />
-                    </button>
-                  </div>
+                  <AlignButtonGroup v-model="currentParams().align" :options="[
+                    { value: 'LEFT', icon: RiAlignLeft },
+                    { value: 'CENTER', icon: RiAlignCenter },
+                    { value: 'RIGHT', icon: RiAlignRight },
+                  ]" />
                 </div>
                 <div class="flex items-center gap-[3px] cursor-pointer" @click="currentParams().add_space = !currentParams().add_space">
                   <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
@@ -268,15 +199,11 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
             <div class="flex flex-wrap items-center gap-[6px]">
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">行距数值</span>
-                <input type="number" min="0" step="0.5" v-model.number="props.tableSettings.line_spacing_value"
-                  class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                <span class="text-[12px] text-brown shrink-0">磅</span>
+                <SpacingInput v-model="props.tableSettings.line_spacing_value" unit="磅" step="0.5" width="w-[50px]" />
               </div>
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">最小行高</span>
-                <input type="number" min="0" step="0.5" v-model.number="props.tableSettings.min_line_height"
-                  class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                <span class="text-[12px] text-brown shrink-0">磅</span>
+                <SpacingInput v-model="props.tableSettings.min_line_height" unit="磅" step="0.5" width="w-[50px]" />
               </div>
             </div>
           </div>
@@ -287,26 +214,11 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
           <div>
             <span class="text-[12px] font-semibold text-brown-muted block mb-[6px]">单元格对齐</span>
             <div class="flex flex-wrap items-center gap-[6px]">
-              <div class="bg-cream rounded-lg p-[3px] flex items-center relative">
-                <div class="absolute top-[3px] bottom-[3px] w-7 bg-white rounded-[3px] shadow-sm transition-all duration-300 ease-out pointer-events-none"
-                  :style="{ left: `${3 + ['LEFT', 'CENTER', 'RIGHT'].indexOf(props.tableSettings.align) * 28}px` }">
-                </div>
-                <button @click="props.tableSettings.align = 'LEFT'"
-                  class="relative z-10 w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200"
-                  :class="props.tableSettings.align === 'LEFT' ? 'text-cinnabar' : 'text-brown-muted hover:text-brown'">
-                  <RiAlignLeft size="13" />
-                </button>
-                <button @click="props.tableSettings.align = 'CENTER'"
-                  class="relative z-10 w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200"
-                  :class="props.tableSettings.align === 'CENTER' ? 'text-cinnabar' : 'text-brown-muted hover:text-brown'">
-                  <RiAlignCenter size="13" />
-                </button>
-                <button @click="props.tableSettings.align = 'RIGHT'"
-                  class="relative z-10 w-7 h-6 rounded-[3px] flex items-center justify-center transition-colors duration-200"
-                  :class="props.tableSettings.align === 'RIGHT' ? 'text-cinnabar' : 'text-brown-muted hover:text-brown'">
-                  <RiAlignRight size="13" />
-                </button>
-              </div>
+              <AlignButtonGroup v-model="props.tableSettings.align" :options="[
+                { value: 'LEFT', icon: RiAlignLeft },
+                { value: 'CENTER', icon: RiAlignCenter },
+                { value: 'RIGHT', icon: RiAlignRight },
+              ]" />
             </div>
           </div>
 
