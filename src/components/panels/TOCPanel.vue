@@ -1,46 +1,31 @@
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { RiCheckLine, RiAddLine, RiSubtractLine } from '@remixicon/vue'
-import DropdownSelect from '../DropdownSelect.vue'
+import DropdownSelect from '../ui/DropdownSelect.vue'
+import SpacingInput from '../ui/SpacingInput.vue'
+import LevelBar from '../ui/LevelBar.vue'
+import { cnFonts, enFonts, sizeCN, lineSpacingModes, spacingUnits, tabLeaders } from '../../constants/ui'
 
 const props = defineProps({
   params: { type: Object, required: true },
 })
 
+const emit = defineEmits(['update:params'])
+
 const activeLevel = ref(0)
 
-// 同步目录标题启用状态到目录层级样式启用状态
-watch(() => props.params.enable, (val) => {
-  props.params.enable_level_styles = val
-}, { immediate: true })
-const levelBarRef = ref(null)
-const indicatorStyle = ref({ left: '4px', width: '56px' })
-
-function positionIndicator() {
-  const bar = levelBarRef.value
-  if (!bar) return
-  const btns = bar.querySelectorAll('button')
-  const btn = btns[activeLevel.value]
-  if (!btn) return
-  const barRect = bar.getBoundingClientRect()
-  const btnRect = btn.getBoundingClientRect()
-  indicatorStyle.value = {
-    left: `${btnRect.left - barRect.left}px`,
-    width: `${btnRect.width}px`,
-  }
-}
+const levelLabels = computed(() =>
+  props.params.level_styles.map((_, idx) => `第${idx + 1}层`)
+)
 
 function selectLevel(idx) {
   activeLevel.value = idx
-  nextTick(positionIndicator)
 }
 
 function addLevel() {
   const last = props.params.level_styles[props.params.level_styles.length - 1]
   props.params.level_styles.push({ ...last, left_indent_value: last.left_indent_value + 1 })
-  nextTick(() => {
-    selectLevel(props.params.level_styles.length - 1)
-  })
+  selectLevel(props.params.level_styles.length - 1)
 }
 
 function removeLevel() {
@@ -50,36 +35,8 @@ function removeLevel() {
     if (wasLast) {
       activeLevel.value = props.params.level_styles.length - 1
     }
-    nextTick(positionIndicator)
   }
 }
-
-onMounted(() => { nextTick(positionIndicator) })
-
-const cnFonts = ['宋体', '仿宋', '黑体', '楷体', '微软雅黑', '思源宋体'].map(v => ({ value: v, label: v }))
-const enFonts = ['Times New Roman', 'Arial', 'Calibri', 'Verdana', 'Courier New'].map(v => ({ value: v, label: v }))
-const sizeCN = ['初号', '小初', '一号', '小一', '二号', '小二', '三号', '四号', '小四', '五号', '小五'].map(v => ({ value: v, label: v }))
-const lineSpacingModes = [
-  { value: 'EXACT', label: '固定值(磅)' },
-  { value: 'MULTIPLE', label: '多倍行距' },
-  { value: 'SINGLE', label: '单倍行距' },
-  { value: 'ONE_POINT_FIVE', label: '1.5倍行距' },
-  { value: 'DOUBLE', label: '双倍行距' },
-]
-const spacingUnits = [
-  { value: 'line', label: '行' },
-  { value: 'cm', label: '厘米' },
-  { value: 'char', label: '字符' },
-  { value: 'pt', label: '磅' },
-]
-const tabLeaders = [
-  { value: 'DOT', label: '点线' },
-  { value: 'MID_DOT', label: '中间点' },
-  { value: 'DASH', label: '短横线' },
-  { value: 'UNDERSCORE', label: '下划线' },
-  { value: 'THICK', label: '粗线' },
-  { value: 'NONE', label: '无线条' },
-]
 
 function rgbToString(rgb) {
   return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
@@ -173,16 +130,7 @@ function leaderPreview(value) {
           </div>
         </div>
         <div class="flex-1 overflow-y-auto flex flex-col gap-3">
-          <div ref="levelBarRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
-            <div class="absolute top-[3px] bottom-[3px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
-              :style="indicatorStyle">
-            </div>
-            <button v-for="(_, idx) in props.params.level_styles" :key="idx"
-              @click="selectLevel(idx)"
-              class="relative z-10 px-[10px] py-[5px] text-[12px] rounded-lg transition-colors duration-200 cursor-pointer"
-              :class="activeLevel === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
-            >第{{ idx + 1 }}层</button>
-          </div>
+          <LevelBar v-model="activeLevel" :labels="levelLabels" />
         </div>
         <div :class="params.enable_level_styles ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-3">
           <Transition name="fade-slide" mode="out-in">
@@ -240,9 +188,7 @@ function leaderPreview(value) {
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">行距数值</span>
-                    <input type="number" min="0" step="0.1" v-model.number="params.level_styles[activeLevel].line_spacing_value"
-                      class="w-[60px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <span class="text-[12px] text-brown-muted shrink-0">磅</span>
+                    <SpacingInput v-model="params.level_styles[activeLevel].line_spacing_value" unit="磅" width="w-[60px]" />
                   </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-[6px] mt-[6px]">
@@ -267,9 +213,7 @@ function leaderPreview(value) {
                 <div class="flex flex-wrap items-center gap-[6px]">
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">左缩进</span>
-                    <input type="number" min="0" step="0.1" v-model.number="params.level_styles[activeLevel].left_indent_value"
-                      class="w-[60px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <span class="text-[12px] text-brown-muted shrink-0">字符</span>
+                    <SpacingInput v-model="params.level_styles[activeLevel].left_indent_value" unit="字符" width="w-[60px]" />
                   </div>
                 </div>
               </div>
