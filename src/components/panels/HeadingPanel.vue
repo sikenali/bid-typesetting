@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { RiCheckLine, RiAddLine, RiSubtractLine, RiAlignLeft, RiAlignCenter, RiAlignRight, RiAlignJustify } from '@remixicon/vue'
 import DropdownSelect from '../ui/DropdownSelect.vue'
 import AlignButtonGroup from '../ui/AlignButtonGroup.vue'
