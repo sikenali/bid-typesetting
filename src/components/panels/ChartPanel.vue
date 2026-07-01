@@ -93,11 +93,13 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
                   <span class="text-[12px] text-brown shrink-0">段前</span>
                   <input type="number" min="0" step="0.5" v-model.number="currentParams().space_before_value"
                     class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <DropdownSelect v-model="currentParams().space_before_unit" :options="spacingUnits" width-class="auto" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">段后</span>
                   <input type="number" min="0" step="0.5" v-model.number="currentParams().space_after_value"
                     class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <DropdownSelect v-model="currentParams().space_after_unit" :options="spacingUnits" width-class="auto" />
                 </div>
               </div>
             </div>
