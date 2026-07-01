@@ -1,7 +1,7 @@
 <script setup>
 import { RiCheckLine } from '@remixicon/vue'
 import DropdownSelect from '../ui/DropdownSelect.vue'
-import { cnFonts, enFonts, sizeCN } from '../../constants/ui'
+import { cnFonts, enFonts, sizeCN, spacingUnits } from '../../constants/ui'
 
 defineProps({
   params: { type: Object, required: true },
@@ -99,13 +99,13 @@ const pageNumberTypes = [
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
           <div>
-            <div class="flex items-center gap-1">
-              <span class="text-[12px] text-brown whitespace-nowrap">页眉顶端距离</span>
-              <input type="number" v-model.number="params.header_top_cm" min="0" step="0.1"
-                class="w-[56px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-              <span class="text-[12px] text-brown">厘米</span>
-            </div>
-          </div>
+                <div class="flex items-center gap-[6px]">
+                  <span class="text-[12px] text-brown shrink-0">页眉距离</span>
+                  <input type="number" min="0" step="0.5" v-model.number="params.header_distance"
+                    class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                  <DropdownSelect v-model="params.header_distance_unit" :options="spacingUnits" width-class="auto" />
+                </div>
+              </div>
         </div>
       </div>
 
@@ -114,7 +114,7 @@ const pageNumberTypes = [
         <div class="w-full h-[6px] bg-tan-dark rounded-sm shrink-0"></div>
         <div class="flex items-center gap-[8px]">
           <div class="w-[5px] h-[18px] rounded-[2px] bg-gold-dark shrink-0"></div>
-          <span class="text-[14px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">页脚</span>
+          <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">页脚</span>
           <div class="flex-1"></div>
           <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="params.enable_footer = !params.enable_footer">
             <span class="text-[12px] text-brown shrink-0">启用</span>
@@ -190,11 +190,11 @@ const pageNumberTypes = [
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
           <div>
-            <div class="flex items-center gap-1">
-              <span class="text-[12px] text-brown whitespace-nowrap">页脚底端距离</span>
-              <input type="number" v-model.number="params.footer_bottom_cm" min="0" step="0.1"
-                class="w-[56px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-              <span class="text-[12px] text-brown">厘米</span>
+            <div class="flex items-center gap-[6px]">
+              <span class="text-[12px] text-brown shrink-0">页脚距离</span>
+              <input type="number" min="0" step="0.5" v-model.number="params.footer_distance"
+                class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              <DropdownSelect v-model="params.footer_distance_unit" :options="spacingUnits" width-class="auto" />
             </div>
           </div>
         </div>
