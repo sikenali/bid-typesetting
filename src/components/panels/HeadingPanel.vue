@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, nextTick } from 'vue'
-import { RiAddLine, RiSubtractLine, RiAlignLeft, RiAlignCenter, RiAlignRight, RiAlignJustify } from '@remixicon/vue'
+import { RiCheckLine, RiAddLine, RiSubtractLine, RiAlignLeft, RiAlignCenter, RiAlignRight, RiAlignJustify } from '@remixicon/vue'
 import DropdownSelect from '../ui/DropdownSelect.vue'
 import AlignButtonGroup from '../ui/AlignButtonGroup.vue'
 import CheckboxToggle from '../ui/CheckboxToggle.vue'
@@ -220,13 +220,13 @@ const levelLabels = computed(() =>
                   <span class="text-[12px] text-brown shrink-0">左</span>
                   <input type="number" min="0" step="0.1" v-model.number="props.params[activeLevel].left_indent_value"
                     class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <DropdownSelect v-model="props.params[activeLevel].left_indent_unit" :options="indentUnits" width-class="auto" />
+                    <DropdownSelect v-model="props.params[activeLevel].left_indent_unit" :options="spacingUnits" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">右</span>
                     <input type="number" min="0" step="0.1" v-model.number="props.params[activeLevel].right_indent_value"
                       class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
-                    <DropdownSelect v-model="props.params[activeLevel].right_indent_unit" :options="indentUnits" width-class="auto" />
+                    <DropdownSelect v-model="props.params[activeLevel].right_indent_unit" :options="spacingUnits" width-class="auto" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">首行</span>
