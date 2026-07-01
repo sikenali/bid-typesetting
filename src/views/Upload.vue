@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
-import { RiFileWordLine, RiUploadCloud2Line, RiBook2Line, RiQuillPenFill } from '@remixicon/vue'
+import { RiUploadCloud2Line, RiBook2Line, RiQuillPenFill } from '@remixicon/vue'
 
 const router = useRouter()
 const { setFile } = useDocument()
@@ -92,7 +92,7 @@ const handleFileChange = (e) => {
           <p class="text-sm text-brown-muted mt-2">{{ Math.round(uploadProgress) }}%</p>
         </div>
 
-        <p v-if="!uploading" class="text-sm text-brown-muted mb-6">只支持 DOCX 格式，最大支持150MB</p>
+        <p v-if="!uploading" class="text-sm text-brown-muted mb-6">支持竹简、奏折等格式，最大支持150MB</p>
 
         <input
           type="file"
@@ -115,8 +115,8 @@ const handleFileChange = (e) => {
 
       <div class="flex items-center gap-4 mt-10">
         <div class="flex items-center gap-1.5 px-3 py-1.5 bg-cream-darker rounded-lg">
-          <RiFileWordLine size="14" color="#5B8C5A" />
-          <span class="text-xs font-medium text-brown">DOCX</span>
+          <RiBook2Line size="14" color="#5B8C5A" />
+          <span class="text-xs font-medium text-brown">竹简·奏折</span>
         </div>
       </div>
     </div>
