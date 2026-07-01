@@ -21,7 +21,6 @@ const sectionTabs = [
   { id: 'theme', label: '主题设置', sublabel: 'Theme', icon: RiPaletteLine, activeBg: 'bg-cinnabar' },
   { id: 'template', label: '模板设置', sublabel: 'Template', icon: RiBookmark3Line, activeBg: 'bg-gold-dark' },
   { id: 'display', label: '显示设置', sublabel: 'Display', icon: RiEyeLine, activeBg: 'bg-jade-light' },
-  { id: 'apikey', label: 'API Key', sublabel: 'API Key', icon: RiKeyLine, activeBg: 'bg-indigo-500' },
 ]
 
 function selectSection(id) {

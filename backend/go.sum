@@ -20,6 +20,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/richardlehane/msoleps v1.0.6 h1:9BvkpjvD+iUBalUY4esMwv6uBkfOip/Lzvd93jvR9gg=
 github.com/richardlehane/msoleps v1.0.6/go.mod h1:BWev5JBpU9Ko2WAgmZEuiz4/u3ZYTKbjLycmwiWUfWg=
+github.com/sikenali/unioffice/v2 v2.0.0-20260701084101-423612299d83 h1:i9/NXySr/Udk1VBEEv/5zbRWzD6KNYfztBvpgU/+ll8=
+github.com/sikenali/unioffice/v2 v2.0.0-20260701084101-423612299d83/go.mod h1:3oPt1fko1MN4HeYJaP+Dcl7V1qioyIdzTcN+VpeyzAw=
 github.com/sirupsen/logrus v1.9.4 h1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=
 github.com/sirupsen/logrus v1.9.4/go.mod h1:ftWc9WdOfJ0a92nsE2jF5u5ZwH8Bv2zdeOC42RjbV2g=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
@@ -37,10 +39,6 @@ github.com/unidoc/typesetting v0.1.0 h1:jsaHO752pmPhU4h8FLoRNxwzR2suBKunFFeNkFsH
 github.com/unidoc/typesetting v0.1.0/go.mod h1:kX978RCyr08RxxT45RxledSSawm4b4ohxdwSwAbewFw=
 github.com/unidoc/unichart v0.5.2 h1:DVsk7IW4ZJJJAJpLJYyKndwDDx5Z4XXgtG+GF1u9Ymo=
 github.com/unidoc/unichart v0.5.2/go.mod h1:/8yJsL49OqBOyG53JFVZOwwDXDquo/ZRMkfz9fNsVgc=
-github.com/unidoc/unioffice/v2 v2.12.0 h1:ZbBk6N95pkJIAFnb/QLXZYHbXOd2YN2Z9ezAjFnzko0=
-github.com/unidoc/unioffice/v2 v2.12.0/go.mod h1:3oPt1fko1MN4HeYJaP+Dcl7V1qioyIdzTcN+VpeyzAw=
-github.com/unidoc/unipdf/v3 v3.55.0 h1:hPkhl+BCZoRLgk+cOW8mdRZ8SUjOj/8HsSRAOmzw5CE=
-github.com/unidoc/unipdf/v3 v3.55.0/go.mod h1:06Q/thbRvuQSYiRdtpZ4rZjIug7hg1TJpifNMG7PcBU=
 github.com/unidoc/unipdf/v4 v4.8.0 h1:2p5dg76UO8KAR33mmpiIUl95/ViIo6d53SqzAq6Zrho=
 github.com/unidoc/unipdf/v4 v4.8.0/go.mod h1:TKdWXDj1xsAZbzA58/gonDVUlvRkK3R8OJe3JZw+t/g=
 github.com/unidoc/unitype v0.5.1 h1:UwTX15K6bktwKocWVvLoijIeu4JAVEAIeFqMOjvxqQs=

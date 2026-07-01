@@ -2,10 +2,9 @@ module github.com/anomalyco/bid-pageformatting-backend
 
 go 1.24.0
 
-require (
-	github.com/unidoc/unioffice/v2 v2.12.0
-	github.com/unidoc/unipdf/v3 v3.55.0
-)
+require github.com/unidoc/unioffice/v2 v2.12.0
+
+replace github.com/unidoc/unioffice/v2 => github.com/sikenali/unioffice/v2 v2.0.0-20260701084101-423612299d83
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
