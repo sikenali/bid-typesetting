@@ -27,13 +27,57 @@
 
 ## 实现原理
 
-系统采用**解析 → 参数化 → 重建**的三段式流水线：
+系统采用**解析 → 参数化 → 重建**的三段式流水线，支持纯前端模式和前后端混合模式两种部署形态。
 
-### 1. DOCX 解析层
+### 架构模式
+
+#### 模式一：纯前端 SPA（默认）
+
+所有文档处理均在浏览器本地完成，不依赖任何后端服务器。
+
+| 层次 | 对应模块 | 职责 |
+|------|---------|------|
+| **视图层** | `views/` + `components/` | 路由页面、UI 组件、面板交互、用户输入采集 |
+| **状态层** | `composables/` | 文件状态管理、排版参数存取、差异计算、模板 CRUD |
+| **文档处理层** | `useDocumentExport.js` + mammoth/docx | DOCX 解析、OOXML 重建、字体映射、跨平台兼容 |
+| **持久化层** | `localStorage` | 排版参数自动保存、用户模板存储、设置持久化 |
+
+**数据流**：视图层通过 composable API 读写状态 → 状态层统一管理数据和差异快照 → 文档处理层消费状态生成 OOXML 输出 → 导出为 `.docx` 文件。
+
+#### 模式二：前后端混合（Go + Unioffice）
+
+当需要服务端批量处理或更高性能时，系统可通过 API 接入后端服务。
+
+**后端技术栈**：
+
+| 组件 | 技术选型 | 说明 |
+|------|---------|------|
+| **语言** | Go 1.21+ | 高性能、低内存、强类型编译语言 |
+| **DOCX 引擎** | [unioffice](https://github.com/unidoc/unioffice) | 工业级 Office 文档处理库，支持 DOCX/XLSX/PPTX |
+| **API 框架** | Gin / Chi | RESTful API 路由 |
+| **文件上传** | multipart/form-data | 支持 150MB+ 大文件上传 |
+
+**Unioffice 核心能力**：
+
+- **DOCX 读写**：通过 `docx.Document` 直接操作 OOXML 底层结构，支持段落、表格、页眉页脚、目录、编号等完整元素
+- **字体管理**：`docx.FontResolver` 实现跨平台字体回退（Windows SimSun → macOS Songti SC → Linux wps-office-fonts）
+- **样式系统**：`docx.Style` 支持自定义样式定义，包括字体、字号、行距、缩进、对齐等
+- **编号系统**：`docx.Numbering` 支持多级列表、自定义前缀后缀、编号格式
+- **文档模板**：`docx.Template` 支持基于模板文件进行参数化替换
+
+**Pipeline 步骤**：
+
+```
+上传 DOCX → 预处理（标点/制表符/空行清理）→ 参数应用（页面/正文/标题/图表/目录/页眉页脚）→ 后处理（字段刷新/样式清理）→ 输出 DOCX
+```
+
+### 前端实现原理（纯前端模式）
+
+#### 1. DOCX 解析层
 
 用户上传 DOCX 文件后，系统使用 [mammoth.js](https://github.com/mwilliamson/mammoth.js) 将二进制文档解析为结构化 HTML。解析过程中保留原始段落结构、文本样式和文档骨架，同时通过 `@vue-office/docx` 和 `@eigenpal/docx-editor-vue` 提供双模式预览（只读预览 / WYSIWYG 编辑）。
 
-### 2. 参数化排版引擎
+#### 2. 参数化排版引擎
 
 用户通过 7 个标签面板（页面、正文、标题、图表、目录、页眉页脚、初始化）设置排版参数，所有参数集中存储在 `useFormatState` composable 的模块级闭包中。每个参数面板对标 Word 的对应设置对话框：
 
@@ -44,7 +88,7 @@
 - **目录**：目录标题 + 4 层级的字体/行距/缩进/前导符样式（Word「引用」→「目录」→「自定义目录」）
 - **页眉页脚**：页眉/页脚的内容属性与距离设置（Word「插入」→「页眉/页脚」）
 
-### 3. DOCX 重建层
+#### 3. DOCX 重建层
 
 使用 [docx.js](https://github.com/dolanmedia/docx) 库（JavaScript 原生 OOXML 生成器）将原始 HTML 内容与排版参数合并，生成符合 OOXML 规范的 `.docx` 文件。关键实现：
 
@@ -65,21 +109,6 @@
 
 工具生成 DOCX 时使用 `w:rFonts` 四槽填充，确保各平台自动选择最优回退字体。
 
-### 前后端关联
-
-墨墨梧文是**纯前端 SPA 应用**，所有文档处理均在浏览器本地完成，不依赖任何后端服务器。其"前后端"的划分体现在架构层面而非部署层面：
-
-| 层次 | 对应模块 | 职责 |
-|------|---------|------|
-| **视图层（前端）** | `views/` + `components/` | 路由页面、UI 组件、面板交互、用户输入采集 |
-| **状态层（业务逻辑）** | `composables/` | 文件状态管理、排版参数存取、差异计算、模板 CRUD |
-| **文档处理层（引擎）** | `useDocumentExport.js` + mammoth/docx | DOCX 解析、OOXML 重建、字体映射、跨平台兼容 |
-| **持久化层** | `localStorage` | 排版参数自动保存、用户模板存储、设置持久化 |
-
-**数据流**：视图层通过 composable API 读写状态 → 状态层统一管理数据和差异快照 → 文档处理层消费状态生成 OOXML 输出 → 导出为 `.docx` 文件。
-
-这种架构设计使得系统可在无服务器环境下完整运行，同时保持了清晰的分层边界——如需接入后端（如多用户协作、云存储、模板市场），只需在状态层下方增加 API 适配层即可。
-
 ---
 
 ## 软件架构
@@ -92,7 +121,11 @@ bid-pageformatting/
 │   ├── components/
 │   │   ├── Navbar.vue               # 顶部导航栏（Logo + 模板/设置入口）
 │   │   ├── Sidebar.vue              # 左侧排版标签面板（7 类标签）
-│   │   ├── DropdownSelect.vue       # 可复用自定义下拉框组件
+│   │   ├── ui/                      # 公共 UI 组件
+│   │   │   ├── DropdownSelect.vue   # 自定义下拉选择框（键盘导航/焦点管理）
+│   │   │   ├── CheckboxToggle.vue   # 复选框开关组件
+│   │   │   ├── SpacingInput.vue     # 数值输入框+单位
+│   │   │   └── AlignButtonGroup.vue # 对齐按钮组
 │   │   ├── SaveTemplateModal.vue    # 保存模板弹框
 │   │   └── panels/
 │   │       ├── PagePanel.vue        # 页面参数面板
@@ -102,12 +135,15 @@ bid-pageformatting/
 │   │       ├── TOCPanel.vue         # 目录参数面板
 │   │       ├── HeaderFooterPanel.vue # 页眉页脚参数面板
 │   │       └── ResetPanel.vue       # 初始化面板（清理/检测/全局开关）
+│   ├── constants/
+│   │   └── ui.js                    # UI 常量（字体/字号/行距/编号规则等）
 │   ├── composables/
 │   │   ├── useDocument.js           # 文件状态管理（模块级闭包）
 │   │   ├── useSettings.js           # 主题/模板/显示选项（localStorage 持久化）
 │   │   ├── useFormatState.js        # 排版参数 + before/after 快照 + 差异计算
 │   │   ├── useTemplates.js          # 用户模板 CRUD（localStorage）
-│   │   └── useDocumentExport.js     # DOCX 导出引擎（mammoth + docx）
+│   │   ├── useDocumentExport.js     # DOCX 导出引擎（mammoth + docx）
+│   │   └── useToast.js              # Toast 消息提示
 │   ├── views/
 │   │   ├── Upload.vue               # 上传页面
 │   │   ├── Editor.vue               # 编辑器（三栏布局 + 双预览引擎）
@@ -118,6 +154,13 @@ bid-pageformatting/
 │   │   └── index.js                 # 5 条路由配置
 │   └── styles/
 │       └── tailwind.css             # TailwindCSS v4 主题 tokens
+├── backend/                         # （可选）Go 后端服务
+│   ├── cmd/server/main.go           # API 入口
+│   ├── config.go                    # 排版配置结构体
+│   ├── format_headerfooter.go       # 页眉页脚处理
+│   ├── format_table.go              # 表格处理
+│   ├── preprocess.go                # 文档预处理
+│   └── pipeline/                    # Pipeline 步骤定义
 ├── LICENSE
 ├── README.md
 ├── AGENTS.md
