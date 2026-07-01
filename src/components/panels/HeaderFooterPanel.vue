@@ -126,7 +126,7 @@ const pageNumberTypes = [
         </div>
         <div :class="params.enable_footer ? '' : 'pointer-events-none opacity-60'" class="flex flex-col gap-2">
           <div>
-            <div class="flex items-center gap-[6px] flex-wrap py-[6px]">
+            <div class="flex items-center gap-[6px] flex-wrap">
               <div class="flex items-center gap-[3px] cursor-pointer" @click="params.clear_footer = !params.clear_footer">
                 <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
                   :class="params.clear_footer ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">

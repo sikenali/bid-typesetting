@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RiCheckLine, RiInformationLine } from '@remixicon/vue'
-import DropdownSelect from '../DropdownSelect.vue'
+import DropdownSelect from '../ui/DropdownSelect.vue'
 
 const props = defineProps({
   textCleanup: { type: Object, required: true },
