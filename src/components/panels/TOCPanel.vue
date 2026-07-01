@@ -6,6 +6,9 @@ import SpacingInput from '../ui/SpacingInput.vue'
 import LevelBar from '../ui/LevelBar.vue'
 import { cnFonts, enFonts, sizeCN, lineSpacingModes, spacingUnits, tabLeaders } from '../../constants/ui'
 
+// 防止循环更新
+let isUpdating = false
+
 const props = defineProps({
   params: { type: Object, required: true },
 })
@@ -19,9 +22,12 @@ const levelLabels = computed(() =>
 )
 
 watch(() => props.params.enable, (val) => {
+  if (isUpdating) return
+  isUpdating = true
   if (props.params.enable_level_styles !== val) {
     props.params.enable_level_styles = val
   }
+  isUpdating = false
 }, { immediate: true })
 
 function selectLevel(idx) {
