@@ -3,12 +3,14 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDocument } from '../composables/useDocument'
 import { useFormatState } from '../composables/useFormatState'
+import { useToast } from '../composables/useToast'
 import { RiFileTextLine, RiEditLine, RiCheckLine, RiDownloadLine, RiArrowLeftSLine, RiArrowRightSLine, RiLayout2Line, RiCollageLine, RiLinksLine, RiPagesLine, RiTextSnippet, RiHeading, RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiFootprintLine, RiDoubleQuotesL, RiCheckDoubleLine } from '@remixicon/vue'
 import DocumentPreview from '../components/DocumentPreview.vue'
 
 const router = useRouter()
 const { getFile, getFormatted, getFormattedBlob } = useDocument()
 const { beforeSnapshot, afterSnapshot, diffs, formatParams } = useFormatState()
+const { showToast } = useToast()
 const currentFile = getFile()
 const formattedFile = computed(() => getFormatted())
 const formattedBlobUrl = computed(() => getFormattedBlob())
@@ -120,6 +122,10 @@ const tabs = [
   { id: 'citation', label: '引用', sublabel: 'Citations', icon: RiDoubleQuotesL, fields: [] },
 ]
 
+const filteredTabs = computed(() => {
+  return tabs.filter(t => t.fields.length > 0)
+})
+
 const activeTab = ref('page')
 
 const tabFields = computed(() => {
@@ -142,7 +148,7 @@ const prevDiff = () => { if (diffIndex.value > 0) diffIndex.value-- }
 const nextDiff = () => { if (diffIndex.value < totalDiffs.value - 1) diffIndex.value++ }
 const acceptAll = () => {
   if (totalDiffs.value === 0) {
-    alert('当前文档无参数差异')
+    showToast('当前文档无参数差异', 'warning')
     return
   }
   if (confirm(`确认接受全部 ${totalDiffs.value} 处修改？`)) {
@@ -159,7 +165,7 @@ const acceptAll = () => {
     beforeSnapshot.value = JSON.parse(JSON.stringify(formatParams))
     diffs.value = []
     diffIndex.value = 0
-    alert('已接受全部修改')
+    showToast('已接受全部修改', 'success')
   }
 }
 const downloadBlob = (blob, filename) => {
@@ -176,14 +182,14 @@ const downloadBlob = (blob, filename) => {
 const exportDoc = async () => {
   const formatted = getFormatted()
   if (!formatted) {
-    alert('未找到排版后的文件，请先点击"一键排版"')
+    showToast('未找到排版后的文件，请先点击"一键排版"', 'warning')
     return
   }
   try {
     downloadBlob(formatted, modifiedFileName.value)
   } catch (e) {
     console.error('导出失败:', e)
-    alert('文档导出失败，请重试')
+    showToast('文档导出失败，请重试', 'error')
   }
 }
 </script>
