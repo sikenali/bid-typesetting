@@ -89,7 +89,7 @@ onMounted(() => {
           @click="selectTab(tab.id)"
           class="relative z-10 w-full rounded-xl py-3 px-4 flex items-center gap-3 transition-colors text-left focus-visible:ring-2 focus-visible:ring-cinnabar focus-visible:ring-offset-2"
           :class="activeTab === tab.id ? 'text-white' : 'text-brown-dark hover:text-brown-dark'"
-          :aria-current="activeTab === tab.id ? 'page' : false"
+          :aria-current="activeTab === tab.id ? 'true' : false"
         >
           <component :is="tab.icon" :size="'20'" :color="activeTab === tab.id ? 'white' : '#5C4033'" aria-hidden="true" />
           <div class="flex-1">

@@ -195,7 +195,7 @@ const levelLabels = computed(() =>
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">值</span>
-                  <SpacingInput v-model="props.params[activeLevel].line_spacing_value" unit="磅" step="0.5" width="w-[50px]" />
+                  <SpacingInput v-model="props.params[activeLevel].line_spacing_value" unit="磅" step="0.5" width="w-[50px]" aria-label="行距数值" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">段前</span>
@@ -230,7 +230,7 @@ const levelLabels = computed(() =>
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">首行</span>
-                  <SpacingInput v-model="props.params[activeLevel].first_line_indent_chars" unit="字符" width="w-[50px]" />
+                  <SpacingInput v-model="props.params[activeLevel].first_line_indent_chars" unit="字符" width="w-[50px]" aria-label="首行缩进" />
                 </div>
               </div>
             </div>

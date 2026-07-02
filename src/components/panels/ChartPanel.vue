@@ -87,7 +87,7 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">值</span>
-                  <SpacingInput v-model="currentParams().line_spacing_value" unit="磅" step="0.5" width="w-[50px]" />
+                  <SpacingInput v-model="currentParams().line_spacing_value" unit="磅" step="0.5" width="w-[50px]" aria-label="行距数值" />
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">段前</span>
@@ -201,11 +201,11 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
             <div class="flex flex-wrap items-center gap-[6px]">
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">行距数值</span>
-                <SpacingInput v-model="props.tableSettings.line_spacing_value" unit="磅" step="0.5" width="w-[50px]" />
+                <SpacingInput v-model="props.tableSettings.line_spacing_value" unit="磅" step="0.5" width="w-[50px]" aria-label="行距数值" />
               </div>
               <div class="flex items-center gap-1">
                 <span class="text-[12px] text-brown shrink-0">最小行高</span>
-                <SpacingInput v-model="props.tableSettings.min_line_height" unit="磅" step="0.5" width="w-[50px]" />
+                <SpacingInput v-model="props.tableSettings.min_line_height" unit="磅" step="0.5" width="w-[50px]" aria-label="最小行高" />
               </div>
             </div>
           </div>

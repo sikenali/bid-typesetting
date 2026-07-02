@@ -200,7 +200,7 @@ function leaderPreview(value) {
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">行距数值</span>
-                    <SpacingInput v-model="params.level_styles[activeLevel].line_spacing_value" unit="磅" width="w-[60px]" />
+                    <SpacingInput v-model="params.level_styles[activeLevel].line_spacing_value" unit="磅" width="w-[60px]" aria-label="行距数值" />
                   </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-[6px] mt-[6px]">
@@ -225,7 +225,7 @@ function leaderPreview(value) {
                 <div class="flex flex-wrap items-center gap-[6px]">
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">左缩进</span>
-                    <SpacingInput v-model="params.level_styles[activeLevel].left_indent_value" unit="字符" width="w-[60px]" />
+                    <SpacingInput v-model="params.level_styles[activeLevel].left_indent_value" unit="字符" width="w-[60px]" aria-label="左缩进" />
                   </div>
                 </div>
               </div>

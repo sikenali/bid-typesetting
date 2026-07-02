@@ -53,18 +53,18 @@ defineProps({
           <span class="text-[13px] text-brown whitespace-nowrap shrink-0">行距模式</span>
           <DropdownSelect v-model="params.line_spacing_mode" :options="lineSpacingModes" width-class="auto" />
           <span class="text-[13px] text-brown whitespace-nowrap shrink-0">行距数值</span>
-          <SpacingInput v-model="params.line_spacing_value" unit="磅" :width="'w-[70px]'" />
+          <SpacingInput v-model="params.line_spacing_value" unit="磅" :width="'w-[70px]'" aria-label="行距数值" />
         </div>
         <div class="w-full h-[1px] bg-tan-border"></div>
         <div class="flex flex-wrap items-center gap-2">
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">段前间距</span>
-            <SpacingInput v-model="params.space_before_value" :width="'w-[70px]'" />
+            <SpacingInput v-model="params.space_before_value" :width="'w-[70px]'" aria-label="段前间距" />
             <DropdownSelect v-model="params.space_before_unit" :options="spacingUnits" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">段后间距</span>
-            <SpacingInput v-model="params.space_after_value" :width="'w-[70px]'" />
+            <SpacingInput v-model="params.space_after_value" :width="'w-[70px]'" aria-label="段后间距" />
             <DropdownSelect v-model="params.space_after_unit" :options="spacingUnits" width-class="auto" />
           </div>
         </div>
@@ -80,17 +80,17 @@ defineProps({
         <div class="grid grid-cols-2 gap-2">
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">左缩进</span>
-            <SpacingInput v-model="params.left_indent_value" :width="'w-full'" />
+            <SpacingInput v-model="params.left_indent_value" :width="'w-full'" aria-label="左缩进" />
             <DropdownSelect v-model="params.left_indent_unit" :options="spacingUnits" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">右缩进</span>
-            <SpacingInput v-model="params.right_indent_value" :width="'w-full'" />
+            <SpacingInput v-model="params.right_indent_value" :width="'w-full'" aria-label="右缩进" />
             <DropdownSelect v-model="params.right_indent_unit" :options="spacingUnits" width-class="auto" />
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">首行缩进</span>
-            <SpacingInput v-model="params.first_line_indent_chars" unit="字符" :width="'w-full'" />
+            <SpacingInput v-model="params.first_line_indent_chars" unit="字符" :width="'w-full'" aria-label="首行缩进" />
           </div>
         </div>
       </div>

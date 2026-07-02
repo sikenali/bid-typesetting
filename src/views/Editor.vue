@@ -59,6 +59,26 @@ const formatLog = ref([])
 const showFormatLog = ref(false)
 const detectedParams = ref(null)
 const showDetectedInfo = ref(false)
+const previewModalRef = ref(null)
+const formatModalRef = ref(null)
+
+function focusFirst(el) {
+  if (!el) return
+  const btn = el.querySelector('button, [tabindex]:not([tabindex="-1"])')
+  btn?.focus()
+}
+
+function trapTab(e, containerRef) {
+  const el = containerRef?.value
+  if (!el || e.key !== 'Tab') return
+  const f = el.querySelectorAll('button, [tabindex]:not([tabindex="-1"])')
+  if (!f.length) return
+  if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus() }
+  else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus() }
+}
+
+watch(showPreviewModal, (v) => { if (v) nextTick(() => focusFirst(previewModalRef.value)) })
+watch(showFormatLog, (v) => { if (v) nextTick(() => focusFirst(formatModalRef.value)) })
 
 const detectedSummary = computed(() => {
   const d = detectedParams.value
@@ -312,7 +332,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
 </script>
 
 <template>
-  <main class="pt-16 bg-parchment">
+  <div class="pt-16 bg-parchment">
     <div class="h-[calc(100vh-4rem)] flex">
       <Sidebar
         :activeTab="activeTab"
@@ -334,6 +354,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           <div class="flex-1"></div>
           <div v-if="detectedParams" class="flex items-center gap-1 mr-3 relative">
             <button @click="showDetectedInfo = !showDetectedInfo"
+              :aria-expanded="showDetectedInfo"
               class="flex items-center gap-1 px-2.5 py-2 rounded-lg text-[11px] font-medium text-jade transition-colors hover:bg-jade/10 cursor-pointer"
             >
               <RiCheckLine size="13" />
@@ -458,7 +479,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
       @delete="handleDeleteTemplate"
     />
 
-    <div v-if="showPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showPreviewModal = false" @keydown.escape="showPreviewModal = false">
+    <div v-if="showPreviewModal" ref="previewModalRef" role="dialog" aria-modal="true" aria-label="文档预览" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showPreviewModal = false" @keydown.escape="showPreviewModal = false" @keydown="trapTab($event, previewModalRef)">
       <div class="bg-cream rounded-2xl shadow-2xl w-[90vw] h-[85vh] flex flex-col overflow-hidden border border-tan-border">
         <!-- Modal header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-tan-border bg-cream-dark">
@@ -546,7 +567,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
     </div>
 
     <!-- Format Progress Modal -->
-    <div v-if="showFormatLog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showFormatLog = false" @keydown.escape="showFormatLog = false">
+    <div v-if="showFormatLog" ref="formatModalRef" role="dialog" aria-modal="true" aria-label="排版进度" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showFormatLog = false" @keydown.escape="showFormatLog = false" @keydown="trapTab($event, formatModalRef)">
       <div class="bg-cream rounded-2xl shadow-2xl w-[500px] overflow-hidden border border-tan-border">
         <div class="flex items-center justify-between px-6 py-4 border-b border-tan-border bg-cream-dark">
           <div class="flex items-center gap-3">
@@ -603,7 +624,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>
