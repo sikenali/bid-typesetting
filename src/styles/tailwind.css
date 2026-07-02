@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light;
+}
+
 @theme {
   --color-parchment: #FDF6E3;
   --color-cinnabar: #C23B22;
@@ -36,6 +40,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --color-parchment: #121212;
   --color-cream: #1A1A1A;
   --color-cream-dark: #242424;

@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-2 pointer-events-none">
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-2 pointer-events-none" aria-live="polite" aria-atomic="true">
       <TransitionGroup name="toast">
         <div
           v-for="toast in toasts"
@@ -11,7 +11,7 @@
             toastClasses[toast.type] || toastClasses.info
           ]"
         >
-          <span v-html="toastIcons[toast.type] || toastIcons.info" class="flex-shrink-0"></span>
+          <span v-html="toastIcons[toast.type] || toastIcons.info" class="flex-shrink-0" aria-hidden="true"></span>
           <span class="flex-1">{{ toast.message }}</span>
         </div>
       </TransitionGroup>

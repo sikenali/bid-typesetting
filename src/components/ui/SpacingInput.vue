@@ -8,6 +8,7 @@ const props = defineProps({
   step: { type: [Number, String], default: 0.1 },
   width: { type: String, default: 'w-[60px]' },
   disabled: { type: Boolean, default: false },
+  ariaLabel: { type: String, default: '' },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -27,6 +28,7 @@ const currentValue = computed({
       :value="currentValue"
       @input="emit('update:modelValue', parseFloat($event.target.value) || 0)"
       :disabled="disabled"
+      :aria-label="ariaLabel || undefined"
       :class="[width, 'bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors disabled:opacity-60 disabled:cursor-not-allowed']"
     />
     <span v-if="unit" class="text-[12px] text-brown shrink-0">{{ unit }}</span>

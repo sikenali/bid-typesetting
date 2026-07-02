@@ -40,7 +40,7 @@ onMounted(() => { nextTick(positionIndicator) })
 </script>
 
 <template>
-  <div ref="barRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative">
+  <div ref="barRef" class="bg-cream-darker rounded-lg p-[3px] flex items-center gap-[3px] relative" role="group" :aria-label="'选择层级'">
     <div class="absolute top-[3px] bottom-[3px] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out pointer-events-none"
       :style="indicatorStyle">
     </div>
@@ -48,6 +48,8 @@ onMounted(() => { nextTick(positionIndicator) })
       @click="select(idx)"
       class="relative z-10 px-[10px] py-[5px] text-[12px] rounded-lg transition-colors duration-200 cursor-pointer"
       :class="modelValue === idx ? 'text-cinnabar font-semibold' : 'text-brown hover:text-brown-dark'"
+      :aria-pressed="modelValue === idx"
+      :aria-label="label"
     >{{ label }}</button>
   </div>
 </template>

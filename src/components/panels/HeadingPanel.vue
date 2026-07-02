@@ -175,7 +175,7 @@ const levelLabels = computed(() =>
                     <span class="text-[12px] text-brown shrink-0">颜色</span>
                     <label class="relative cursor-pointer">
                       <div class="w-[18px] h-[18px] rounded-[3px] border border-tan-border cursor-pointer" :style="{ backgroundColor: props.params[activeLevel].color || '#000000' }"></div>
-                      <input type="color" v-model="props.params[activeLevel].color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                      <input type="color" v-model="props.params[activeLevel].color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" aria-label="选择颜色" />
                     </label>
                   </div>
                   <CheckboxToggle v-model="props.params[activeLevel].bold" label="粗体" />
@@ -200,13 +200,13 @@ const levelLabels = computed(() =>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">段前</span>
                   <input type="number" min="0" step="0.5" v-model.number="props.params[activeLevel].space_before_value"
-                    class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                    class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="段前间距" />
                     <DropdownSelect v-model="props.params[activeLevel].space_before_unit" :options="spacingUnits" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">段后</span>
                     <input type="number" min="0" step="0.5" v-model.number="props.params[activeLevel].space_after_value"
-                      class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                      class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="段后间距" />
                     <DropdownSelect v-model="props.params[activeLevel].space_after_unit" :options="spacingUnits" width-class="auto" />
                 </div>
               </div>
@@ -219,13 +219,13 @@ const levelLabels = computed(() =>
                 <div class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">左</span>
                   <input type="number" min="0" step="0.1" v-model.number="props.params[activeLevel].left_indent_value"
-                    class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                    class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="左缩进" />
                     <DropdownSelect v-model="props.params[activeLevel].left_indent_unit" :options="spacingUnits" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">右</span>
                     <input type="number" min="0" step="0.1" v-model.number="props.params[activeLevel].right_indent_value"
-                      class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                      class="w-[50px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="右缩进" />
                     <DropdownSelect v-model="props.params[activeLevel].right_indent_unit" :options="spacingUnits" width-class="auto" />
                 </div>
                 <div class="flex items-center gap-1">
@@ -258,7 +258,7 @@ const levelLabels = computed(() =>
                 <div v-if="props.params[activeLevel].add_space" class="flex items-center gap-1">
                   <span class="text-[12px] text-brown shrink-0">空格数</span>
                   <input type="number" min="1" max="5" v-model.number="props.params[activeLevel].space_count"
-                    class="w-[45px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                    class="w-[45px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="空格数" />
                 </div>
               </div>
             </div>

@@ -48,7 +48,7 @@ const tabSpaceOptions = [
           <div class="w-[5px] h-[18px] rounded-[2px] bg-cinnabar shrink-0"></div>
           <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">样式清理</span>
           <div class="flex-1"></div>
-          <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="toggleStyleAll()">
+          <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="toggleStyleAll()" @keydown.enter="toggleStyleAll()" @keydown.space.prevent="toggleStyleAll()" role="checkbox" :aria-checked="styleAllSelected" aria-label="样式清理全选" tabindex="0">
             <span class="text-[12px] text-brown shrink-0">全选</span>
             <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
               :class="styleAllSelected ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -57,7 +57,7 @@ const tabSpaceOptions = [
           </div>
         </div>
         <div class="flex flex-col">
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'clear_extra_spaces')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'clear_extra_spaces')" @keydown.enter="toggle(styleCleanup, 'clear_extra_spaces')" @keydown.space.prevent="toggle(styleCleanup, 'clear_extra_spaces')" role="checkbox" :aria-checked="styleCleanup.clear_extra_spaces" :aria-label="'清理多余空格'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="styleCleanup.clear_extra_spaces ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -76,7 +76,7 @@ const tabSpaceOptions = [
             </div>
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'clear_paragraph_indent')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'clear_paragraph_indent')" @keydown.enter="toggle(styleCleanup, 'clear_paragraph_indent')" @keydown.space.prevent="toggle(styleCleanup, 'clear_paragraph_indent')" role="checkbox" :aria-checked="styleCleanup.clear_paragraph_indent" :aria-label="'清理正文缩进'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="styleCleanup.clear_paragraph_indent ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -87,7 +87,7 @@ const tabSpaceOptions = [
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
           <div class="py-[10px]">
-            <div class="flex items-center justify-between cursor-pointer group" @click="toggle(styleCleanup, 'clear_heading_indent')">
+            <div class="flex items-center justify-between cursor-pointer group" @click="toggle(styleCleanup, 'clear_heading_indent')" @keydown.enter="toggle(styleCleanup, 'clear_heading_indent')" @keydown.space.prevent="toggle(styleCleanup, 'clear_heading_indent')" role="checkbox" :aria-checked="styleCleanup.clear_heading_indent" :aria-label="'清理标题缩进'" tabindex="0">
               <div class="flex items-center gap-[6px]">
                 <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                   :class="styleCleanup.clear_heading_indent ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -97,21 +97,21 @@ const tabSpaceOptions = [
               </div>
             </div>
             <div v-if="styleCleanup.clear_heading_indent" class="flex items-center gap-5 pl-7 mt-1.5">
-              <div class="flex items-center gap-[6px] cursor-pointer" @click="toggle(styleCleanup, 'clear_heading_left_indent')">
+              <div class="flex items-center gap-[6px] cursor-pointer" @click="toggle(styleCleanup, 'clear_heading_left_indent')" @keydown.enter="toggle(styleCleanup, 'clear_heading_left_indent')" @keydown.space.prevent="toggle(styleCleanup, 'clear_heading_left_indent')" role="checkbox" :aria-checked="styleCleanup.clear_heading_left_indent" :aria-label="'清除左缩进'" tabindex="0">
                 <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
                   :class="styleCleanup.clear_heading_left_indent ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
                   <RiCheckLine v-if="styleCleanup.clear_heading_left_indent" size="10" class="text-white" />
                 </div>
                 <span class="text-[12px] text-brown">左缩进</span>
               </div>
-              <div class="flex items-center gap-[6px] cursor-pointer" @click="toggle(styleCleanup, 'clear_heading_right_indent')">
+              <div class="flex items-center gap-[6px] cursor-pointer" @click="toggle(styleCleanup, 'clear_heading_right_indent')" @keydown.enter="toggle(styleCleanup, 'clear_heading_right_indent')" @keydown.space.prevent="toggle(styleCleanup, 'clear_heading_right_indent')" role="checkbox" :aria-checked="styleCleanup.clear_heading_right_indent" :aria-label="'清除右缩进'" tabindex="0">
                 <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
                   :class="styleCleanup.clear_heading_right_indent ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
                   <RiCheckLine v-if="styleCleanup.clear_heading_right_indent" size="10" class="text-white" />
                 </div>
                 <span class="text-[12px] text-brown">右缩进</span>
               </div>
-              <div class="flex items-center gap-[6px] cursor-pointer" @click="toggle(styleCleanup, 'clear_heading_special_indent')">
+              <div class="flex items-center gap-[6px] cursor-pointer" @click="toggle(styleCleanup, 'clear_heading_special_indent')" @keydown.enter="toggle(styleCleanup, 'clear_heading_special_indent')" @keydown.space.prevent="toggle(styleCleanup, 'clear_heading_special_indent')" role="checkbox" :aria-checked="styleCleanup.clear_heading_special_indent" :aria-label="'清除特殊缩进'" tabindex="0">
                 <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
                   :class="styleCleanup.clear_heading_special_indent ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
                   <RiCheckLine v-if="styleCleanup.clear_heading_special_indent" size="10" class="text-white" />
@@ -121,7 +121,7 @@ const tabSpaceOptions = [
             </div>
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'remove_extra_blank_lines')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'remove_extra_blank_lines')" @keydown.enter="toggle(styleCleanup, 'remove_extra_blank_lines')" @keydown.space.prevent="toggle(styleCleanup, 'remove_extra_blank_lines')" role="checkbox" :aria-checked="styleCleanup.remove_extra_blank_lines" :aria-label="'清理所有空行'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="styleCleanup.remove_extra_blank_lines ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -131,7 +131,7 @@ const tabSpaceOptions = [
             </div>
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'clear_chart_format')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(styleCleanup, 'clear_chart_format')" @keydown.enter="toggle(styleCleanup, 'clear_chart_format')" @keydown.space.prevent="toggle(styleCleanup, 'clear_chart_format')" role="checkbox" :aria-checked="styleCleanup.clear_chart_format" :aria-label="'清理图表格式'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="styleCleanup.clear_chart_format ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -158,7 +158,7 @@ const tabSpaceOptions = [
           <div class="w-[5px] h-[18px] rounded-[2px] bg-gold-dark shrink-0"></div>
           <span class="text-[15px] font-bold text-brown-dark" style="font-family: 'Source Han Sans SC'">符号清理</span>
           <div class="flex-1"></div>
-          <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="toggleTextAll()">
+          <div class="flex items-center gap-[3px] cursor-pointer shrink-0" @click="toggleTextAll()" @keydown.enter="toggleTextAll()" @keydown.space.prevent="toggleTextAll()" role="checkbox" :aria-checked="textAllSelected" aria-label="符号清理全选" tabindex="0">
             <span class="text-[12px] text-brown shrink-0">全选</span>
             <div class="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center transition-colors shrink-0"
               :class="textAllSelected ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -167,7 +167,7 @@ const tabSpaceOptions = [
           </div>
         </div>
         <div class="flex flex-col">
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'soft_enter_to_hard')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'soft_enter_to_hard')" @keydown.enter="toggle(textCleanup, 'soft_enter_to_hard')" @keydown.space.prevent="toggle(textCleanup, 'soft_enter_to_hard')" role="checkbox" :aria-checked="textCleanup.soft_enter_to_hard" :aria-label="'↓符号转换回车'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="textCleanup.soft_enter_to_hard ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -178,7 +178,7 @@ const tabSpaceOptions = [
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
           <div class="flex items-center justify-between cursor-pointer group py-[10px]">
-            <div class="flex items-center gap-[6px] flex-1" @click="toggle(textCleanup, 'tab_to_spaces_enabled')">
+            <div class="flex items-center gap-[6px] flex-1" @click="toggle(textCleanup, 'tab_to_spaces_enabled')" @keydown.enter="toggle(textCleanup, 'tab_to_spaces_enabled')" @keydown.space.prevent="toggle(textCleanup, 'tab_to_spaces_enabled')" role="checkbox" :aria-checked="textCleanup.tab_to_spaces_enabled" :aria-label="'→符号转换空格'" tabindex="0">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="textCleanup.tab_to_spaces_enabled ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
                 <RiCheckLine v-if="textCleanup.tab_to_spaces_enabled" size="12" class="text-white" />
@@ -188,7 +188,7 @@ const tabSpaceOptions = [
             <div @click.stop><DropdownSelect v-if="textCleanup.tab_to_spaces_enabled" v-model="textCleanup.tab_to_spaces" :options="tabSpaceOptions" width-class="auto" compact /></div>
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'clear_superscript')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'clear_superscript')" @keydown.enter="toggle(textCleanup, 'clear_superscript')" @keydown.space.prevent="toggle(textCleanup, 'clear_superscript')" role="checkbox" :aria-checked="textCleanup.clear_superscript" :aria-label="'上标数学单位自动设置'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="textCleanup.clear_superscript ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -207,7 +207,7 @@ const tabSpaceOptions = [
             </div>
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'punctuation_clean')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'punctuation_clean')" @keydown.enter="toggle(textCleanup, 'punctuation_clean')" @keydown.space.prevent="toggle(textCleanup, 'punctuation_clean')" role="checkbox" :aria-checked="textCleanup.punctuation_clean" :aria-label="'英文标点符号自动转换成中文'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="textCleanup.punctuation_clean ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">
@@ -217,7 +217,7 @@ const tabSpaceOptions = [
             </div>
           </div>
           <div class="w-full h-[1px] bg-tan-border"></div>
-          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'markdown_tags_to_plaintext')">
+          <div class="flex items-center justify-between cursor-pointer group py-[10px]" @click="toggle(textCleanup, 'markdown_tags_to_plaintext')" @keydown.enter="toggle(textCleanup, 'markdown_tags_to_plaintext')" @keydown.space.prevent="toggle(textCleanup, 'markdown_tags_to_plaintext')" role="checkbox" :aria-checked="textCleanup.markdown_tags_to_plaintext" :aria-label="'标签符转换纯文本'" tabindex="0">
             <div class="flex items-center gap-[6px]">
               <div class="w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors shrink-0"
                 :class="textCleanup.markdown_tags_to_plaintext ? 'bg-cinnabar' : 'bg-cream-darker border border-tan-border'">

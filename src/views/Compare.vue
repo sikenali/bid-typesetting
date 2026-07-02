@@ -201,11 +201,13 @@ const exportDoc = async () => {
         <div class="flex items-center gap-3">
           <RiLayout2Line size="18" class="text-brown" />
           <span class="text-[13px] font-semibold text-brown-dark">对比模式</span>
-          <div class="flex bg-cream-darker rounded-lg p-1">
+          <div class="flex bg-cream-darker rounded-lg p-1" role="tablist" aria-label="对比模式切换">
             <button
               class="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px]"
               :class="compareMode === 'side-by-side' ? 'bg-white font-semibold text-cinnabar' : 'font-medium text-brown'"
               @click="compareMode = 'side-by-side'"
+              role="tab"
+              :aria-selected="compareMode === 'side-by-side'"
             >
               <RiLayout2Line size="16" :color="compareMode === 'side-by-side' ? '#C43A31' : '#8B7355'" />
               并排对比
@@ -214,6 +216,8 @@ const exportDoc = async () => {
               class="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px]"
               :class="compareMode === 'diff-table' ? 'bg-white font-semibold text-cinnabar' : 'font-medium text-brown'"
               @click="compareMode = 'diff-table'"
+              role="tab"
+              :aria-selected="compareMode === 'diff-table'"
             >
               <RiCollageLine size="16" :color="compareMode === 'diff-table' ? '#C43A31' : '#8B7355'" />
               差异显示
@@ -229,6 +233,9 @@ const exportDoc = async () => {
               @click="syncScroll = !syncScroll"
               class="w-[40px] h-[22px] rounded-full relative transition-colors"
               :class="syncScroll ? 'bg-cinnabar' : 'bg-tan-dark'"
+              role="switch"
+              :aria-checked="syncScroll"
+              :aria-label="'同步滚动：' + (syncScroll ? '已开启' : '已关闭')"
             >
               <div
                 class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"
@@ -243,6 +250,9 @@ const exportDoc = async () => {
               @click="highlightDiffs = !highlightDiffs"
               class="w-[40px] h-[22px] rounded-full relative transition-colors"
               :class="highlightDiffs ? 'bg-cinnabar' : 'bg-tan-dark'"
+              role="switch"
+              :aria-checked="highlightDiffs"
+              :aria-label="'高亮修改：' + (highlightDiffs ? '已开启' : '已关闭')"
             >
               <div
                 class="absolute top-1/2 -translate-y-1/2 w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-200"

@@ -330,6 +330,7 @@ const previewCurrentTemplate = () => {
               type="text"
               placeholder="搜索模板..."
               class="flex-1 bg-transparent text-[13px] text-brown-dark placeholder-[#B8A88A] outline-none"
+              aria-label="搜索模板名称"
             />
           </div>
         </div>
@@ -338,13 +339,19 @@ const previewCurrentTemplate = () => {
         <div class="bg-cream-dark border border-tan-light rounded-2xl p-8">
 
           <div v-if="activeSection === 'theme'" class="relative">
-            <div class="grid grid-cols-4 gap-3">
+            <div class="grid grid-cols-4 gap-3" role="radiogroup" aria-label="选择主题">
               <div
                 v-for="theme in themes" :key="theme.id"
                 :data-theme-id="theme.id"
                 @click="setTheme(theme.id)"
-                class="bg-white rounded-xl p-4 text-center transition-all cursor-pointer relative aspect-square flex flex-col items-center justify-center"
+                @keydown.enter="setTheme(theme.id)"
+                @keydown.space.prevent="setTheme(theme.id)"
+                class="bg-white rounded-xl p-4 text-center transition-all cursor-pointer relative aspect-square flex flex-col items-center justify-center focus-visible:ring-2 focus-visible:ring-cinnabar focus-visible:ring-offset-2"
                 :class="currentTheme === theme.id ? 'shadow-lg shadow-cinnabar/18' : 'hover:shadow-md'"
+                role="radio"
+                :aria-checked="currentTheme === theme.id"
+                :aria-label="theme.name"
+                tabindex="0"
               >
                 <div
                   class="w-[60px] h-[60px] rounded-lg border border-[#E0D5C0] mx-auto mb-2"
@@ -447,6 +454,9 @@ const previewCurrentTemplate = () => {
                 @click="togglePreview()"
                 class="relative w-[52px] h-[28px] rounded-full transition-colors duration-200 ease-out"
                 :class="previewEnabled ? 'bg-jade-light' : 'bg-tan-dark'"
+                role="switch"
+                :aria-checked="previewEnabled"
+                :aria-label="'排版效果预览：' + (previewEnabled ? '已开启' : '已关闭')"
               >
                 <div
                   class="absolute top-0.5 w-[24px] h-[24px] bg-white rounded-full shadow-sm flex items-center justify-center transition-all duration-300 ease-out"
@@ -472,6 +482,9 @@ const previewCurrentTemplate = () => {
                 @click="toggleClearStyles()"
                 class="relative w-[52px] h-[28px] rounded-full transition-colors duration-200 ease-out"
                 :class="clearStylesEnabled ? 'bg-jade-light' : 'bg-tan-dark'"
+                role="switch"
+                :aria-checked="clearStylesEnabled"
+                :aria-label="'清除文档样式：' + (clearStylesEnabled ? '已开启' : '已关闭')"
               >
                 <div
                   class="absolute top-0.5 w-[24px] h-[24px] bg-white rounded-full shadow-sm flex items-center justify-center transition-all duration-300 ease-out"
@@ -502,6 +515,9 @@ const previewCurrentTemplate = () => {
                 @click="option.id === 'annotation' ? toggleAnnotation() : toggleHighlight()"
                 class="relative w-[52px] h-[28px] rounded-full transition-colors duration-200 ease-out"
                 :class="(option.id === 'annotation' ? annotationEnabled : highlightEnabled) ? 'bg-jade-light' : 'bg-tan-dark'"
+                role="switch"
+                :aria-checked="option.id === 'annotation' ? annotationEnabled : highlightEnabled"
+                :aria-label="option.name + '：' + ((option.id === 'annotation' ? annotationEnabled : highlightEnabled) ? '已开启' : '已关闭')"
               >
                 <div
                   class="absolute top-0.5 w-[24px] h-[24px] bg-white rounded-full shadow-sm flex items-center justify-center transition-all duration-300 ease-out"
@@ -593,6 +609,7 @@ const previewCurrentTemplate = () => {
                       @click="toggleKeyVisibility(index)"
                       class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded flex items-center justify-center hover:bg-white transition-colors"
                       :title="apiKeyVisible[index] ? '隐藏' : '显示'"
+                      :aria-label="apiKeyVisible[index] ? '隐藏密钥' : '显示密钥'"
                     >
                       <RiEyeLine v-if="!apiKeyVisible[index]" size="15" color="#8B7355" />
                       <RiEyeOffLine v-else size="15" color="#8B7355" />

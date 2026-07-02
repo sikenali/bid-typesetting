@@ -15,7 +15,7 @@ function toggle() {
 </script>
 
 <template>
-  <div class="flex items-center gap-[3px] cursor-pointer" @click="toggle">
+  <div class="flex items-center gap-[3px] cursor-pointer" @click="toggle" @keydown.enter.prevent="toggle" @keydown.space.prevent="toggle" role="checkbox" :aria-checked="modelValue" :aria-label="label" tabindex="0">
     <div
       class="rounded-[3px] flex items-center justify-center transition-colors shrink-0"
       :class="[

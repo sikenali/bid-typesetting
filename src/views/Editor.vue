@@ -57,6 +57,18 @@ const isProcessing = ref(false)
 const formatProgress = ref(0)
 const formatLog = ref([])
 const showFormatLog = ref(false)
+const detectedParams = ref(null)
+const showDetectedInfo = ref(false)
+
+const detectedSummary = computed(() => {
+  const d = detectedParams.value
+  if (!d) return ''
+  const labels = []
+  if (d.page) labels.push('页面边距与尺寸')
+  if (d.body) labels.push('正文字体与段落')
+  if (d.headings?.length) labels.push(`标题样式(${d.headings.length}级)`)
+  return labels.length ? `已检测: ${labels.join('、')}` : '未检测到文档样式'
+})
 
 const LARGE_FILE_SIZE = 50 * 1024 * 1024
 const LARGE_PAGE_COUNT = 200
@@ -135,7 +147,10 @@ watch(currentFile, async (file) => {
     if (file.name?.toLowerCase().endsWith('.docx')) {
       try {
         const detected = await readDocxParams(file)
-        if (detected) loadFormatParams(detected)
+        if (detected) {
+          loadFormatParams(detected)
+          detectedParams.value = detected
+        }
       } catch {}
     }
 
@@ -317,6 +332,37 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             <div class="text-[12px] text-brown-muted leading-tight">{{ tabSubtitles[activeTab] || '配置文档排版参数' }}</div>
           </div>
           <div class="flex-1"></div>
+          <div v-if="detectedParams" class="flex items-center gap-1 mr-3 relative">
+            <button @click="showDetectedInfo = !showDetectedInfo"
+              class="flex items-center gap-1 px-2.5 py-2 rounded-lg text-[11px] font-medium text-jade transition-colors hover:bg-jade/10 cursor-pointer"
+            >
+              <RiCheckLine size="13" />
+              <span>{{ detectedSummary }}</span>
+            </button>
+            <div v-if="showDetectedInfo"
+              class="absolute top-full right-0 mt-1 w-[280px] bg-cream-dark border border-tan-border rounded-xl shadow-lg p-4 z-50 text-left"
+              @click.stop
+            >
+              <div class="text-[12px] font-bold text-brown-dark mb-2">检测到的文档样式</div>
+              <div class="space-y-1.5 text-[11px]">
+                <template v-if="detectedParams.page">
+                  <div class="font-medium text-brown-dark">页面设置</div>
+                  <div class="text-brown-muted pl-2">边距: 上{{ detectedParams.page.top_cm }} 下{{ detectedParams.page.bottom_cm }} 左{{ detectedParams.page.left_cm }} 右{{ detectedParams.page.right_cm }} cm</div>
+                  <div class="text-brown-muted pl-2">纸张: {{ detectedParams.page.paper_size === 'A4' ? 'A4' : detectedParams.page.paper_size === 'custom' ? '自定义' : detectedParams.page.paper_size }} ({{ detectedParams.page.paper_width_cm }}×{{ detectedParams.page.paper_height_cm }} cm)</div>
+                </template>
+                <template v-if="detectedParams.body">
+                  <div class="font-medium text-brown-dark mt-1.5">正文样式</div>
+                  <div class="text-brown-muted pl-2">中文字体: {{ detectedParams.body.cn_font }} | 英文字体: {{ detectedParams.body.en_font }} | 字号: {{ detectedParams.body.size_cn }}</div>
+                </template>
+                <template v-if="detectedParams.headings?.length">
+                  <div class="font-medium text-brown-dark mt-1.5">标题样式 ({{ detectedParams.headings.length }} 级)</div>
+                  <div v-for="(h, i) in detectedParams.headings" :key="i" class="text-brown-muted pl-2">
+                    标题{{ i + 1 }}: {{ h.cn_font || '-' }} {{ h.size_cn || '-' }}{{ h.bold ? ' 加粗' : '' }}
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
           <button
             v-if="activeTab !== 'reset'"
             @click="showPreviewModal = !showPreviewModal"
@@ -391,7 +437,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           >
             <RiLoader2Line v-if="isProcessing" size="18" color="white" class="animate-spin" />
             <RiSparklingLine v-else size="18" color="white" />
-            <span>{{ isProcessing ? '排版中...' : '一键排版' }}</span>
+            <span>{{ isProcessing ? '排版中…' : '一键排版' }}</span>
           </button>
         </div>
       </div>
@@ -412,7 +458,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
       @delete="handleDeleteTemplate"
     />
 
-    <div v-if="showPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showPreviewModal = false">
+    <div v-if="showPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showPreviewModal = false" @keydown.escape="showPreviewModal = false">
       <div class="bg-cream rounded-2xl shadow-2xl w-[90vw] h-[85vh] flex flex-col overflow-hidden border border-tan-border">
         <!-- Modal header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-tan-border bg-cream-dark">
@@ -425,6 +471,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           <button
             @click="showPreviewModal = false"
             class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-cream transition-colors"
+            aria-label="关闭预览"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4 4L12 12M12 4L4 12" stroke="#5C4033" stroke-width="2" stroke-linecap="round"/>
@@ -435,19 +482,19 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
         <!-- Toolbar -->
         <div class="bg-cream border-b border-tan-border px-6 py-3 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <button @click="zoomOut" class="w-7 h-7 flex items-center justify-center bg-cream-dark border border-tan-border rounded-lg text-brown hover:bg-cream-darker">
+            <button @click="zoomOut" class="w-7 h-7 flex items-center justify-center bg-cream-dark border border-tan-border rounded-lg text-brown hover:bg-cream-darker focus-visible:ring-2 focus-visible:ring-cinnabar" aria-label="缩小">
               <RiZoomOutLine size="14" />
             </button>
             <span class="text-[13px] font-medium text-brown-dark min-w-[3em] text-center">{{ zoomLevel }}%</span>
-            <button @click="zoomIn" class="w-7 h-7 flex items-center justify-center bg-cream-dark border border-tan-border rounded-lg text-brown hover:bg-cream-darker">
+            <button @click="zoomIn" class="w-7 h-7 flex items-center justify-center bg-cream-dark border border-tan-border rounded-lg text-brown hover:bg-cream-darker focus-visible:ring-2 focus-visible:ring-cinnabar" aria-label="放大">
               <RiZoomInLine size="14" />
             </button>
             <div class="w-[2px] h-5 bg-tan-border mx-1"></div>
             <div v-if="vueOfficeBuffer" class="flex items-center gap-2">
               <span class="text-[12px] text-brown-muted">共 {{ totalPages }} 页</span>
-              <button @click="currentPage = Math.max(1, currentPage - 1)" class="px-3 py-1.5 bg-cream-dark border border-tan-border rounded-lg text-[12px] text-brown hover:bg-cream-darker">上一页</button>
-              <span class="text-[13px] text-brown font-medium min-w-[2em] text-center">{{ currentPage }}</span>
-              <button @click="currentPage = Math.min(Number(totalPages), currentPage + 1)" class="px-3 py-1.5 bg-cream-dark border border-tan-border rounded-lg text-[12px] text-brown hover:bg-cream-darker">下一页</button>
+              <button @click="currentPage = Math.max(1, currentPage - 1)" class="px-3 py-1.5 bg-cream-dark border border-tan-border rounded-lg text-[12px] text-brown hover:bg-cream-darker focus-visible:ring-2 focus-visible:ring-cinnabar" aria-label="上一页">上一页</button>
+              <span class="text-[13px] text-brown font-medium min-w-[2em] text-center" aria-live="polite">{{ currentPage }}</span>
+              <button @click="currentPage = Math.min(Number(totalPages), currentPage + 1)" class="px-3 py-1.5 bg-cream-dark border border-tan-border rounded-lg text-[12px] text-brown hover:bg-cream-darker focus-visible:ring-2 focus-visible:ring-cinnabar" aria-label="下一页">下一页</button>
             </div>
           </div>
           <div v-if="isDocx" class="flex items-center gap-2">
@@ -499,7 +546,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
     </div>
 
     <!-- Format Progress Modal -->
-    <div v-if="showFormatLog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showFormatLog = false">
+    <div v-if="showFormatLog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showFormatLog = false" @keydown.escape="showFormatLog = false">
       <div class="bg-cream rounded-2xl shadow-2xl w-[500px] overflow-hidden border border-tan-border">
         <div class="flex items-center justify-between px-6 py-4 border-b border-tan-border bg-cream-dark">
           <div class="flex items-center gap-3">
@@ -507,11 +554,12 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
               <RiSparklingLine v-if="isProcessing" size="16" color="white" class="animate-spin" />
               <RiCheckLine v-else size="16" color="white" />
             </div>
-            <span class="text-[14px] font-semibold text-brown-dark">{{ isProcessing ? '排版处理中...' : '排版完成' }}</span>
+            <span class="text-[14px] font-semibold text-brown-dark">{{ isProcessing ? '排版处理中…' : '排版完成' }}</span>
           </div>
           <button
             @click="showFormatLog = false"
             class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-cream transition-colors"
+            aria-label="关闭进度"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4 4L12 12M12 4L4 12" stroke="#5C4033" stroke-width="2" stroke-linecap="round"/>
@@ -525,7 +573,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
               <span class="text-[13px] font-medium text-brown-dark">进度</span>
               <span class="text-[13px] font-semibold text-cinnabar">{{ formatProgress }}%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="w-full bg-gray-200 rounded-full h-2.5" role="progressbar" :aria-valuenow="formatProgress" aria-valuemin="0" aria-valuemax="100" aria-label="排版进度">
               <div
                 class="bg-cinnabar h-2.5 rounded-full transition-all duration-300"
                 :style="{ width: formatProgress + '%' }"
@@ -550,7 +598,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             @click="showFormatLog = false"
             class="px-5 py-2 bg-white border border-tan-border rounded-lg text-[13px] font-medium text-brown hover:bg-cream transition-colors"
           >
-            {{ isProcessing ? '请稍候...' : '关闭' }}
+            {{ isProcessing ? '请稍候…' : '关闭' }}
           </button>
         </div>
       </div>

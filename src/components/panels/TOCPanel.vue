@@ -168,9 +168,9 @@ function leaderPreview(value) {
                     <label class="relative cursor-pointer">
                       <div class="w-[18px] h-[18px] rounded-[3px] border border-tan-border cursor-pointer"
                         :style="{ backgroundColor: rgbToString(params.level_styles[activeLevel].color_rgb) }"></div>
-                      <input type="color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                        :value="rgbToHex(params.level_styles[activeLevel].color_rgb)"
-                        @input="onColorChange($event, params.level_styles[activeLevel])" />
+                    <input type="color" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                      :value="rgbToHex(params.level_styles[activeLevel].color_rgb)"
+                      @input="onColorChange($event, params.level_styles[activeLevel])" aria-label="选择颜色" />
                     </label>
                   </div>
                   <div class="flex items-center gap-[3px] cursor-pointer" @click="params.level_styles[activeLevel].bold = !params.level_styles[activeLevel].bold">
@@ -207,13 +207,13 @@ function leaderPreview(value) {
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">段前间距</span>
                     <input type="number" min="0" step="0.1" v-model.number="params.level_styles[activeLevel].space_before_value"
-                      class="w-[60px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                      class="w-[60px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="段前间距" />
                     <DropdownSelect v-model="params.level_styles[activeLevel].space_before_unit" :options="spacingUnits" width-class="auto" />
                   </div>
                   <div class="flex items-center gap-1">
                     <span class="text-[12px] text-brown shrink-0">段后间距</span>
                     <input type="number" min="0" step="0.1" v-model.number="params.level_styles[activeLevel].space_after_value"
-                      class="w-[60px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                      class="w-[60px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="段后间距" />
                     <DropdownSelect v-model="params.level_styles[activeLevel].space_after_unit" :options="spacingUnits" width-class="auto" />
                   </div>
                 </div>

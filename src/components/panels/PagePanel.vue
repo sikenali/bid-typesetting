@@ -23,25 +23,25 @@ defineProps({
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">上边距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.top_cm"
-              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="上边距" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">下边距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.bottom_cm"
-              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="下边距" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">左边距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.left_cm"
-              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="左边距" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">右边距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.right_cm"
-              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="右边距" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
         </div>
@@ -55,13 +55,13 @@ defineProps({
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">装订线</span>
             <input type="number" min="0" step="0.1" v-model.number="params.gutter_cm"
-              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="装订线" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">页眉</span>
             <input type="number" min="0" step="0.1" v-model.number="params.header_margin_cm"
-              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[80px] shrink-0 bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="页眉距离" />
             <span class="text-[13px] text-brown shrink-0">厘米</span>
           </div>
           <div class="flex items-center gap-[4px] cursor-pointer" @click="params.keep_original_orientation = !params.keep_original_orientation">
@@ -99,7 +99,7 @@ defineProps({
           <div class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">栏间距</span>
             <input type="number" min="0" step="0.1" v-model.number="params.column_spacing_cm"
-              class="w-[64px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[64px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="栏间距" />
             <span class="text-[13px] text-brown">厘米</span>
           </div>
         </div>

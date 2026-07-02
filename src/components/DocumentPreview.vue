@@ -58,7 +58,7 @@ watch(() => [props.file, props.src], async () => {
 </script>
 
 <template>
-  <div class="w-full min-h-full bg-warm-gray overflow-auto py-8">
+  <div class="w-full min-h-full bg-warm-gray overflow-auto py-8" role="region" aria-label="文档预览">
     <div v-if="!file && !src" class="max-w-[680px] mx-auto bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-xl min-h-[842px] flex items-center justify-center">
       <p class="text-brown-muted text-lg font-xiaowei">请先上传文档</p>
     </div>

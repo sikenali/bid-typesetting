@@ -69,10 +69,10 @@ const handleFileChange = (e) => {
         @drop="handleDrop"
       >
         <div v-if="!uploading" class="w-20 h-20 mx-auto mb-6 bg-cream-darker rounded-full flex items-center justify-center">
-          <RiBook2Line size="36" color="#C43A31" />
+          <RiBook2Line size="36" color="#C43A31" aria-hidden="true" />
         </div>
-        <div v-else class="w-20 h-20 mx-auto mb-6 bg-cream-darker rounded-full flex items-center justify-center">
-          <RiBook2Line size="36" color="#5B8C5A" />
+        <div v-else class="w-20 h-20 mx-auto mb-6 bg-cream-darker rounded-full flex items-center justify-center" aria-hidden="true">
+          <RiBook2Line size="36" color="#5B8C5A" aria-hidden="true" />
         </div>
 
         <p v-if="!uploading" class="text-xl font-semibold text-brown-dark mb-2">
@@ -82,7 +82,7 @@ const handleFileChange = (e) => {
           正在上传: {{ selectedFile?.name }}
         </p>
 
-        <div v-if="uploading" class="max-w-[400px] mx-auto mb-6">
+        <div v-if="uploading" class="max-w-[400px] mx-auto mb-6" role="progressbar" :aria-valuenow="Math.round(uploadProgress)" aria-valuemin="0" aria-valuemax="100" aria-label="上传进度">
           <div class="w-full h-2 bg-cream-darker rounded-full overflow-hidden">
             <div
               class="h-full bg-jade-light rounded-full transition-all duration-300 ease-out"
@@ -101,14 +101,16 @@ const handleFileChange = (e) => {
           accept=".docx"
           :disabled="uploading"
           @change="handleFileChange"
+          aria-describedby="file-upload-help"
         />
+        <p id="file-upload-help" class="sr-only">仅支持DOCX格式文件上传</p>
 
         <label
           v-if="!uploading"
           for="file-input"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-cinnabar text-white rounded-lg cursor-pointer hover:bg-cinnabar-dark transition-colors font-medium"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-cinnabar text-white rounded-lg cursor-pointer hover:bg-cinnabar-dark transition-colors font-medium focus-visible:ring-2 focus-visible:ring-cinnabar focus-visible:ring-offset-2"
         >
-          <RiQuillPenFill size="18" color="white" />
+          <RiQuillPenFill size="18" color="white" aria-hidden="true" />
           <span>御赐墨宝</span>
         </label>
       </div>

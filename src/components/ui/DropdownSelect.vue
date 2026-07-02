@@ -100,6 +100,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
       type="button"
       @click="toggle"
       :aria-expanded="isOpen"
+      :aria-haspopup="'listbox'"
       :disabled="disabled"
       class="w-full bg-white border border-tan-border rounded-lg px-[12px] text-[13px] text-left outline-none transition-all duration-150 flex items-center gap-1 cursor-pointer"
       :class="[isOpen ? 'border-cinnabar ring-1 ring-cinnabar/25' : 'hover:border-tan-dark', compact ? 'py-[4px]' : 'py-[8px]', disabled ? 'opacity-60 cursor-not-allowed' : '']"
@@ -115,12 +116,15 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
       <div
         v-if="isOpen"
         ref="listRef"
+        role="listbox"
         class="absolute left-0 right-0 top-full mt-1 bg-white border border-tan-border rounded-xl shadow-lg z-50 max-h-[240px] overflow-y-auto py-1"
       >
         <button
           v-for="(opt, i) in normalizedOptions"
           :key="opt.value"
           type="button"
+          role="option"
+          :aria-selected="modelValue === opt.value"
           :data-highlighted="highlightIndex === i ? '' : null"
           :data-selected="modelValue === opt.value ? '' : null"
           @click="select(opt.value)"

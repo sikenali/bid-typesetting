@@ -30,7 +30,10 @@ function twipsToCm(twips) {
 }
 
 function attr(el, name) {
-  return el?.getAttribute(name)
+  if (!el) return null
+  const v = el.getAttribute(name)
+  if (v !== null && v !== '') return v
+  return el.getAttributeNS(W_NS, name) ?? null
 }
 
 function tag(el, name) {
@@ -119,7 +122,7 @@ export async function readDocxParams(file) {
         if (Math.abs(twipsToCm(w) - 21) < 0.5 && Math.abs(twipsToCm(h) - 29.7) < 0.5) {
           page.paper_size = 'A4'
         } else {
-          page.paper_size = 'CUSTOM'
+          page.paper_size = 'custom'
         }
       }
     }

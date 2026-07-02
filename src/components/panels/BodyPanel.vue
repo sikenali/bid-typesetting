@@ -114,7 +114,7 @@ defineProps({
           <div v-if="params.add_space" class="flex items-center gap-2">
             <span class="text-[13px] text-brown whitespace-nowrap shrink-0">空格数量</span>
             <input type="number" min="1" max="5" v-model.number="params.space_count"
-              class="w-[70px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" />
+              class="w-[70px] bg-white border border-tan-border rounded-lg px-[12px] py-[8px] text-[13px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="空格数量" />
           </div>
         </div>
       </div>

@@ -102,7 +102,7 @@ const pageNumberTypes = [
                 <div class="flex items-center gap-[6px]">
                   <span class="text-[12px] text-brown shrink-0">页眉距离</span>
                   <input type="number" min="0" step="0.5" v-model.number="params.header_distance"
-                    class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                    class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="页眉距离" />
                   <DropdownSelect v-model="params.header_distance_unit" :options="spacingUnits" width-class="auto" />
                 </div>
               </div>
@@ -193,7 +193,7 @@ const pageNumberTypes = [
             <div class="flex items-center gap-[6px]">
               <span class="text-[12px] text-brown shrink-0">页脚距离</span>
               <input type="number" min="0" step="0.5" v-model.number="params.footer_distance"
-                class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" />
+                class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="页脚距离" />
               <DropdownSelect v-model="params.footer_distance_unit" :options="spacingUnits" width-class="auto" />
             </div>
           </div>
