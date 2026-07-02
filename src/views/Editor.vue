@@ -262,7 +262,6 @@ const handleOneClickModify = async () => {
 
     addLog('正在读取并格式化文档...')
     formatProgress.value = 20
-    takeBeforeSnapshot()
 
     addLog('正在调用后端排版服务...')
     formatProgress.value = 40
