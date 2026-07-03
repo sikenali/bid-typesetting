@@ -49,7 +49,7 @@ const pageNumberTypes = [
           <div>
             <div class="flex items-center gap-1">
               <span class="text-[12px] text-brown shrink-0">页眉标题</span>
-              <input type="text" v-model="params.header_text" placeholder="墨墨梧文-智能化排版工具"
+              <input type="text" v-model="params.header_text" placeholder="文版猩-智能化排版工具"
                 class="w-[200px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors placeholder:text-brown-muted/50" />
             </div>
           </div>

@@ -307,7 +307,7 @@ const router = useRouter()
   <nav class="fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-sm border-b border-gold/30 flex items-center justify-between px-6 z-50">
     <!-- Logo -->
     <div class="flex items-center gap-3 cursor-pointer" @click="router.push('/')">
-      <span class="text-3xl font-calligraphy text-cinnabar">墨墨梧文</span>
+      <span class="text-3xl font-calligraphy text-cinnabar">文版猩</span>
     </div>
 
     <!-- 右侧按钮 -->
@@ -333,7 +333,7 @@ const router = useRouter()
 
 - [ ] **步骤 2：验证导航栏显示**
 
-预期：页面顶部显示"墨墨梧文"Logo 和模板、设置按钮
+预期：页面顶部显示"文版猩"Logo 和模板、设置按钮
 
 - [ ] **步骤 3：Commit**
 
@@ -399,7 +399,7 @@ const startEditing = () => {
     <div class="max-w-2xl w-full">
       <!-- 标题 -->
       <div class="text-center mb-12">
-        <h1 class="text-5xl font-calligraphy text-cinnabar mb-4">墨墨梧文</h1>
+        <h1 class="text-5xl font-calligraphy text-cinnabar mb-4">文版猩</h1>
         <p class="text-xl font-xiaowei text-ink-black/70">中国古典水墨风格文档排版工具</p>
       </div>
 
