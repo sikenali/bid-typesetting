@@ -26,6 +26,7 @@ const activeLevel = ref(0)
         标题{{ i + 1 }}
       </button>
       <button
+        v-if="patterns?.rules"
         @click="activeLevel = 99"
         class="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all"
         :class="activeLevel === 99 ? 'bg-cinnabar text-white' : 'bg-white border border-tan-border text-brown hover:bg-cream'"
@@ -53,7 +54,7 @@ const activeLevel = ref(0)
     </template>
 
     <template v-else>
-      <div class="space-y-2">
+      <div v-if="patterns?.rules" class="space-y-2">
         <div v-for="(rule, i) in patterns.rules" :key="i" class="p-3 bg-cream-dark rounded-lg border border-tan-border">
           <div class="flex items-center justify-between mb-2">
             <span class="text-[12px] font-semibold text-brown-dark">规则{{ i + 1 }}</span>

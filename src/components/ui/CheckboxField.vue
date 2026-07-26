@@ -1,7 +1,7 @@
 <script setup>
 import { RiCheckLine } from '@remixicon/vue'
 defineProps({
-  label: { type: String, required: true },
+  label: { type: String, default: '' },
 })
 const model = defineModel({ type: Boolean })
 </script>

@@ -9,7 +9,6 @@ const props = defineProps({
   figCaption: { type: Object, required: true },
   tblCaption: { type: Object, required: true },
   table: { type: Object, required: true },
-  tableSettings: { type: Object, required: true },
 })
 
 const activeSubTab = ref('fig')
