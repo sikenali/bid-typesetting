@@ -24,6 +24,14 @@ import ChartPanel from '../components/panels/ChartPanel.vue'
 import TOCPanel from '../components/panels/TOCPanel.vue'
 import HeaderFooterPanel from '../components/panels/HeaderFooterPanel.vue'
 import ResetPanel from '../components/panels/ResetPanel.vue'
+import RulePanelEditor from '../components/RulePanelEditor.vue'
+import PageRuleEditor from '../components/rules/PageRuleEditor.vue'
+import BodyRuleEditor from '../components/rules/BodyRuleEditor.vue'
+import HeadingRuleEditor from '../components/rules/HeadingRuleEditor.vue'
+import ChartRuleEditor from '../components/rules/ChartRuleEditor.vue'
+import TOCRuleEditor from '../components/rules/TOCRuleEditor.vue'
+import HeaderFooterRuleEditor from '../components/rules/HeaderFooterRuleEditor.vue'
+import CleanupRuleEditor from '../components/rules/CleanupRuleEditor.vue'
 import { DocxEditor } from '@eigenpal/docx-editor-vue'
 import '@eigenpal/docx-editor-vue/styles.css'
 import VueOfficeDocx from '@vue-office/docx'
@@ -113,6 +121,7 @@ const tabIcons = {
   toc: RiListCheck2,
   header: RiLayoutTop2Line,
   reset: RiBrushLine,
+  rules: RiEdit2Line,
 }
 
 const tabTitles = {
@@ -123,6 +132,7 @@ const tabTitles = {
   toc: '目录设置',
   header: '页眉页脚设置',
   reset: '初始化',
+  rules: '规则编辑器',
 }
 
 const tabSubtitles = {
@@ -133,6 +143,7 @@ const tabSubtitles = {
   toc: '设置目录层级与格式',
   header: '配置页眉页脚内容、位置与样式',
   reset: '在一键排版之前，对上传的文件进行初始化操作',
+  rules: '可视化编辑全部排版规则配置',
 }
 
 watch(currentPage, (page) => {
@@ -431,6 +442,33 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             :caption-detection="formatParams.cleanup.caption_detection"
             @reset="handleReset"
           />
+          <div v-else-if="activeTab === 'rules'" class="space-y-5 pb-6">
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2">页面设置</h3>
+            <PageRuleEditor :params="formatParams.page" />
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">正文格式</h3>
+            <BodyRuleEditor :params="formatParams.body" />
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">标题与编号</h3>
+            <HeadingRuleEditor :headings="formatParams.headings" :patterns="formatParams.patterns" />
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">图表样式</h3>
+            <ChartRuleEditor 
+              :fig-caption="formatParams.fig_caption" 
+              :tbl-caption="formatParams.tbl_caption" 
+              :table="formatParams.table" 
+              :table-settings="formatParams.table_settings" 
+            />
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">目录设置</h3>
+            <TOCRuleEditor :params="formatParams.toc" />
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">页眉页脚</h3>
+            <HeaderFooterRuleEditor :params="formatParams.header_footer" />
+            <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">预处理与全局开关</h3>
+            <CleanupRuleEditor 
+              :text-cleanup="formatParams.cleanup.text_cleanup" 
+              :style-cleanup="formatParams.cleanup.style_cleanup" 
+              :object-structure="formatParams.cleanup.object_structure" 
+              :caption-detection="formatParams.cleanup.caption_detection" 
+              :global-switches="formatParams.cleanup.global_switches" 
+            />
+          </div>
         </div>
 
         <div class="bg-cream border-t border-tan-border flex items-center justify-end px-8 py-5 shrink-0" style="height: 61.6px;">
