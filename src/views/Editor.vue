@@ -479,11 +479,12 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
             <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">标题与编号</h3>
             <HeadingRuleEditor :headings="formatParams.headings" :patterns="formatParams.patterns" />
             <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">图表样式</h3>
-            <ChartRuleEditor 
-              :fig-caption="formatParams.fig_caption" 
-              :tbl-caption="formatParams.tbl_caption" 
-              :table="formatParams.table" 
-            />
+             <ChartRuleEditor 
+               :fig-caption="formatParams.fig_caption" 
+               :tbl-caption="formatParams.tbl_caption" 
+               :table="formatParams.table" 
+               :table-settings="formatParams.table_settings" 
+             />
             <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">目录设置</h3>
             <TOCRuleEditor :params="formatParams.toc" />
             <h3 class="text-[14px] font-bold text-brown-dark border-b border-tan-border pb-2 mt-4">页眉页脚</h3>
