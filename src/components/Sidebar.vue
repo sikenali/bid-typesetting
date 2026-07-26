@@ -9,6 +9,7 @@ import {
   RiLayoutTop2Line,
   RiBrushLine,
   RiCheckLine,
+  RiEdit2Line,
 } from '@remixicon/vue'
 import { useToast } from '../composables/useToast'
 
@@ -28,6 +29,7 @@ const tabs = [
   { id: 'chart', label: '图表', sublabel: 'Charts & Tables', icon: RiBarChart2Line, activeBg: 'bg-cinnabar' },
   { id: 'header', label: '页眉页脚', sublabel: 'Header & Footer', icon: RiLayoutTop2Line, activeBg: 'bg-cinnabar' },
   { id: 'reset', label: '初始化', sublabel: 'Initialize', icon: RiBrushLine, activeBg: 'bg-[#C8A45C]' },
+  { id: 'rules', label: '规则编辑器', sublabel: 'Rule Editor', icon: RiEdit2Line, activeBg: 'bg-[#5B7DB1]' },
 ]
 
 const selectTab = (tabId) => {
