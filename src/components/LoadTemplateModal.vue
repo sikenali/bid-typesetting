@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { RiCloseLine, RiBook2Line, RiDeleteBinLine, RiCheckLine } from '@remixicon/vue'
+import { RiCloseLine, RiBook2Line, RiDeleteBinLine, RiCheckLine, RiEdit2Line } from '@remixicon/vue'
 
-const emit = defineEmits(['close', 'select', 'delete'])
+const emit = defineEmits(['close', 'select', 'delete', 'edit'])
 const props = defineProps({
   templates: { type: Array, required: true },
 })
@@ -102,6 +102,14 @@ const handleDelete = (e, id) => {
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
+              <button
+                v-if="!tpl.builtIn"
+                @click.stop="emit('edit', tpl)"
+                class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-blue-50 transition-colors"
+                title="编辑此模板"
+              >
+                <RiEdit2Line size="14" color="#5B7DB1" />
+              </button>
               <button
                 v-if="!tpl.builtIn"
                 @click="handleDelete($event, tpl.id)"

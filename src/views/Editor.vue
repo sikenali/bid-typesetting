@@ -12,7 +12,8 @@ import {
   RiBarChart2Line, RiListCheck2, RiLayoutTop2Line, RiBrushLine,
   RiFootprintLine, RiDoubleQuotesL, RiFileTextLine, RiFileEditLine,
   RiSideBarLine, RiCheckLine, RiEdit2Line, RiEyeLine, RiLoader2Line,
-  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine
+  RiSaveLine, RiSparklingLine, RiBook2Line, RiTerminalBoxLine, RiCloseLine,
+  RiDownloadLine, RiUploadLine
 } from '@remixicon/vue'
 import Sidebar from '../components/Sidebar.vue'
 import SaveTemplateModal from '../components/SaveTemplateModal.vue'
@@ -68,6 +69,7 @@ const detectedParams = ref(null)
 const showDetectedInfo = ref(false)
 const previewModalRef = ref(null)
 const formatModalRef = ref(null)
+const fileInput = ref(null)
 
 function focusFirst(el) {
   if (!el) return
@@ -316,6 +318,34 @@ const handleReset = () => {
   }
 }
 
+const handleExportJSON = () => {
+  const jsonStr = JSON.stringify(formatParams, null, 2)
+  const blob = new Blob([jsonStr], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `排版配置-${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const handleImportJSON = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result)
+      loadFormatParams(imported)
+      showToast('配置导入成功', 'success')
+    } catch (err) {
+      showToast('JSON 格式错误: ' + err.message, 'error')
+    }
+  }
+  reader.readAsText(file)
+  event.target.value = ''
+}
+
 const onTemplateSaved = ({ name, category }) => {
   saveTemplate(name, category, formatParams)
   showSaveModal.value = false
@@ -488,6 +518,23 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
           </button>
           <div class="w-3"></div>
           <button
+            @click="handleExportJSON"
+            class="flex items-center gap-2 px-5 py-3 bg-white border border-tan-border rounded-xl text-[14px] font-semibold text-brown transition-all hover:bg-cream-darker"
+          >
+            <RiDownloadLine size="18" color="#5C4033" />
+            <span>导出配置</span>
+          </button>
+          <div class="w-3"></div>
+          <button
+            @click="$refs.fileInput?.click()"
+            class="flex items-center gap-2 px-5 py-3 bg-white border border-tan-border rounded-xl text-[14px] font-semibold text-brown transition-all hover:bg-cream-darker"
+          >
+            <RiUploadLine size="18" color="#5C4033" />
+            <span>导入配置</span>
+          </button>
+          <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleImportJSON" />
+          <div class="w-3"></div>
+          <button
             @click="handleOneClickModify"
             class="flex items-center gap-2 px-6 py-3 bg-cinnabar text-white rounded-xl text-[14px] font-semibold transition-all hover:bg-cinnabar-dark disabled:opacity-60 disabled:cursor-not-allowed"
             :disabled="isProcessing"
@@ -513,6 +560,7 @@ const showEditor = computed(() => isDocx.value && isEditMode.value)
       @close="showLoadModal = false"
       @select="handleLoadSelected"
       @delete="handleDeleteTemplate"
+      @edit="(tpl) => { showLoadModal = false; showSaveModal = true; }"
     />
 
     <div v-if="showPreviewModal" ref="previewModalRef" role="dialog" aria-modal="true" aria-label="文档预览" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showPreviewModal = false" @keydown.escape="showPreviewModal = false" @keydown="trapTab($event, previewModalRef)">
