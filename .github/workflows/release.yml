@@ -19,7 +19,7 @@ jobs:
           node-version: 20
 
       - name: Set version from tag
-        run: node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version='$GITHUB_REF_NAME'.substring(1);fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+        run: node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version=process.env.GITHUB_REF_NAME.slice(1);fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
 
       - run: npm ci
       - run: npm run build
