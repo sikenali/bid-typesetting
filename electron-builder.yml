@@ -1,5 +1,5 @@
 appId: com.bid-typesetting.app
-productName: 文版猩
+productName: bid-typesetting
 directories:
   buildResources: build
 files:
