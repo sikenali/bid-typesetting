@@ -1,0 +1,18 @@
+appId: com.bid-typesetting.app
+productName: 文版猩
+directories:
+  buildResources: build
+files:
+  - dist/**/*
+  - electron/main.js
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: public/logo-icon.svg
+  uninstallerIcon: public/logo-icon.svg
+  createDesktopShortcut: true
+  shortcutName: 文版猩

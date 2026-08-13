@@ -46,16 +46,18 @@
 
 ### 桌面客户端
 
-基于 Deno + WebView2 构建 Windows 原生应用。Vite 构建产物嵌入 exe，运行时启动 HTTP server serve dist/ 并打开 WebView 窗口。
+基于 Electron 构建 Windows 原生应用。
 
 ```bash
-# 安装 Deno: https://docs.deno.com
+# 安装依赖
+npm install
 
-npm run build                              # 构建前端
-npx deno compile -A --include dist --output "文版猩.exe" desktop/desktop.ts
+# 开发模式（需同时运行 Vite dev server）
+npm run electron:dev
+
+# 打包 Windows exe
+npm run electron:build
 ```
-
-编译后得到单文件 `文版猩.exe`（约 10-15MB），无需安装任何运行时即可在 Windows 10+ 运行。
 
 ---
 

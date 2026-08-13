@@ -6,3 +6,10 @@ backend/*.exe
 backend/testdata/*.docx
 backend/testdata/*.json
 backend/unidoc.license
+dist/
+
+# Electron build output
+dist-win
+out
+*.exe
+!backend/*.exe
