@@ -5,6 +5,7 @@ directories:
 files:
   - dist/**/*
   - electron/main.js
+artifactName: "${productName}-Setup-${version}-${os}-${arch}.${ext}"
 win:
   target:
     - target: nsis
