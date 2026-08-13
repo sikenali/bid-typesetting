@@ -19,15 +19,13 @@ jobs:
           node-version: 20
 
       - name: Set version from tag
+        shell: powershell
         run: |
-          TAG_VERSION=${GITHUB_REF_NAME#v}
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            pkg.version = '$TAG_VERSION';
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-          "
-          cat package.json | grep '"version"'
+          $tagVersion = $env:GITHUB_REF_NAME.Substring(1)
+          Write-Host "Tag version: $tagVersion"
+          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+          $pkg.version = $tagVersion
+          $pkg | ConvertTo-Json -Depth 10 | Set-Content package.json
 
       - run: npm ci
       - run: npm run build
