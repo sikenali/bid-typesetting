@@ -12,7 +12,5 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
-  installerIcon: public/favicon.svg
-  uninstallerIcon: public/favicon.svg
   createDesktopShortcut: true
   shortcutName: 文版猩
