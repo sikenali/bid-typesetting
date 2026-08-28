@@ -5,13 +5,19 @@ import { useSettings } from '../composables/useSettings'
 import { useTemplates } from '../composables/useTemplates'
 import { useFormatState } from '../composables/useFormatState'
 import { useToast } from '../composables/useToast'
+import { useApiKeys } from '../composables/useApiKeys'
 import PreviewTemplateModal from '../components/PreviewTemplateModal.vue'
-import { RiPaletteLine, RiBookmark3Line, RiEyeLine, RiCheckLine, RiFileTextLine, RiBuildingLine, RiBook2Line, RiBarChart2Line, RiFileEditLine, RiSettings3Line, RiBrushLine, RiDeleteBinLine, RiSearchLine, RiLayout3Line, RiArrowRightLine, RiKeyLine, RiEyeOffLine } from '@remixicon/vue'
+import { RiPaletteLine, RiBookmark3Line, RiEyeLine, RiCheckLine, RiFileTextLine, RiBuildingLine, RiBook2Line, RiBarChart2Line, RiFileEditLine, RiSettings3Line, RiBrushLine, RiDeleteBinLine, RiSearchLine, RiLayout3Line, RiArrowRightLine, RiKeyLine, RiEyeOffLine, RiAddLine, RiEditLine, RiCloseLine, RiLoaderLine } from '@remixicon/vue'
 
 const { success } = useToast()
 const router = useRouter()
 const { theme: currentTheme, template: currentTemplate, previewEnabled, clearStylesEnabled, annotationEnabled, highlightEnabled, setTheme, setTemplate, togglePreview, toggleClearStyles, toggleAnnotation, toggleHighlight } = useSettings()
 const { templates, deleteTemplate, categoryMeta } = useTemplates()
+const {
+  apiKeys, apiKeyForm, configTab, customApiFormat, customEndpoint, customModelId,
+  selectedProvider, selectedModelName, providerModels, onProviderChange,
+  addApiKey, removeApiKey, toggleApiKey, toggleKeyVisibility, resetForm, persistConfig, loadConfig,
+} = useApiKeys()
 
 const activeSection = ref('theme')
 const sectionContainerRef = ref(null)
@@ -21,6 +27,7 @@ const sectionTabs = [
   { id: 'theme', label: '主题设置', sublabel: 'Theme', icon: RiPaletteLine, activeBg: 'bg-cinnabar' },
   { id: 'template', label: '模板设置', sublabel: 'Template', icon: RiBookmark3Line, activeBg: 'bg-gold-dark' },
   { id: 'display', label: '显示设置', sublabel: 'Display', icon: RiEyeLine, activeBg: 'bg-jade-light' },
+  { id: 'apikey', label: 'API Key', sublabel: '', icon: RiKeyLine, activeBg: 'bg-indigo-500' },
 ]
 
 function selectSection(id) {
@@ -53,6 +60,7 @@ onMounted(() => {
     positionIndicator()
     positionCategoryIndicator()
     loadApiKeyConfig()
+    loadConfig()
     setTimeout(() => {
       isInitialized.value = true
       isCategoryInitialized.value = true
@@ -151,64 +159,141 @@ const hasSelectedTemplate = computed(() => currentTemplate.value != null && !!se
 
 const showPreviewModal = ref(false)
 
-// API Key related state
-const apiKeyEntries = ref([])
-const apiKeyVisible = ref({})
-const apiKeyLoading = ref(false)
-const API_CONFIG_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8099') + '/api/config'
+// API Key provider models
+const providerModelsMap = {
+  '阿里云': ['qwen3.7-max', 'qwen3.7-plus', 'qwen3.6-plus', 'qwen3.5-plus', 'qwen3-max', 'qwen-plus', 'qwen-flash', 'qwen3-coder-plus'],
+  '百度': ['ernie-4.0', 'ernie-3.5', 'ernie-speed'],
+  '智谱': ['glm-5.1', 'glm-4.6', 'glm-4'],
+  'DeepSeek': ['deepseek-v4-pro', 'deepseek-r1', 'deepseek-chat'],
+  'Moonshot': ['kimi-k2.6', 'moonshot-v1-128k', 'moonshot-v1-32k'],
+  '零一万物': ['yi-large', 'yi-medium', 'yi-34b-chat'],
+  'OpenAI': ['gpt-5.6-sol', 'gpt-5.5', 'gpt-5.4', 'gpt-5.4-pro', 'gpt-5.3-codex', 'o4-mini', 'o3', 'gpt-4.1'],
+  'Anthropic': ['claude-fable-5', 'claude-opus-4.8', 'claude-opus-4.7', 'claude-sonnet-4.6', 'claude-haiku-4.5'],
+  'Google': ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-pro'],
+  'Mistral': ['mistral-large-3', 'mistral-medium-3', 'mistral-small-3'],
+  'Groq': ['llama-3.3-70b', 'llama-3.1-8b', 'mixtral-8x7b-32768'],
+}
 
-async function loadApiKeyConfig() {
+// API Key management
+const API_CONFIG_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8099') + '/api/config'
+const testingKey = ref('')
+const testSuccess = ref({})
+const testFailed = ref({})
+const testTimeouts = ref({})
+
+async function saveApiKey() {
+  const key = apiKeyForm.value.key.trim()
+  if (!key) {
+    success('请输入 API Key')
+    return
+  }
+  if (configTab.value === 'custom') {
+    if (!customEndpoint.value.trim() || !customModelId.value.trim()) {
+      success('请填写自定义地址和模型 ID')
+      return
+    }
+    addApiKey({
+      id: Date.now().toString(),
+      provider: customApiFormat.value === 'anthropic' ? 'Anthropic (自定义)' : 'OpenAI (自定义)',
+      model: customModelId.value.trim(),
+      modelName: customModelId.value.trim(),
+      key: key,
+      endpoint: customEndpoint.value.trim(),
+      format: customApiFormat.value,
+      enabled: true,
+    })
+  } else {
+    if (!selectedProvider.value || !selectedModelName.value) {
+      success('请选择服务商和模型')
+      return
+    }
+    addApiKey({
+      id: Date.now().toString(),
+      provider: selectedProvider.value,
+      model: selectedModelName.value,
+      modelName: selectedModelName.value,
+      key: key,
+      enabled: true,
+    })
+  }
+  resetForm()
+  persistConfig()
+  await syncKeysToBackend()
+  success('密钥已保存')
+}
+
+async function syncKeysToBackend() {
   try {
-    apiKeyLoading.value = true
     const res = await fetch(API_CONFIG_URL)
     const data = await res.json()
-    const entries = data.license_entries || []
-    // 如果没有已配置的密钥，初始化默认条目
-    if (entries.length === 0) {
-      apiKeyEntries.value = [{ name: 'sikenali', key: '0e89c80551170586abdf25f914ac5fd874cb017c288390ca117fe4cfd17a81fe', isNew: true }]
-    } else {
-      apiKeyEntries.value = entries.map(e => ({ name: e.name, key: '', isNew: false }))
+    const providers = data.ai_providers || []
+    const merged = [...providers]
+    for (const key of apiKeys.value) {
+      const idx = merged.findIndex(p => p.id === key.id)
+      if (idx >= 0) {
+        merged[idx] = key
+      } else {
+        merged.push(key)
+      }
     }
-  } catch (e) {
-    console.error('Failed to load API key config:', e)
-    // 加载失败时也初始化默认条目
-    if (apiKeyEntries.value.length === 0) {
-      apiKeyEntries.value = [{ name: 'sikenali', key: '0e89c80551170586abdf25f914ac5fd874cb017c288390ca117fe4cfd17a81fe', isNew: true }]
-    }
-  } finally {
-    apiKeyLoading.value = false
-  }
-}
-
-async function saveApiKeyConfig() {
-  try {
-    apiKeyLoading.value = true
-    const res = await fetch(API_CONFIG_URL, {
+    await fetch(API_CONFIG_URL, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ license_entries: apiKeyEntries.value }),
+      body: JSON.stringify({ ai_providers: merged }),
     })
-    if (res.ok) {
-      success('配置已保存，密钥已加密存储~')
-      await loadApiKeyConfig()
-    }
   } catch (e) {
-    console.error('Failed to save API key config:', e)
-  } finally {
-    apiKeyLoading.value = false
+    console.error('Failed to sync keys:', e)
   }
 }
 
-function addApiKeyEntry() {
-  apiKeyEntries.value.push({ name: '', key: '', isNew: true })
+async function handleTestKey(key) {
+  testingKey.value = key.id
+  testSuccess.value[key.id] = false
+  testFailed.value[key.id] = false
+  if (testTimeouts.value[key.id]) clearTimeout(testTimeouts.value[key.id])
+  try {
+    const res = await fetch((import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8099') + '/api/config/test-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: key.provider,
+        model: key.model,
+        key: key.key,
+        endpoint: key.endpoint || '',
+        format: key.format || 'openai',
+      }),
+    })
+    const data = await res.json()
+    testingKey.value = ''
+    if (data.available) {
+      testSuccess.value[key.id] = true
+    } else {
+      testFailed.value[key.id] = true
+    }
+  } catch {
+    testingKey.value = ''
+    testFailed.value[key.id] = true
+  }
+  testTimeouts.value[key.id] = setTimeout(() => {
+    testSuccess.value[key.id] = false
+    testFailed.value[key.id] = false
+  }, 3000)
 }
 
-function removeApiKeyEntry(index) {
-  apiKeyEntries.value.splice(index, 1)
-}
-
-function toggleKeyVisibility(index) {
-  apiKeyVisible.value = { ...apiKeyVisible.value, [index]: !apiKeyVisible.value[index] }
+function handleEditKey(key) {
+  apiKeyForm.value.key = key.key
+  if (key.endpoint) {
+    configTab.value = 'custom'
+    customApiFormat.value = key.format || 'openai'
+    customEndpoint.value = key.endpoint
+    customModelId.value = key.model || key.modelName || ''
+  } else {
+    configTab.value = 'provider'
+    selectedProvider.value = key.provider
+    selectedModelName.value = key.model || key.modelName || ''
+    providerModels.value = providerModelsMap[key.provider] || []
+  }
+  persistConfig()
 }
 
 const { loadFormatParams } = useFormatState()
@@ -270,7 +355,7 @@ const previewCurrentTemplate = () => {
               {{ activeSection === 'theme' ? '主题设置' : activeSection === 'template' ? '模板设置' : activeSection === 'display' ? '显示设置' : 'API Key' }}
             </h2>
             <p class="text-[12px] text-brown-muted">
-              {{ activeSection === 'theme' ? '选择界面配色方案' : activeSection === 'template' ? '管理模板与排版标准' : activeSection === 'display' ? '控制修改建议的展示方式' : '管理第三方服务的授权密钥' }}
+              {{ activeSection === 'theme' ? '选择界面配色方案' : activeSection === 'template' ? '管理模板与排版标准' : activeSection === 'display' ? '控制修改建议的展示方式' : '管理 AI 模型服务商的授权密钥' }}
             </p>
           </div>
         </div>
@@ -283,7 +368,7 @@ const previewCurrentTemplate = () => {
             <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap px-2 py-1 rounded-md text-[11px] font-medium bg-brown-dark text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">取消</span>
           </button>
           <button
-            @click="activeSection === 'apikey' ? saveApiKeyConfig() : success('当前页面参数修改已保存~')"
+            @click="activeSection === 'apikey' ? saveApiKey() : success('当前页面参数修改已保存~')"
             class="group relative flex items-center gap-2 px-6 py-3 text-white rounded-xl text-[14px] font-semibold transition-all duration-200"
             :class="activeSection === 'template' ? 'bg-gold-dark hover:bg-gold-dark/85' : activeSection === 'display' ? 'bg-jade-light hover:bg-jade-light/85' : activeSection === 'apikey' ? 'bg-indigo-500 hover:bg-indigo-500/85' : 'bg-cinnabar hover:bg-cinnabar/85'"
           >
@@ -561,62 +646,119 @@ const previewCurrentTemplate = () => {
           </div>
 
           <div v-else-if="activeSection === 'apikey'" class="space-y-4">
-            <div class="bg-white rounded-xl p-6">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
-                  <RiKeyLine size="22" color="#6366F1" />
-                </div>
-                <div>
-                  <h4 class="text-[16px] font-semibold text-brown-dark">授权密钥管理</h4>
-                  <p class="text-[12px] text-brown-muted mt-0.5">配置第三方服务的 API Key，保存后将自动加密存储</p>
-                </div>
+            <div class="bg-cream-dark border border-tan-light rounded-2xl p-6">
+              <div class="flex gap-2 mb-6 bg-[#F0E8D5] rounded-xl p-1 w-fit">
+                <button
+                  class="px-5 py-2 rounded-lg text-[13px] font-semibold transition-all"
+                  :class="configTab === 'provider' ? 'bg-cinnabar text-white shadow-sm' : 'text-brown hover:text-brown-dark'"
+                  @click="configTab = 'provider'; persistConfig()"
+                >模型制造商</button>
+                <button
+                  class="px-5 py-2 rounded-lg text-[13px] font-semibold transition-all"
+                  :class="configTab === 'custom' ? 'bg-cinnabar text-white shadow-sm' : 'text-brown hover:text-brown-dark'"
+                  @click="configTab = 'custom'; persistConfig()"
+                >自定义配置</button>
               </div>
 
-              <div v-if="apiKeyLoading && apiKeyEntries.length === 0" class="text-center py-8 text-[13px] text-brown-muted">
-                加载中...
-              </div>
-
-              <div v-for="(entry, index) in apiKeyEntries" :key="index" class="mb-4 last:mb-0">
-                <!-- Name field -->
-                <div class="flex items-center gap-2 mb-2">
-                  <label class="text-[12px] font-medium text-brown w-12 shrink-0 text-right">名称</label>
-                  <input
-                    v-model="entry.name"
-                    type="text"
-                    placeholder="输入密钥名称"
-                    class="flex-1 bg-[#FAFAF5] border border-tan-border rounded-lg px-3 py-2 text-[13px] text-brown-dark placeholder-[#B8A88A] outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-colors"
-                  />
-                  <button
-                    @click="removeApiKeyEntry(index)"
-                    class="w-6 h-6 rounded flex items-center justify-center hover:bg-red-50 transition-colors shrink-0"
-                    title="删除此密钥"
-                  >
-                    <RiDeleteBinLine size="13" color="#C43A31" />
-                  </button>
-                </div>
-
-                <!-- API Key field -->
-                <div class="flex items-center gap-2">
-                  <label class="text-[12px] font-medium text-brown w-12 shrink-0 text-right">API Key</label>
+              <div class="space-y-4">
+                <template v-if="configTab === 'provider'">
+                  <div class="flex items-center gap-3">
+                    <label class="text-[12px] font-medium text-brown w-20 shrink-0 text-right">服务商</label>
+                    <select v-model="selectedProvider" @change="onProviderChange"
+                      class="flex-1 bg-[#FAFAF5] border border-tan-border rounded-lg px-3 py-2 text-[13px] text-brown-dark outline-none focus:border-cinnabar focus:ring-1 focus:ring-cinnabar transition-colors appearance-none">
+                      <option value="" disabled>请选择服务商</option>
+                      <optgroup label="国内">
+                        <option v-for="p in ['阿里云','百度','智谱','DeepSeek','Moonshot','零一万物']" :key="p" :value="p">{{ p }}</option>
+                      </optgroup>
+                      <optgroup label="国外">
+                        <option v-for="p in ['OpenAI','Anthropic','Google','Mistral','Groq']" :key="p" :value="p">{{ p }}</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <label class="text-[12px] font-medium text-brown w-20 shrink-0 text-right">模型</label>
+                    <select v-model="selectedModelName"
+                      class="flex-1 bg-[#FAFAF5] border border-tan-border rounded-lg px-3 py-2 text-[13px] text-brown-dark outline-none focus:border-cinnabar focus:ring-1 focus:ring-cinnabar transition-colors appearance-none">
+                      <option value="" disabled>请选择模型</option>
+                      <option v-for="m in providerModels" :key="m" :value="m">{{ m }}</option>
+                    </select>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="flex items-center gap-3">
+                    <label class="text-[12px] font-medium text-brown w-20 shrink-0 text-right">API格式</label>
+                    <select v-model="customApiFormat"
+                      class="flex-1 bg-[#FAFAF5] border border-tan-border rounded-lg px-3 py-2 text-[13px] text-brown-dark outline-none focus:border-cinnabar focus:ring-1 focus:ring-cinnabar transition-colors appearance-none">
+                      <option value="openai">OpenAI Chat Completions 格式</option>
+                      <option value="anthropic">Anthropic Messages 格式</option>
+                    </select>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <label class="text-[12px] font-medium text-brown w-20 shrink-0 text-right">自定义地址</label>
+                    <input v-model="customEndpoint" type="text" placeholder="https://api.example.com/v1"
+                      class="flex-1 bg-[#FAFAF5] border border-tan-border rounded-lg px-3 py-2 text-[13px] text-brown-dark placeholder-[#B8A88A] outline-none focus:border-cinnabar focus:ring-1 focus:ring-cinnabar transition-colors" />
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <label class="text-[12px] font-medium text-brown w-20 shrink-0 text-right">模型ID</label>
+                    <input v-model="customModelId" type="text" placeholder="例如: gpt-4"
+                      class="flex-1 bg-[#FAFAF5] border border-tan-border rounded-lg px-3 py-2 text-[13px] text-brown-dark placeholder-[#B8A88A] outline-none focus:border-cinnabar focus:ring-1 focus:ring-cinnabar transition-colors" />
+                  </div>
+                </template>
+                <div class="flex items-center gap-3">
+                  <label class="text-[12px] font-medium text-brown w-20 shrink-0 text-right">API Key</label>
                   <div class="flex-1 relative">
                     <input
-                      :type="apiKeyVisible[index] ? 'text' : 'password'"
-                      :value="entry.isNew ? entry.key : '••••••••'"
-                      :placeholder="entry.isNew ? '输入 API Key' : '已配置'"
-                      @input="entry.isNew = true; apiKeyEntries[index].key = $event.target.value"
-                      class="w-full bg-[#FAFAF5] border border-tan-border rounded-lg pl-3 pr-10 py-2 text-[13px] text-brown-dark placeholder-[#B8A88A] outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-colors font-mono"
+                      :type="apiKeyForm.keyVisible ? 'text' : 'password'"
+                      v-model="apiKeyForm.key"
+                      placeholder="sk-..."
+                      class="w-full bg-[#FAFAF5] border border-tan-border rounded-lg pl-3 pr-10 py-2 text-[13px] text-brown-dark placeholder-[#B8A88A] outline-none focus:border-cinnabar focus:ring-1 focus:ring-cinnabar transition-colors font-mono"
                     />
-                    <button
-                      @click="toggleKeyVisibility(index)"
+                    <button @click="toggleKeyVisibility()"
                       class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded flex items-center justify-center hover:bg-white transition-colors"
-                      :title="apiKeyVisible[index] ? '隐藏' : '显示'"
-                      :aria-label="apiKeyVisible[index] ? '隐藏密钥' : '显示密钥'"
-                    >
-                      <RiEyeLine v-if="!apiKeyVisible[index]" size="15" color="#8B7355" />
+                      :title="apiKeyForm.keyVisible ? '隐藏' : '显示'">
+                      <RiEyeLine v-if="!apiKeyForm.keyVisible" size="15" color="#8B7355" />
                       <RiEyeOffLine v-else size="15" color="#8B7355" />
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div v-if="apiKeys.length > 0" class="bg-cream-dark border border-tan-light rounded-2xl p-6">
+              <div class="text-[11px] font-semibold text-brown-muted uppercase tracking-wider mb-3">已保存的密钥</div>
+              <div v-for="key in apiKeys" :key="key.id" class="flex items-center gap-3 mb-3 last:mb-0 p-3 bg-white rounded-xl border border-tan-border">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-semibold text-brown-dark">{{ key.provider }}</div>
+                  <div class="text-[11px] text-brown-muted">{{ key.modelName || key.model }}</div>
+                </div>
+                <button v-if="testingKey !== key.id && !testSuccess[key.id] && !testFailed[key.id]"
+                  @click="handleTestKey(key)"
+                  class="px-3 py-1.5 border border-tan-border rounded-lg text-[12px] text-brown hover:bg-brown/5 transition-colors shrink-0">测试</button>
+                <button v-else-if="testingKey === key.id" disabled
+                  class="px-3 py-1.5 border border-tan-border rounded-lg text-[12px] text-brown-muted shrink-0 flex items-center gap-1">
+                  <RiLoaderLine size="14" color="#8B7355" class="spin" />
+                  <span>测试中</span>
+                </button>
+                <button v-else-if="testSuccess[key.id]" disabled
+                  class="px-3 py-1.5 border border-green-200 rounded-lg text-[12px] text-green-700 shrink-0 flex items-center gap-1">
+                  <RiCheckLine size="14" color="#2D8A4E" />连通
+                </button>
+                <button v-else-if="testFailed[key.id]" disabled
+                  class="px-3 py-1.5 border border-red-200 rounded-lg text-[12px] text-red-600 shrink-0 flex items-center gap-1">
+                  <RiCloseLine size="14" color="#C43A31" />失败
+                </button>
+                <button @click="handleEditKey(key)" title="编辑"
+                  class="w-7 h-7 rounded flex items-center justify-center hover:bg-brown/5 transition-colors shrink-0">
+                  <RiEditLine size="14" color="#8B7355" />
+                </button>
+                <button @click="removeApiKey(key.id)" title="删除"
+                  class="w-7 h-7 rounded flex items-center justify-center hover:bg-red-50 transition-colors shrink-0">
+                  <RiDeleteBinLine size="14" color="#C43A31" />
+                </button>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input type="checkbox" :checked="key.enabled" @change="toggleApiKey(key.id)" class="sr-only peer" />
+                  <div class="w-9 h-5 bg-tan-dark rounded-full peer peer-checked:bg-cinnabar after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                </label>
               </div>
             </div>
           </div>
@@ -627,6 +769,13 @@ const previewCurrentTemplate = () => {
 </template>
 
 <style scoped>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
 .sel-enter-active,
 .sel-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;

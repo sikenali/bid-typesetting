@@ -158,6 +158,20 @@ func handleConfig(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleTestKey(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	var req wordformat.TestKeyRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request"})
+		return
+	}
+	result := wordformat.TestApiKey(req.Provider, req.Key, req.Model, req.Endpoint, req.Format)
+	writeJSON(w, http.StatusOK, result)
+}
+
 func main() {
 	// Register unidoc license before any document operations
 	key := os.Getenv("UNIDOC_LICENSE_KEY")
@@ -193,6 +207,7 @@ func main() {
 	mux.HandleFunc("/api/health", handleHealth)
 	mux.HandleFunc("/api/format", handleFormat)
 	mux.HandleFunc("/api/config", handleConfig)
+	mux.HandleFunc("/api/config/test-key", handleTestKey)
 
 	handler := corsMiddleware(mux)
 
