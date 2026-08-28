@@ -117,7 +117,7 @@ func handleFormat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := doc.SaveToFile(outPath); err != nil {
+	if err := wordformat.SaveDocx(doc, outPath); err != nil {
 		doc.Close()
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to save formatted document: " + err.Error()})
 		return

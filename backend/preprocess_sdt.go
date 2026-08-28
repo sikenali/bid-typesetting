@@ -28,7 +28,7 @@ func FlattenSDT(doc *document.Document) error {
 	defer os.RemoveAll(tmpDir)
 
 	tmpPath := filepath.Join(tmpDir, "input.docx")
-	if err := doc.SaveToFile(tmpPath); err != nil {
+	if err := SaveDocx(doc, tmpPath); err != nil {
 		return fmt.Errorf("save temp docx: %w", err)
 	}
 
