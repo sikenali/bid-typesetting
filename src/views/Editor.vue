@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { useSettings } from '../composables/useSettings'
 import { useDocument } from '../composables/useDocument'
 import { useFormatState } from '../composables/useFormatState'
 import { useTemplates } from '../composables/useTemplates'
@@ -43,9 +44,12 @@ import '@vue-office/excel/lib/index.css'
 const router = useRouter()
 const { getFile, setFormatted } = useDocument()
 const currentFile = computed(() => getFile())
-const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams } = useFormatState()
+const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles } = useFormatState()
 const { saveTemplate, templates } = useTemplates()
 const { showToast } = useToast()
+const { clearStylesEnabled } = useSettings()
+
+watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
 
 const activeTab = ref('reset')
 const showSaveModal = ref(false)
@@ -241,6 +245,7 @@ const handleLoadTemplate = () => {
 const handleLoadSelected = (tpl) => {
   if (tpl.formatParams) {
     Object.assign(formatParams, JSON.parse(JSON.stringify(tpl.formatParams)))
+    takeBeforeSnapshot()
     showToast(`已载入模板：${tpl.name}`, 'success')
   }
   showLoadModal.value = false

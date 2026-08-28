@@ -11,7 +11,7 @@ const router = useRouter()
 const { getFile, getFormatted, getFormattedBlob } = useDocument()
 const { beforeSnapshot, afterSnapshot, diffs, formatParams } = useFormatState()
 const { showToast } = useToast()
-const currentFile = getFile()
+const currentFile = computed(() => getFile())
 const formattedFile = computed(() => getFormatted())
 const formattedBlobUrl = computed(() => getFormattedBlob())
 

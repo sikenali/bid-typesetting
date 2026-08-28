@@ -3,7 +3,6 @@ import { cnFonts, enFonts, sizeCN, lineSpacingModes } from '../../constants/ui'
 import InputField from '../ui/InputField.vue'
 import SelectField from '../ui/SelectField.vue'
 import CheckboxField from '../ui/CheckboxField.vue'
-import { ref } from 'vue'
 
 const props = defineProps({
   headings: { type: Array, required: true },

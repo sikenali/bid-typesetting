@@ -80,6 +80,7 @@ const templateCategories = [
   { id: 'all', label: '全部' },
   { id: 'official', label: '公文' },
   { id: 'academic', label: '学术' },
+  { id: 'military', label: '军标' },
   { id: 'business', label: '商务' },
   { id: 'creative', label: '创意' },
 ]
@@ -119,7 +120,7 @@ function selectCategory(id) {
 }
 
 const templateSections = computed(() => {
-  const categories = ['official', 'academic', 'business', 'creative']
+  const categories = ['official', 'academic', 'military', 'business', 'creative']
   const result = []
   for (const cat of categories) {
     if (activeCategory.value !== 'all' && cat !== activeCategory.value) continue

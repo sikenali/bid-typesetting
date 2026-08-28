@@ -9,6 +9,7 @@ const category = ref('official')
 const categories = [
   { id: 'official', label: '公文', sub: 'Official' },
   { id: 'academic', label: '学术', sub: 'Academic' },
+  { id: 'military', label: '军标', sub: 'Military' },
   { id: 'business', label: '商务', sub: 'Business' },
   { id: 'creative', label: '创意', sub: 'Creative' },
 ]

@@ -1,7 +1,7 @@
 <script setup>
 import { RiCheckLine } from '@remixicon/vue'
 import DropdownSelect from '../ui/DropdownSelect.vue'
-import { cnFonts, enFonts, sizeCN, spacingUnits } from '../../constants/ui'
+import { cnFonts, enFonts, sizeCN } from '../../constants/ui'
 
 defineProps({
   params: { type: Object, required: true },
@@ -101,9 +101,9 @@ const pageNumberTypes = [
           <div>
                 <div class="flex items-center gap-[6px]">
                   <span class="text-[12px] text-brown shrink-0">页眉距离</span>
-                  <input type="number" min="0" step="0.5" v-model.number="params.header_distance"
+                  <input type="number" min="0" step="0.5" v-model.number="params.header_top_cm"
                     class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="页眉距离" />
-                  <DropdownSelect v-model="params.header_distance_unit" :options="spacingUnits" width-class="auto" />
+                  <span class="text-[12px] text-brown shrink-0">厘米</span>
                 </div>
               </div>
         </div>
@@ -192,9 +192,9 @@ const pageNumberTypes = [
           <div>
             <div class="flex items-center gap-[6px]">
               <span class="text-[12px] text-brown shrink-0">页脚距离</span>
-              <input type="number" min="0" step="0.5" v-model.number="params.footer_distance"
+              <input type="number" min="0" step="0.5" v-model.number="params.footer_bottom_cm"
                 class="w-[48px] bg-white border border-tan-border rounded-lg px-[8px] py-[6px] text-[12px] text-brown outline-none focus:border-cinnabar transition-colors" aria-label="页脚距离" />
-              <DropdownSelect v-model="params.footer_distance_unit" :options="spacingUnits" width-class="auto" />
+              <span class="text-[12px] text-brown shrink-0">厘米</span>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useTemplates } from '../composables/useTemplates'
 import { useFormatState } from '../composables/useFormatState'
 import PreviewTemplateModal from '../components/PreviewTemplateModal.vue'
-import { RiBookOpenLine, RiArrowLeftSLine, RiDeleteBin6Line, RiCheckLine, RiFileTextLine, RiGovernmentLine, RiBook2Line, RiBarChart2Line, RiPaintBrushLine, RiSearchLine, RiLayout3Line, RiEyeLine } from '@remixicon/vue'
+import { RiBookOpenLine, RiArrowLeftSLine, RiDeleteBin6Line, RiCheckLine, RiFileTextLine, RiGovernmentLine, RiBook2Line, RiBarChart2Line, RiPaintBrushLine, RiSearchLine, RiLayout3Line, RiEyeLine, RiShieldStarLine } from '@remixicon/vue'
 
 const router = useRouter()
 const { templates, deleteTemplate, categoryMeta } = useTemplates()
@@ -17,6 +17,7 @@ const categoryIcons = {
   all: RiBookOpenLine,
   official: RiGovernmentLine,
   academic: RiBook2Line,
+  military: RiShieldStarLine,
   business: RiBarChart2Line,
   creative: RiPaintBrushLine,
 }

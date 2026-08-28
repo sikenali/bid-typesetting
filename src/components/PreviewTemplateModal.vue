@@ -55,17 +55,28 @@ watch(() => currentFile.value, async (file) => {
 
 const sections = computed(() => {
   const p = params.value
+  // Convert line_spacing_mode + value back to human-readable string
+  function formatLineSpacing(mode, value) {
+    if (!mode) return '-'
+    if (mode === 'EXACT') return `固定值 ${value}磅`
+    if (mode === 'AT_LEAST') return `最小值 ${value}磅`
+    if (mode === 'SINGLE') return '单倍行距'
+    if (mode === 'ONE_POINT_FIVE') return '1.5倍行距'
+    if (mode === 'DOUBLE') return '双倍行距'
+    if (mode === 'MULTIPLE') return `${value}倍行距`
+    return String(value ?? '-')
+  }
   return [
     {
       key: 'page',
       label: '页面设置',
       icon: RiPagesLine,
       fields: [
-        { label: '纸张大小', value: p.page?.paperSize || '-' },
-        { label: '上边距', value: p.page?.marginTop != null ? `${p.page.marginTop}cm` : '-' },
-        { label: '下边距', value: p.page?.marginBottom != null ? `${p.page.marginBottom}cm` : '-' },
-        { label: '左边距', value: p.page?.marginLeft != null ? `${p.page.marginLeft}cm` : '-' },
-        { label: '右边距', value: p.page?.marginRight != null ? `${p.page.marginRight}cm` : '-' },
+        { label: '纸张大小', value: p.page?.paper_size === 'A4' ? 'A4 (210×297mm)' : p.page?.paper_size || '-' },
+        { label: '上边距', value: p.page?.top_cm != null ? `${p.page.top_cm}cm` : '-' },
+        { label: '下边距', value: p.page?.bottom_cm != null ? `${p.page.bottom_cm}cm` : '-' },
+        { label: '左边距', value: p.page?.left_cm != null ? `${p.page.left_cm}cm` : '-' },
+        { label: '右边距', value: p.page?.right_cm != null ? `${p.page.right_cm}cm` : '-' },
         { label: '方向', value: p.page?.orientation === 'portrait' ? '纵向' : p.page?.orientation === 'landscape' ? '横向' : '-' },
       ],
     },
@@ -74,11 +85,11 @@ const sections = computed(() => {
       label: '正文设置',
       icon: RiTextSnippet,
       fields: [
-        { label: '字体', value: p.body?.font || '-' },
-        { label: '字号', value: p.body?.fontSize || '-' },
-        { label: '行距', value: p.body?.lineSpacing || '-' },
-        { label: '首行缩进', value: p.body?.indentFirst != null ? `${p.body.indentFirst}字符` : '-' },
-        { label: '左缩进', value: p.body?.indentLeft != null ? `${p.body.indentLeft}字符` : '-' },
+        { label: '中文字体', value: p.body?.cn_font || '-' },
+        { label: '英文字体', value: p.body?.en_font || '-' },
+        { label: '字号', value: p.body?.size_cn || '-' },
+        { label: '行距', value: p.body?.line_spacing_mode ? formatLineSpacing(p.body.line_spacing_mode, p.body.line_spacing_value) : (p.body?.lineSpacing || '-') },
+        { label: '首行缩进', value: p.body?.first_line_indent_chars != null ? `${p.body.first_line_indent_chars}字符` : '-' },
       ],
     },
     {
@@ -86,9 +97,9 @@ const sections = computed(() => {
       label: '标题设置',
       icon: RiHeading,
       fields: [
-        { label: '一级标题', value: p.heading?.level1 ? `${p.heading.level1.font} ${p.heading.level1.fontSize}` : '-' },
-        { label: '二级标题', value: p.heading?.level2 ? `${p.heading.level2.font} ${p.heading.level2.fontSize}` : '-' },
-        { label: '三级标题', value: p.heading?.level3 ? `${p.heading.level3.font} ${p.heading.level3.fontSize}` : '-' },
+        { label: '一级标题', value: p.headings?.[0] ? `${p.headings[0].cn_font} ${p.headings[0].size_cn}` : (p.heading?.level1 ? `${p.heading.level1.font} ${p.heading.level1.fontSize}` : '-') },
+        { label: '二级标题', value: p.headings?.[1] ? `${p.headings[1].cn_font} ${p.headings[1].size_cn}` : (p.heading?.level2 ? `${p.heading.level2.font} ${p.heading.level2.fontSize}` : '-') },
+        { label: '三级标题', value: p.headings?.[2] ? `${p.headings[2].cn_font} ${p.headings[2].size_cn}` : (p.heading?.level3 ? `${p.heading.level3.font} ${p.heading.level3.fontSize}` : '-') },
       ],
     },
   ]

@@ -282,7 +282,7 @@ const formatParams = reactive({
       remove_extra_blank_lines: false,
     },
     style_cleanup: {
-      clear_all_styles: settings.clearStylesEnabled === true,
+      clear_all_styles: false,
       clear_paragraph_indent: false,
       clear_heading_indent: false,
       clear_heading_left_indent: false,
@@ -389,6 +389,10 @@ function loadFormatParams(params) {
   deepMerge(formatParams, params)
 }
 
+function syncClearStyles(enabled) {
+  formatParams.cleanup.style_cleanup.clear_all_styles = enabled === true
+}
+
 export function useFormatState() {
   return {
     formatParams,
@@ -398,5 +402,6 @@ export function useFormatState() {
     takeBeforeSnapshot,
     applyFormatting,
     loadFormatParams,
+    syncClearStyles,
   }
 }

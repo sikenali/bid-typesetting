@@ -3,26 +3,35 @@ import { cnFonts, enFonts, sizeCN, lineSpacingModes } from '../../constants/ui'
 import InputField from '../ui/InputField.vue'
 import SelectField from '../ui/SelectField.vue'
 import CheckboxField from '../ui/CheckboxField.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   figCaption: { type: Object, required: true },
   tblCaption: { type: Object, required: true },
   table: { type: Object, required: true },
   tableSettings: { type: Object, required: true },
+  activeSubTab: { type: String, default: 'fig' },
 })
 
-const activeSubTab = ref('fig')
+const emit = defineEmits(['update:activeSubTab'])
+const activeSubTab = ref(props.activeSubTab)
+
+watch(() => props.activeSubTab, (val) => { activeSubTab.value = val })
+
+function switchTab(tab) {
+  activeSubTab.value = tab
+  emit('update:activeSubTab', tab)
+}
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex gap-1 border-b border-tan-border pb-2">
-      <button @click="activeSubTab='fig'" class="px-3 py-1.5 rounded-lg text-[12px] font-medium"
+      <button @click="switchTab('fig')" class="px-3 py-1.5 rounded-lg text-[12px] font-medium"
         :class="activeSubTab==='fig' ? 'bg-cinnabar text-white' : 'bg-white border border-tan-border text-brown'">图题</button>
-      <button @click="activeSubTab='tbl'" class="px-3 py-1.5 rounded-lg text-[12px] font-medium"
+      <button @click="switchTab('tbl')" class="px-3 py-1.5 rounded-lg text-[12px] font-medium"
         :class="activeSubTab==='tbl' ? 'bg-cinnabar text-white' : 'bg-white border border-tan-border text-brown'">表题</button>
-      <button @click="activeSubTab='table'" class="px-3 py-1.5 rounded-lg text-[12px] font-medium"
+      <button @click="switchTab('table')" class="px-3 py-1.5 rounded-lg text-[12px] font-medium"
         :class="activeSubTab==='table' ? 'bg-cinnabar text-white' : 'bg-white border border-tan-border text-brown'">表格</button>
     </div>
 
