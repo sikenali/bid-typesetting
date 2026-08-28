@@ -46,7 +46,7 @@ const { getFile, setFormatted } = useDocument()
 const currentFile = computed(() => getFile())
 const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles } = useFormatState()
 const { saveTemplate, templates } = useTemplates()
-const { showToast } = useToast()
+const { show: showToast } = useToast()
 const { clearStylesEnabled } = useSettings()
 
 watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
