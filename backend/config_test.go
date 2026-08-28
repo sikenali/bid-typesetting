@@ -41,7 +41,7 @@ func TestConfigParsesAllFields(t *testing.T) {
 		"preprocess_table_cell_enable": true,
 		"preprocess_table_cell_font": "宋体",
 		"preprocess_table_cell_size": "五号",
-		"preprocess_table_cell_line_spacing": "1.5",
+		"preprocess_table_cell_line_spacing": 20,
 		"preprocess_table_cell_min_height": 20,
 		"preprocess_table_cell_align": "center",
 		"preprocess_table_cell_border": "all",

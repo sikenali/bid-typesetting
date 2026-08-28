@@ -35,7 +35,7 @@ type Config struct {
 	PreprocessTableCellEnable       bool    `json:"preprocess_table_cell_enable"`
 	PreprocessTableCellFont         string  `json:"preprocess_table_cell_font"`
 	PreprocessTableCellSize         string  `json:"preprocess_table_cell_size"`
-	PreprocessTableCellLineSpacing float64 `json:"PreprocessTableCellLineSpacing"`
+	PreprocessTableCellLineSpacing float64 `json:"preprocess_table_cell_line_spacing"`
 	PreprocessTableCellMinHeight    float64 `json:"preprocess_table_cell_min_height"`
 	PreprocessTableCellAlign        string  `json:"preprocess_table_cell_align"`
 	PreprocessTableCellBorder       string  `json:"preprocess_table_cell_border"`

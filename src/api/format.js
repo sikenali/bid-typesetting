@@ -53,7 +53,7 @@ function flattenCleanup(config) {
     PreprocessTableCellEnable: config.table_settings?.enable ?? false,
     PreprocessTableCellFont: config.table_settings?.cn_font ?? '宋体',
     PreprocessTableCellSize: config.table_settings?.size_cn ?? '四号',
-    PreprocessTableCellLineSpacing: config.table_settings?.line_spacing_value ?? 20,
+    preprocess_table_cell_line_spacing: config.table_settings?.line_spacing_value ?? 20,
     PreprocessTableCellMinHeight: config.table_settings?.min_line_height ?? 15,
     PreprocessTableCellAlign: config.table_settings?.align ?? 'CENTER',
     PreprocessTableCellBorder: config.table_settings?.border_style ?? 'single',

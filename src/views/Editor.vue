@@ -244,7 +244,7 @@ const handleLoadTemplate = () => {
 
 const handleLoadSelected = (tpl) => {
   if (tpl.formatParams) {
-    Object.assign(formatParams, JSON.parse(JSON.stringify(tpl.formatParams)))
+    loadFormatParams(tpl.formatParams)
     takeBeforeSnapshot()
     showToast(`已载入模板：${tpl.name}`, 'success')
   }
