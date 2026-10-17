@@ -1,0 +1,9 @@
+export const BRAND_NAME = '文版猩';
+export const BRAND_SHORT = '文版猩';
+export const BRAND_PRODUCT = '智能标书排版工具';
+export const BRAND_TITLE = '文版猩 · 智能标书排版工具';
+export const BRAND_SLOGAN = '智能标书解决方案平台';
+export const BRAND_SERIES = '回旋标工具系列';
+export const BRAND_POWERED = 'Powered by LightOS';
+export const BRAND_POWERED_URL = 'https://lazycat.cloud/';
+export const BRAND_YEAR = 2026;
