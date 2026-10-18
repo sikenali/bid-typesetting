@@ -11,7 +11,6 @@ import CleanupRuleEditor from '@/components/rules/CleanupRuleEditor.vue';
 const props = defineProps({
   modelValue: { type: Object, required: true },
 });
-defineEmits(['update:modelValue']);
 </script>
 
 <template>
