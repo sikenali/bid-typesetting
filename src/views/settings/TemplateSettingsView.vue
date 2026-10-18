@@ -5,6 +5,7 @@ import { getTemplateList, createTemplate, updateTemplate, deleteTemplate, resetT
 import { UiInput, UiSwitch, UiModal, UiTip, UiRadioGroup } from '@/components/ui';
 import TypographyTemplateEditor from '@/components/settings/TypographyTemplateEditor.vue';
 import PreviewTemplateModal from '@/components/PreviewTemplateModal.vue';
+import { cloneDefaultFormatParams } from '@/composables/useFormatState';
 
 const props = defineProps({
   initialKind: { type: String, default: '' },
@@ -151,7 +152,7 @@ async function handleAdd() {
       kind: newTemplateKind.value,
       keywords: [],
       content: isTypo ? [] : parseContentText(newTemplateContentText.value),
-      formatParams: isTypo ? {} : undefined,
+      formatParams: isTypo ? cloneDefaultFormatParams() : undefined,
       enabled: 1,
     });
     await loadTemplates();
@@ -208,19 +209,29 @@ function openEdit(tpl) {
 }
 
 function ensureFullFormatParams(fp) {
-  fp.page = fp.page || {};
-  fp.body = fp.body || {};
-  fp.headings = fp.headings || [];
-  fp.patterns = fp.patterns || { rules: [] };
-  fp.fig_caption = fp.fig_caption || {};
-  fp.tbl_caption = fp.tbl_caption || {};
-  fp.table = fp.table || {};
-  fp.table_settings = fp.table_settings || {};
-  fp.toc = fp.toc || { enable: false };
-  fp.header_footer = fp.header_footer || {};
-  fp.cleanup = fp.cleanup || {
-    text_cleanup: {}, style_cleanup: {}, object_structure: {}, caption_detection: {},
-  };
+  const defaults = cloneDefaultFormatParams();
+  // 用 defaults 补齐 fp 缺失的顶层字段
+  for (const key of Object.keys(defaults)) {
+    if (fp[key] === undefined || fp[key] === null) {
+      fp[key] = defaults[key];
+    }
+  }
+  // headings 补齐到 4 级
+  if (!Array.isArray(fp.headings)) fp.headings = [];
+  for (let i = 0; i < 4; i++) {
+    if (!fp.headings[i]) fp.headings[i] = defaults.headings[i];
+  }
+  // toc.level_styles 补齐到 4 级
+  if (!fp.toc) fp.toc = { enable: false };
+  if (!Array.isArray(fp.toc.level_styles)) fp.toc.level_styles = [];
+  for (let i = 0; i < 4; i++) {
+    if (!fp.toc.level_styles[i]) fp.toc.level_styles[i] = defaults.toc.level_styles[i];
+  }
+  // cleanup 子字段
+  if (!fp.cleanup) fp.cleanup = {};
+  for (const key of Object.keys(defaults.cleanup)) {
+    if (!fp.cleanup[key]) fp.cleanup[key] = defaults.cleanup[key];
+  }
 }
 
 async function confirmEdit() {

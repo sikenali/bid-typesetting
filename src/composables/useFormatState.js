@@ -396,3 +396,8 @@ export function useFormatState() {
     syncClearStyles,
   }
 }
+
+// 深拷贝默认 formatParams，用于新建排版模板时初始化
+export function cloneDefaultFormatParams() {
+  return JSON.parse(JSON.stringify(formatParams))
+}
