@@ -120,7 +120,7 @@ const tabSpaceOptions = [
       <div class="sub-card">
         <div class="sub-title-row">
           <div class="group-title">
-            <RiReplaceLine size="16" />
+            <RiSwapLine size="16" />
             <span>符号清理</span>
           </div>
           <button class="chip" :class="{ active: textAllSelected }" @click="toggleTextAll()">全选</button>

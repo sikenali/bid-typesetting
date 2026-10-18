@@ -3,8 +3,6 @@ import { ref, computed, onMounted } from 'vue';
 import { ElMessage } from '@/utils/toast';
 import { deleteApiKey, toggleApiKey, testApiKey, updateApiKey, addApiKey, getApiKeyList } from '@/api/settings';
 import { UiSelect, UiInput, UiSelectCard, UiTip, UiModal, UiSwitch } from '@/components/ui';
-import { getApiBase, getDefaultApiBase, setApiBase } from '@/utils/apiBase';
-
 const configTab = ref('provider');
 const keyInput = ref('');
 const keyVisible = ref(false);
@@ -208,27 +206,6 @@ function startEdit(key) {
   keyInput.value = '';
 }
 
-/* ── 后端服务地址 ───────────────────────────────── */
-const apiBaseInput = ref(getApiBase());
-const defaultApiBase = getDefaultApiBase();
-
-function saveApiBase() {
-  const v = apiBaseInput.value.trim();
-  if (v && !/^https?:\/\//i.test(v)) {
-    ElMessage.warning('地址需以 http:// 或 https:// 开头');
-    return;
-  }
-  setApiBase(v);
-  apiBaseInput.value = getApiBase();
-  ElMessage.success(v ? '后端地址已更新' : '已恢复默认后端地址');
-}
-
-function resetApiBase() {
-  setApiBase('');
-  apiBaseInput.value = getApiBase();
-  ElMessage.success('已恢复默认后端地址');
-}
-
 onMounted(loadKeys);
 </script>
 
@@ -253,28 +230,6 @@ onMounted(loadKeys);
         <button class="reset-button" @click="resetForm">
           <RiRestartLine class="icon" />
           清空表单
-        </button>
-      </div>
-    </div>
-
-    <!-- 后端服务地址 -->
-    <div class="section-card">
-      <div class="card-title">后端服务地址</div>
-      <p class="card-desc">前端调用排版服务的地址，默认 {{ defaultApiBase }}；修改后保存即生效，并持久化到本地</p>
-      <div class="config-form">
-        <div class="form-field">
-          <label class="form-label">服务地址</label>
-          <UiInput v-model="apiBaseInput" :placeholder="defaultApiBase" />
-        </div>
-      </div>
-      <div class="backend-actions">
-        <button class="btn-outline" @click="resetApiBase">
-          <RiRestartLine size="16" />
-          <span>恢复默认</span>
-        </button>
-        <button class="btn-save" @click="saveApiBase">
-          <RiCheckLine size="16" />
-          <span>保存地址</span>
         </button>
       </div>
     </div>
@@ -620,39 +575,6 @@ onMounted(loadKeys);
   margin: 0;
   line-height: 1.7;
 }
-
-/* 后端服务地址 */
-.card-desc {
-  font-size: 13px;
-  color: var(--color-text-muted, #8A8578);
-  margin: 6px 0 0;
-  font-family: "SourceHanSans-Regular", var(--font-family-cn);
-}
-.backend-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-.backend-actions .btn-outline,
-.backend-actions .btn-save {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-outline {
-  height: 44px;
-  padding: 0 24px;
-  border: 0.7px solid var(--color-border, #E5DFD3);
-  border-radius: 10px;
-  background: var(--color-bg-white, #FFFFFF);
-  color: var(--color-text-body, #3A3A3A);
-  font-size: 15px;
-  cursor: pointer;
-  font-family: "SourceHanSans-Regular", var(--font-family-cn);
-  transition: border-color 0.2s, color 0.2s;
-}
-.btn-outline:hover { border-color: var(--color-primary, #C0392B); color: var(--color-primary, #C0392B); }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>

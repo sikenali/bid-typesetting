@@ -1,11 +1,8 @@
 <script setup>
-import { ElMessage } from '@/utils/toast';
 import { useSettings } from '@/composables/useSettings';
-import { useThemeStore, THEME_META } from '@/stores/theme';
 import UiSwitch from '@/components/ui/UiSwitch.vue';
 
 const settings = useSettings();
-const themeStore = useThemeStore();
 
 function onPreviewChange(v) {
   settings.previewEnabled.value = v;
@@ -18,11 +15,6 @@ function onAnnotationChange(v) {
 }
 function onHighlightChange(v) {
   settings.highlightEnabled.value = v;
-}
-
-function quickTheme(key) {
-  themeStore.setTheme(key);
-  ElMessage.success('已切换到「' + THEME_META[key].name + '」');
 }
 </script>
 
@@ -86,7 +78,7 @@ function quickTheme(key) {
         <div class="switch-row switch-row-last">
           <div class="switch-left">
             <div class="switch-icon">
-              <RiHighlighterLine size="18" />
+              <RiMarkPenLine size="18" />
             </div>
             <div class="switch-text">
               <div class="switch-name">高亮修改处</div>
@@ -95,41 +87,6 @@ function quickTheme(key) {
           </div>
           <UiSwitch :model-value="settings.highlightEnabled.value" @update:model-value="onHighlightChange" />
         </div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-title">
-        <RiPaletteLine size="18" />
-        <span>外观快捷切换</span>
-      </div>
-      <p class="section-desc">快速在浅色与深色主题之间切换；完整的外观主题、强调色与布局选项请前往「主题设置」</p>
-
-      <div class="theme-quick">
-        <button
-          class="theme-quick-btn"
-          :class="{ 'is-active': themeStore.currentTheme === 'parchment' || themeStore.currentTheme === 'white' }"
-          @click="quickTheme('parchment')"
-        >
-          <div class="theme-mini" style="background: linear-gradient(180deg, #FFFFFF 0 20%, #F7EED4 20%)">
-            <div class="theme-mini-line"></div>
-            <div class="theme-mini-line short"></div>
-          </div>
-          <div class="theme-quick-name">浅色主题</div>
-          <div class="theme-quick-desc">{{ THEME_META.parchment.name }}</div>
-        </button>
-        <button
-          class="theme-quick-btn"
-          :class="{ 'is-active': themeStore.currentTheme === 'dark' }"
-          @click="quickTheme('dark')"
-        >
-          <div class="theme-mini" style="background: linear-gradient(180deg, #232324 0 20%, #333A45 20%)">
-            <div class="theme-mini-line"></div>
-            <div class="theme-mini-line short"></div>
-          </div>
-          <div class="theme-quick-name">深色主题</div>
-          <div class="theme-quick-desc">{{ THEME_META.dark.name }}</div>
-        </button>
       </div>
     </div>
   </div>
@@ -236,62 +193,5 @@ function quickTheme(key) {
   color: var(--color-text-muted);
   font-family: var(--font-family-cn);
   line-height: 1.5;
-}
-
-.theme-quick {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  max-width: 480px;
-}
-.theme-quick-btn {
-  border: 0.7px solid var(--color-border-soft);
-  background: var(--color-bg-white);
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
-  font-family: var(--font-family-cn);
-}
-.theme-quick-btn:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-sm);
-}
-.theme-quick-btn.is-active {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-.theme-mini {
-  width: 56px;
-  height: 42px;
-  border-radius: 6px;
-  border: 0.7px solid var(--color-border-soft);
-  padding: 6px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  justify-content: center;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.theme-mini-line {
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(0, 0, 0, 0.18);
-}
-.theme-mini-line.short { width: 55%; }
-.theme-quick-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-body);
-}
-.theme-quick-btn.is-active .theme-quick-name { color: var(--color-primary); }
-.theme-quick-desc {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin-top: 2px;
 }
 </style>

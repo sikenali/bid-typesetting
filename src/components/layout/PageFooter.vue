@@ -6,22 +6,26 @@
     </div>
 
     <div class="footer-actions">
-      <button class="footer-icon-btn" title="企业信用" @click="emitCredit">
-        <RiShieldUserLine class="footer-icon" size="14" />
-      </button>
-      <button class="footer-icon-btn" title="招标网站" @click="emitBidding">
-        <RiGlobeLine class="footer-icon" size="14" />
-      </button>
+      <UiTip text="企业信用" placement="top">
+        <button class="footer-icon-btn" @click="emitCredit">
+          <RiShieldCheckLine class="footer-icon" size="14" />
+        </button>
+      </UiTip>
+      <UiTip text="招标网站" placement="top">
+        <button class="footer-icon-btn" @click="emitBidding">
+          <RiLinksLine class="footer-icon" size="14" />
+        </button>
+      </UiTip>
     </div>
 
     <span class="footer-copy">
-      © {{ BRAND_YEAR }} {{ BRAND_NAME }}
+      © {{ BRAND_YEAR }} {{ BRAND_NAME }} · Powered by
       <a
         class="footer-link"
         :href="BRAND_POWERED_URL"
         target="_blank"
         rel="noopener"
-      >{{ BRAND_POWERED }}</a>
+      >LightOS</a>
     </span>
   </footer>
 </template>
@@ -31,9 +35,9 @@ import {
   BRAND_NAME,
   BRAND_SERIES,
   BRAND_YEAR,
-  BRAND_POWERED,
   BRAND_POWERED_URL,
 } from '@/constants/brand';
+import { UiTip } from '@/components/ui';
 
 const emit = defineEmits(['credit-query', 'bidding-sites']);
 
@@ -96,26 +100,26 @@ function emitBidding() {
   height: 28px;
   border-radius: 9999px;
   border: none;
-  background-color: transparent;
+  background-color: var(--color-bg-white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  color: var(--color-text-secondary);
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .footer-icon-btn:hover {
   background-color: var(--color-primary);
+  color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 .footer-icon {
-  color: var(--color-text-secondary);
-  transition: color 0.2s ease;
-}
-
-.footer-icon-btn:hover .footer-icon {
-  color: #ffffff;
+  color: inherit;
+  transition: color 0.25s ease;
 }
 
 .footer-copy {

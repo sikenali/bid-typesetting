@@ -1,6 +1,6 @@
 <template>
   <div class="editor-view">
-    <TopNav title="智能标书排版工具" :show-back="true" @open-settings="showSettings = true" />
+    <TopNav title="智能化文件排版工具" :show-back="true" @open-settings="showSettings = true" />
 
     <div class="editor-body">
       <!-- 设置侧栏 -->

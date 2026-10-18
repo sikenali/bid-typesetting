@@ -7,27 +7,33 @@
       <span class="page-title">{{ title || BRAND_PRODUCT }}</span>
     </div>
     <div class="nav-right">
-      <button
-        v-if="showBack"
-        class="nav-btn"
-        title="返回"
-        @click="router.push('/')"
-      >
-        <RiArrowLeftLine class="nav-icon" size="18" />
-      </button>
-      <button class="nav-btn" title="模板库" @click="router.push('/template')">
-        <RiFileList3Line class="nav-icon" size="18" />
-      </button>
-      <button class="nav-btn" title="设置" @click="emitOpenSettings">
-        <RiSettings3Line class="nav-icon" size="18" />
-      </button>
+      <UiTip v-if="showBack" text="返回" placement="bottom">
+        <button
+          class="nav-btn"
+          @click="router.push('/')"
+        >
+          <RiArrowLeftLine class="nav-icon" size="18" />
+        </button>
+      </UiTip>
+      <UiTip v-if="!onEditor" text="排版" placement="bottom">
+        <button class="nav-btn" @click="router.push('/editor')">
+          <RiLayout2Line class="nav-icon" size="18" />
+        </button>
+      </UiTip>
+      <UiTip text="设置" placement="bottom">
+        <button class="nav-btn" @click="emitOpenSettings">
+          <RiSettings3Line class="nav-icon" size="18" />
+        </button>
+      </UiTip>
     </div>
   </header>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { BRAND_NAME, BRAND_PRODUCT } from '@/constants/brand';
+import { UiTip } from '@/components/ui';
 
 defineProps({
   showBack: { type: Boolean, default: false },
@@ -37,6 +43,8 @@ defineProps({
 const emit = defineEmits(['open-settings']);
 
 const router = useRouter();
+const route = useRoute();
+const onEditor = computed(() => route.path.startsWith('/editor'));
 
 function emitOpenSettings() {
   emit('open-settings');

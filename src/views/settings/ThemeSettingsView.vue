@@ -427,12 +427,13 @@ function resetAll() {
 
 /* 布局切换 */
 .layout-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin-top: 20px;
 }
 .layout-card {
-  flex: 1;
+  min-width: 0;
   position: relative;
   border: 0.7px solid var(--color-border-soft, #EDE9E0);
   background-color: var(--color-bg-white, #FFFFFF);
@@ -450,14 +451,17 @@ function resetAll() {
 }
 .layout-preview {
   width: 100%;
+  min-width: 0;
   height: 150px;
   border-radius: 8px;
   padding: 16px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .preview-mockup {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -473,6 +477,8 @@ function resetAll() {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
 }
 .mockup-brand {
   display: flex;
@@ -498,11 +504,18 @@ function resetAll() {
 .mockup-modules {
   display: flex;
   gap: 8px;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
 }
 .module-block {
   width: 31px;
   height: 10px;
   border-radius: 50%;
+  flex-shrink: 1;
+  flex-basis: 31px;
+  min-width: 0;
 }
 .mockup-actions {
   margin-left: auto;
@@ -517,6 +530,7 @@ function resetAll() {
 }
 .mockup-body {
   flex: 1;
+  min-width: 0;
   margin-top: 12px;
   display: flex;
   gap: 12px;

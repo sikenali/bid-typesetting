@@ -1,81 +1,84 @@
 <template>
-  <div
-    ref="rootRef"
-    class="upload-card"
-    :class="{ 'is-dragging': dragging, 'is-locked': state === 'processing' }"
-    @dragenter="handleDragEnter"
-    @dragover="handleDragOver"
-    @dragleave="handleDragLeave"
-    @drop="handleDrop"
-    @click="handleCardClick"
-  >
-    <input
-      ref="inputRef"
-      type="file"
-      class="file-input"
-      :accept="accept"
-      :disabled="state === 'processing' || disabled"
-      @click.stop
-      @change="handleFileChange"
-    />
-
-    <button
-      v-if="state !== 'empty'"
-      class="replace-fab"
-      :disabled="state === 'processing' || disabled"
-      title="替换文件"
-      aria-label="替换文件"
-      @click.stop="handleReplace"
+  <div class="upload-wrapper">
+    <div
+      ref="rootRef"
+      class="upload-card"
+      :class="{ 'is-dragging': dragging, 'has-file': state !== 'empty' }"
+      @dragenter="handleDragEnter"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @drop="handleDrop"
+      @click="handleCardClick"
     >
-      <span class="replace-fab-icon">
-        <RiRefreshLine size="18" />
-      </span>
-    </button>
+      <template v-if="state === 'empty'">
+        <div class="upload-icon-wrap">
+          <RiUploadCloud2Line class="upload-icon" size="34" />
+        </div>
+        <p class="upload-hint">点击选择或拖拽文件到此处上传</p>
+        <div class="format-row">
+          <span class="fmt fmt-w">W</span>
+          <span class="fmt fmt-x">X</span>
+          <span class="fmt fmt-p">P</span>
+          <span class="fmt fmt-pdf">PDF</span>
+          <span class="fmt fmt-md">MD</span>
+          <span class="fmt fmt-tx">TX</span>
+        </div>
+      </template>
 
-    <div v-if="state === 'empty'" class="empty-state">
-      <div class="empty-icon">
-        <RiUploadCloud2Line size="36" />
-      </div>
-      <div class="empty-title">拖拽文件至此处，或点击选择</div>
-      <div class="empty-hint">支持 docx / xlsx / csv / pdf / html / md / txt，单文件不超过 50MB</div>
-      <div class="fmt-row">
-        <span class="fmt" style="background: var(--color-file-word)">W</span>
-        <span class="fmt" style="background: var(--color-file-excel)">X</span>
-        <span class="fmt" style="background: var(--color-file-pdf)">P</span>
-        <span class="fmt" style="background: var(--color-file-pdf)">PDF</span>
-        <span class="fmt" style="background: var(--color-file-md)">MD</span>
-        <span class="fmt" style="background: var(--color-file-txt)">TXT</span>
-      </div>
+      <template v-else>
+        <UiTip v-if="state !== 'processing'" text="替换文件" placement="left" class="replace-tip">
+          <button class="replace-icon" @click.stop="handleReplace">
+            <RiRefreshLine size="18" />
+          </button>
+        </UiTip>
+        <div class="file-centered">
+          <div class="file-icon" :class="extClass">
+            <svg v-if="ext === 'docx' || ext === 'doc'" width="32" height="32" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="2" width="22" height="24" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M8 9h12M8 13h12M8 17h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            <svg v-else-if="ext === 'xlsx' || ext === 'csv'" width="32" height="32" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="2" width="22" height="24" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M8 9h12M8 13h12M8 17h12M14 7v14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <svg v-else-if="ext === 'pdf'" width="32" height="32" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="2" width="22" height="24" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M9 10l4 3-4 3V10z" fill="currentColor"/>
+              <path d="M17 10l4 3-4 3V10z" fill="currentColor" opacity="0.5"/>
+            </svg>
+            <svg v-else-if="ext === 'md'" width="32" height="32" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="2" width="22" height="24" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <text x="8" y="21" font-family="sans-serif" font-size="11" font-weight="700" fill="currentColor">M</text>
+            </svg>
+            <svg v-else width="32" height="32" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="2" width="22" height="24" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M9 9h10M9 13h10M9 17h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p class="file-name">{{ file && file.name }}</p>
+          <p class="file-size">{{ sizeText }}</p>
+        </div>
+      </template>
+
+      <input
+        ref="inputRef"
+        type="file"
+        class="file-input"
+        :accept="accept"
+        :disabled="state === 'processing'"
+        @click.stop
+        @change="handleFileChange"
+      />
     </div>
 
-    <div v-else class="file-state">
-      <div class="file-icon" :style="{ background: fileColor }">
-        {{ fileLetter }}
-      </div>
-      <div class="file-name" :title="file && file.name">{{ file && file.name }}</div>
-      <div class="file-meta-row">
-        <span class="file-meta">{{ sizeText }} · {{ statusText }}</span>
-        <button
-          class="swap-btn"
-          :disabled="state === 'processing' || disabled"
-          @click.stop="handleReplace"
-        >
-          <RiFileSwapLine size="16" />
-          <span>替换文件</span>
-        </button>
-      </div>
+    <div class="step-area">
+      <StepStrip :steps="steps" :current="stepCurrent" :done="state === 'done'" />
+    </div>
 
-      <div class="panel">
-        <StepStrip
-          :steps="steps"
-          :current="stepCurrent"
-          :done="state === 'done'"
-        />
-        <button class="cta-btn" :class="{ 'is-processing': state === 'processing' }" @click.stop="handleCtaClick">
-          <RiMagicLine size="20" />
-          <span>{{ ctaText }}</span>
-        </button>
-      </div>
+    <div class="cta-area">
+      <button class="cta-btn" :class="{ 'is-processing': state === 'processing' }" @click.stop="handleCtaClick">
+        {{ ctaText }}
+      </button>
     </div>
   </div>
 </template>
@@ -83,6 +86,7 @@
 <script setup>
 import { ref, computed, onBeforeUnmount } from 'vue'
 import StepStrip from './StepStrip.vue'
+import { UiTip } from '@/components/ui'
 import { ElMessage } from '@/utils/toast'
 
 const props = defineProps({
@@ -91,6 +95,7 @@ const props = defineProps({
 
 const emit = defineEmits(['success', 'replace'])
 
+// 步骤文案按 Calicat 设计稿
 const steps = [
   { label: '样式遍历' },
   { label: '样式提取' },
@@ -103,23 +108,10 @@ const STATE_DONE = 'done'
 
 const MAX_SIZE = 50 * 1024 * 1024
 const ALLOWED = ['docx', 'xlsx', 'csv', 'pdf', 'html', 'md', 'txt']
-const ACCEPT = '.docx,.xlsx,.csv,.pdf,.html,.md,.txt,.doc'
-
-const EXT_META = {
-  doc:  { letter: 'W', color: 'var(--color-file-word)' },
-  docx: { letter: 'W', color: 'var(--color-file-word)' },
-  xlsx: { letter: 'X', color: 'var(--color-file-excel)' },
-  csv:  { letter: 'X', color: 'var(--color-file-excel)' },
-  pdf:  { letter: 'P', color: 'var(--color-file-pdf)' },
-  html: { letter: 'H', color: 'var(--color-file-pdf)' },
-  md:   { letter: 'M', color: 'var(--color-file-md)' },
-  txt:  { letter: 'T', color: 'var(--color-file-txt)' },
-}
-const FALLBACK_META = { letter: '?', color: 'var(--color-file-txt)' }
+const ACCEPT = '.docx,.xlsx,.csv,.pdf,.html,.md,.txt'
 
 const state = ref(STATE_EMPTY)
 const stage = ref(1)
-const stageProgress = ref(0)
 const file = ref(null)
 const dragging = ref(false)
 const rootRef = ref(null)
@@ -140,24 +132,21 @@ function stopAnim() {
   }
 }
 
-const fileMeta = computed(() => EXT_META[extOf(file.value && file.value.name)] || FALLBACK_META)
-const fileLetter = computed(() => fileMeta.value.letter)
-const fileColor = computed(() => fileMeta.value.color)
+const ext = computed(() => extOf(file.value && file.value.name))
+const extClass = computed(() => {
+  const e = ext.value
+  if (e === 'docx' || e === 'doc') return 'fmt-docx'
+  if (e === 'xlsx' || e === 'csv') return 'fmt-xlsx'
+  if (e === 'pdf' || e === 'html') return 'fmt-pdf'
+  if (e === 'md') return 'fmt-md'
+  return 'fmt-txt'
+})
 
 const sizeText = computed(() => {
   if (!file.value) return ''
   const kb = file.value.size / 1024
   if (kb < 1024) return kb.toFixed(1) + ' KB'
   return (kb / 1024).toFixed(1) + ' MB'
-})
-
-const statusText = computed(() => {
-  if (state.value === STATE_DONE) return '已解析'
-  if (state.value === STATE_PROCESSING) {
-    const step = steps[stage.value - 1]
-    return step ? step.label + '中…' : '解析中…'
-  }
-  return '待解析'
 })
 
 const ctaText = computed(() => {
@@ -174,13 +163,13 @@ const stepCurrent = computed(() => {
 
 function selectFile(f) {
   if (!f) return
-  const ext = extOf(f.name)
-  if (ext === 'doc') {
+  const e = extOf(f.name)
+  if (e === 'doc') {
     ElMessage.warning('暂不支持 .doc 格式，请另存为 .docx')
     return
   }
-  if (!ALLOWED.includes(ext)) {
-    ElMessage.warning('暂不支持 .' + ext + ' 格式')
+  if (!ALLOWED.includes(e)) {
+    ElMessage.warning('暂不支持 .' + e + ' 格式')
     return
   }
   if (f.size > MAX_SIZE) {
@@ -190,20 +179,17 @@ function selectFile(f) {
   stopAnim()
   file.value = f
   stage.value = 1
-  stageProgress.value = 0
   state.value = STATE_PROCESSING
   runStage()
 }
 
 function runStage() {
-  stageProgress.value = 0
   stageStart = performance.now()
   const duration = 1200 + Math.random() * 800
   const tick = () => {
     if (state.value !== STATE_PROCESSING) return
     const elapsed = performance.now() - stageStart
     const pct = Math.min(100, (elapsed / duration) * 100)
-    stageProgress.value = pct
     if (pct < 100) {
       rafId = requestAnimationFrame(tick)
       return
@@ -221,7 +207,7 @@ function runStage() {
 }
 
 function handleCardClick() {
-  if (state.value === STATE_PROCESSING) return
+  if (state.value !== STATE_EMPTY) return
   if (props.disabled) return
   if (inputRef.value) inputRef.value.click()
 }
@@ -234,13 +220,13 @@ function handleFileChange(e) {
 
 function handleDragEnter(e) {
   e.preventDefault()
-  if (state.value === STATE_PROCESSING) return
+  if (state.value !== STATE_EMPTY) return
   dragging.value = true
 }
 
 function handleDragOver(e) {
   e.preventDefault()
-  if (state.value === STATE_PROCESSING) return
+  if (state.value !== STATE_EMPTY) return
   dragging.value = true
 }
 
@@ -253,7 +239,7 @@ function handleDragLeave(e) {
 function handleDrop(e) {
   e.preventDefault()
   dragging.value = false
-  if (state.value === STATE_PROCESSING) return
+  if (state.value !== STATE_EMPTY) return
   if (props.disabled) return
   const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]
   if (f) selectFile(f)
@@ -264,7 +250,6 @@ function handleReplace() {
   emit('replace')
   file.value = null
   stage.value = 1
-  stageProgress.value = 0
   state.value = STATE_EMPTY
 }
 
@@ -280,21 +265,34 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 文件卡片（设计图 e88a1549：875×390 / 面板底 / 蓝描边 / r14） */
 .upload-card {
   position: relative;
   width: min(875px, calc(100vw - 64px));
-  min-height: 390px;
+  height: 390px;
+  flex-shrink: 0;
   background: var(--color-bg-panel);
   border: 0.7px solid var(--color-border-strong);
   border-radius: 14px;
-  padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  gap: 20px;
+  padding: 40px 32px;
   overflow: hidden;
-  transition: border-color var(--transition-base), background-color var(--transition-base);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.upload-card:not(.has-file) {
+  cursor: pointer;
 }
 
 .upload-card.is-dragging {
@@ -302,183 +300,145 @@ onBeforeUnmount(() => {
   background: var(--color-primary-soft);
 }
 
-.upload-card.is-locked {
-  pointer-events: none;
-  cursor: not-allowed;
+.upload-card.has-file,
+.upload-card.is-dragging {
+  cursor: default;
 }
 
 .file-input {
   display: none;
 }
 
-.replace-fab {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  background: var(--color-bg-white);
-  border: 0.7px solid var(--color-border);
-  color: var(--color-text-body);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: border-color var(--transition-base), color var(--transition-base);
-}
-
-.replace-fab:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.replace-fab-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform var(--transition-slow);
-}
-
-.replace-fab:hover:not(:disabled) .replace-fab-icon {
-  transform: rotate(120deg);
-}
-
-.replace-fab:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  text-align: center;
-}
-
-.empty-icon {
+/* 空态（bid-maker 上传组件结构） */
+.upload-icon-wrap {
   width: 80px;
   height: 80px;
-  border-radius: 9999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  display: inline-flex;
+  border-radius: 50%;
+  background-color: var(--color-bg-secondary);
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
+  color: var(--color-text-muted);
 }
 
-.empty-title {
+.upload-hint {
+  margin: 0;
   font-size: 18px;
   font-weight: 500;
   color: var(--color-text-primary);
-  line-height: 1.4;
+  line-height: 1.2;
+  text-align: center;
+  font-family: var(--font-family-cn);
 }
 
-.empty-hint {
-  font-size: 15px;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-}
-
-.fmt-row {
+.format-row {
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 .fmt {
-  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  display: flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  font-size: 13px;
+  justify-content: center;
+  font-weight: 700;
   color: #fff;
-  font-weight: 500;
-  line-height: 1.4;
+  line-height: 1;
+}
+.fmt-w { background: var(--color-file-word); font-size: 11px; }
+.fmt-x { background: var(--color-file-excel); font-size: 11px; }
+.fmt-p { background: var(--color-file-pdf); font-size: 11px; }
+.fmt-pdf { background: var(--color-file-pdf); font-size: 9px; }
+.fmt-md { background: var(--color-file-md); font-size: 9px; }
+.fmt-tx { background: var(--color-file-txt); font-size: 9px; }
+
+/* 选中态 */
+.replace-tip {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
 }
 
-.file-state {
+.replace-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0.7px solid var(--color-border);
+  background-color: var(--color-bg-white);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+.replace-icon:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+  transform: rotate(120deg);
+}
+
+.file-centered {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
+  text-align: center;
 }
 
 .file-icon {
   width: 60px;
   height: 60px;
-  border-radius: 6px;
-  color: #fff;
-  display: inline-flex;
+  border-radius: 12px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
 }
+.file-icon.fmt-docx { background: var(--color-file-word); }
+.file-icon.fmt-xlsx { background: var(--color-file-excel); }
+.file-icon.fmt-pdf { background: var(--color-file-pdf); }
+.file-icon.fmt-md { background: var(--color-file-md); }
+.file-icon.fmt-txt { background: var(--color-file-txt); }
 
 .file-name {
-  font-size: 18px;
+  margin: 0;
+  font-size: 16px;
   font-weight: 500;
   color: var(--color-text-primary);
-  max-width: 70%;
+  max-width: 100%;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: center;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
-.file-meta-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 16px;
-  padding-top: 4px;
-}
-
-.file-meta {
-  font-size: 15px;
+.file-size {
+  margin: 0;
+  font-size: 14px;
   color: var(--color-text-muted);
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
-.swap-btn {
-  height: 40px;
-  padding: 0 16px;
-  background: var(--color-bg-white);
-  border: 0.7px solid var(--color-border);
-  border-radius: 10px;
-  color: var(--color-text-body);
-  font-size: 15px;
-  font-weight: 400;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: border-color var(--transition-base), color var(--transition-base), background-color var(--transition-base);
-}
-
-.swap-btn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.swap-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
-  padding-top: 16px;
+/* 步骤条（设计图：卡片下方 40px） */
+.step-area {
+  padding-top: 40px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* 一键解析按钮（设计图 292×60 / r10 / 主色） */
+.cta-area {
+  padding-top: 48px;
 }
 
 .cta-btn {
@@ -491,9 +451,9 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   font-size: 18px;
   font-weight: 500;
+  font-family: var(--font-family-cn);
   cursor: pointer;
   transition: opacity var(--transition-base), transform var(--transition-base);
 }

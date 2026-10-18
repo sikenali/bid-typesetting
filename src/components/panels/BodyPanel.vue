@@ -22,7 +22,7 @@ defineProps({
 
     <div class="group">
       <div class="group-title">
-        <RiFontFamilyLine size="16" />
+        <RiFontFamily size="16" />
         <span>字体</span>
       </div>
       <div class="field-row">
@@ -50,7 +50,7 @@ defineProps({
 
     <div class="group">
       <div class="group-title">
-        <RiTextSpacingVertical size="16" />
+        <RiTextSpacing size="16" />
         <span>行距与段落间距</span>
       </div>
       <div class="field-row">
@@ -81,7 +81,7 @@ defineProps({
 
     <div class="group">
       <div class="group-title">
-        <RiAlignLeftLine size="16" />
+        <RiAlignLeft size="16" />
         <span>缩进</span>
       </div>
       <div class="field-row">
@@ -108,7 +108,7 @@ defineProps({
 
     <div class="group">
       <div class="group-title">
-        <RiAlignRightLine size="16" />
+        <RiAlignRight size="16" />
         <span>对齐与空格</span>
       </div>
       <div class="field-row">

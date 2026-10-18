@@ -1,13 +1,8 @@
 <template>
   <div class="upload-view">
-    <TopNav title="智能标书排版工具" :show-back="false" @open-settings="showSettings = true" />
+    <TopNav title="智能化文件排版工具" :show-back="false" @open-settings="showSettings = true" />
 
     <main class="upload-body">
-      <div class="upload-hero">
-        <h1 class="upload-title">开始您的文档排版之旅</h1>
-        <p class="upload-subtitle">上传文档，智能识别排版元素，一键美化您的标书</p>
-      </div>
-
       <UploadCard @success="handleSuccess" @replace="handleReplace" />
     </main>
 
@@ -66,22 +61,6 @@ function handleReplace() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 32px 56px;
-  gap: 40px;
-}
-.upload-hero {
-  text-align: center;
-}
-.upload-title {
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: var(--color-text-primary);
-  line-height: 1.25;
-}
-.upload-subtitle {
-  margin-top: 10px;
-  font-size: 15px;
-  color: var(--color-text-muted);
+  padding: 0 32px;
 }
 </style>
