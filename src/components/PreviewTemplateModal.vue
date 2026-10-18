@@ -2,11 +2,17 @@
 import { computed } from 'vue'
 import DocumentPreview from '@/components/DocumentPreview.vue'
 import { useDocument } from '@/composables/useDocument'
+import { UiModal } from '@/components/ui'
 
 const props = defineProps({
   template: { type: Object, required: true },
 })
 const emit = defineEmits(['close'])
+
+const visible = computed({
+  get: () => true,
+  set: () => {},
+})
 
 const { getFile } = useDocument()
 const currentFile = computed(() => getFile())
@@ -73,146 +79,64 @@ const sections = computed(() => {
     },
   ]
 })
+
+function onClose() {
+  emit('close')
+}
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div class="overlay" @click.self="emit('close')">
-        <div class="modal-card" role="dialog" aria-modal="true">
-          <header class="modal-header">
-            <div class="header-left">
-              <div class="header-icon"><RiEyeLine size="18" /></div>
-              <span class="header-title">模板预览</span>
-              <span class="header-subtitle">{{ props.template.name }}</span>
-            </div>
-            <button class="close-btn" @click="emit('close')" aria-label="关闭">
-              <RiCloseLine size="18" />
-            </button>
-          </header>
+  <UiModal
+    v-model="visible"
+    title="模板预览"
+    :subtitle="props.template.name"
+    icon="ri-eye-line"
+    width="94vw"
+    :max-width="1600"
+    height="85vh"
+    :show-footer="false"
+    @close="onClose"
+  >
+    <main class="modal-body">
+      <section class="preview-pane">
+        <DocumentPreview :file="currentFile" />
+      </section>
 
-          <main class="modal-body">
-            <section class="preview-pane">
-              <DocumentPreview :file="currentFile" />
-            </section>
-
-            <aside class="params-pane">
-              <div v-if="!params" class="empty-note">
-                <RiFileTextLine size="32" />
-                <p>此模板未保存排版参数</p>
-              </div>
-              <div v-else class="params-list">
-                <div v-for="s in sections" :key="s.key" class="section">
-                  <div class="section-head">
-                    <component :is="s.icon" size="15" class="section-icon" />
-                    <span class="section-title">{{ s.label }}</span>
-                  </div>
-                  <div v-for="f in s.fields" :key="f.label" class="field-row">
-                    <span class="field-label">{{ f.label }}</span>
-                    <span class="field-value" :title="f.value">{{ f.value }}</span>
-                  </div>
-                </div>
-              </div>
-            </aside>
-          </main>
-
-          <footer class="modal-footer">
-            <button class="btn-outline" @click="emit('close')">关闭预览</button>
-          </footer>
+      <aside class="params-pane">
+        <div v-if="!params" class="empty-note">
+          <RiFileTextLine size="32" />
+          <p>此模板未保存排版参数</p>
         </div>
-      </div>
-    </Transition>
-  </Teleport>
+        <div v-else class="params-list">
+          <div v-for="s in sections" :key="s.key" class="section">
+            <div class="section-head">
+              <component :is="s.icon" size="15" class="section-icon" />
+              <span class="section-title">{{ s.label }}</span>
+            </div>
+            <div v-for="f in s.fields" :key="f.label" class="field-row">
+              <span class="field-label">{{ f.label }}</span>
+              <span class="field-value" :title="f.value">{{ f.value }}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <template #footer>
+      <span class="ui-modal-footer-btns preview-footer-btns">
+        <button class="ui-modal-cancel" @click="onClose">关闭预览</button>
+      </span>
+    </template>
+  </UiModal>
 </template>
 
 <style scoped>
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: var(--z-modal);
-}
-.modal-card {
-  width: 90vw;
-  height: 85vh;
-  max-width: 1600px;
-  max-height: 900px;
-  background: var(--color-bg-white);
-  border-radius: 18px;
-  box-shadow: var(--shadow-xl);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.modal-header {
-  height: 60px;
-  padding: 0 20px;
-  border-bottom: 0.7px solid var(--color-border-soft);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-shrink: 0;
-  background: var(--color-bg-white);
-}
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-.header-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.header-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-.header-subtitle {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  border-left: 0.7px solid var(--color-border-soft);
-  padding-left: 12px;
-  margin-left: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.close-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color var(--transition-base), color var(--transition-base);
-}
-.close-btn:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-}
 .modal-body {
   flex: 1;
   min-height: 0;
   display: flex;
   overflow: hidden;
+  gap: 0;
 }
 .preview-pane {
   flex: 0 0 60%;
@@ -289,51 +213,5 @@ const sections = computed(() => {
 }
 .empty-note p {
   color: var(--color-text-muted);
-}
-.modal-footer {
-  padding: 14px 24px;
-  border-top: 0.7px solid var(--color-border-soft);
-  background: var(--color-bg-secondary);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  flex-shrink: 0;
-}
-.btn-outline {
-  height: 44px;
-  padding: 0 24px;
-  border-radius: 10px;
-  background: var(--color-bg-white);
-  border: 0.7px solid var(--color-border);
-  color: var(--color-text-body);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color var(--transition-base), border-color var(--transition-base);
-  font-family: inherit;
-}
-.btn-outline:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-.modal-enter-active .modal-card,
-.modal-leave-active .modal-card {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-.modal-enter-from .modal-card,
-.modal-leave-to .modal-card {
-  opacity: 0;
-  transform: scale(0.96);
 }
 </style>

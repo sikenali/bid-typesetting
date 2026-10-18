@@ -1,71 +1,63 @@
 <template>
-  <teleport to="body">
-    <transition name="modal">
-      <div v-if="visible" class="modal-overlay" @click.self="close">
-        <div class="settings-panel" role="dialog" aria-modal="true">
-          <div class="panel-header">
-            <div class="header-left">
-              <div class="header-icon">
-                <RiGlobeLine size="26" />
-              </div>
-              <div class="header-text">
-                <h2 class="panel-title">招标采购平台</h2>
-                <p class="panel-subtitle">涵盖全军装备、航天、船舶、兵器等采购信息</p>
-              </div>
-            </div>
-            <button class="close-btn" title="关闭" @click="close">
-              <RiCloseLine class="close-icon" size="20" />
-            </button>
+  <UiModal
+    v-model="visible"
+    title="招标采购平台"
+    subtitle="涵盖全军装备、航天、船舶、兵器等采购信息"
+    icon="ri-globe-line"
+    width="1120px"
+    :max-width="1400"
+    height="90vh"
+    :show-footer="false"
+  >
+    <div class="website-grid">
+      <div
+        v-for="(site, index) in biddingSites"
+        :key="index"
+        class="site-card"
+      >
+        <div class="site-card-top">
+          <div class="site-logo">
+            <RiTargetLine size="18" />
           </div>
-
-          <div class="website-grid">
-            <div
-              v-for="(site, index) in biddingSites"
-              :key="index"
-              class="site-card"
-            >
-              <div class="site-card-top">
-                <div class="site-logo">
-                  <RiTargetLine size="18" />
-                </div>
-                <div class="site-info">
-                  <h3 class="site-name">{{ site.name }}</h3>
-                  <p class="site-desc">{{ site.desc }}</p>
-                </div>
-              </div>
-              <div class="site-card-bottom">
-                <a class="site-link" :href="site.url" target="_blank" :title="site.url">
-                  <RiExternalLinkLine size="14" />
-                  <span>{{ site.url }}</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel-footer">
-            <a
-              class="footer-link"
-              href="https://www.tbrdh.com/"
-              target="_blank"
-              rel="noopener"
-            >投标人导航网</a>
+          <div class="site-info">
+            <h3 class="site-name">{{ site.name }}</h3>
+            <p class="site-desc">{{ site.desc }}</p>
           </div>
         </div>
+        <div class="site-card-bottom">
+          <a class="site-link" :href="site.url" target="_blank" :title="site.url">
+            <RiExternalLinkLine size="14" />
+            <span>{{ site.url }}</span>
+          </a>
+        </div>
       </div>
-    </transition>
-  </teleport>
+    </div>
+
+    <div class="panel-footer">
+      <a
+        class="footer-link"
+        href="https://www.tbrdh.com/"
+        target="_blank"
+        rel="noopener"
+      >投标人导航网</a>
+    </div>
+  </UiModal>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+import { UiModal } from '@/components/ui';
+
+const props = defineProps({
   visible: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:visible']);
 
-function close() {
-  emit('update:visible', false);
-}
+const visible = computed({
+  get: () => props.visible,
+  set: (v) => emit('update:visible', v),
+});
 
 const biddingSites = [
   { name: '全军武器装备采购信息网', desc: '军委装备发展部', url: 'http://www.weain.mil.cn' },
@@ -84,124 +76,21 @@ const biddingSites = [
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-fixed);
-}
-
-.settings-panel {
-  width: 1120px;
-  max-width: 94vw;
-  max-height: 90vh;
-  background: var(--color-bg-secondary);
-  border: 0.7px solid var(--color-border-soft);
-  border-radius: 18px;
-  box-shadow: var(--shadow-xl);
-  padding: 36px 40px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.panel-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding-bottom: 24px;
-}
-
-.header-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.header-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--color-primary-soft);
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.panel-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  line-height: 28px;
-}
-
-.panel-subtitle {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin: 0;
-  line-height: 18px;
-}
-
-.close-btn {
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  border: none;
-  flex-shrink: 0;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.close-btn:hover {
-  background: var(--color-primary);
-  transform: translateY(-2px);
-}
-
-.close-icon {
-  color: var(--color-text-secondary);
-  transition: color 0.2s ease;
-}
-
-.close-btn:hover .close-icon {
-  color: #ffffff;
-}
-
 .website-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 32px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .site-card {
   width: 100%;
   min-width: 0;
   height: 140px;
-  background: linear-gradient(
-    180deg,
-    var(--color-bg-white) 0%,
-    var(--color-bg-card) 100%
-  );
+  background: linear-gradient(180deg, var(--color-bg-white) 0%, var(--color-bg-card) 100%);
   border: 0.7px solid var(--color-border);
   border-radius: 12px;
   padding: 12px 8px 8px;
@@ -214,7 +103,6 @@ const biddingSites = [
   position: relative;
   overflow: hidden;
 }
-
 .site-card::before {
   content: '';
   position: absolute;
@@ -222,26 +110,18 @@ const biddingSites = [
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-primary) 50%,
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, var(--color-primary) 50%, transparent);
   opacity: 0;
   transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-
 .site-card:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   transform: translateY(-3px);
   border-color: var(--color-primary);
 }
-
 .site-card:hover::before {
   opacity: 0.45;
 }
-
 .site-card-top {
   display: flex;
   flex-direction: column;
@@ -249,7 +129,6 @@ const biddingSites = [
   justify-content: flex-start;
   min-width: 0;
 }
-
 .site-logo {
   width: 36px;
   height: 36px;
@@ -261,7 +140,6 @@ const biddingSites = [
   flex-shrink: 0;
   color: var(--color-primary);
 }
-
 .site-info {
   display: flex;
   flex-direction: column;
@@ -272,7 +150,6 @@ const biddingSites = [
   overflow: hidden;
   width: 100%;
 }
-
 .site-name {
   font-size: 11px;
   font-weight: 500;
@@ -285,7 +162,6 @@ const biddingSites = [
   text-overflow: ellipsis;
   max-width: 100%;
 }
-
 .site-desc {
   font-size: 9px;
   color: var(--color-text-muted);
@@ -297,7 +173,6 @@ const biddingSites = [
   text-overflow: ellipsis;
   max-width: 100%;
 }
-
 .site-card-bottom {
   display: flex;
   align-items: center;
@@ -306,7 +181,6 @@ const biddingSites = [
   margin-top: 4px;
   border-top: 0.7px solid var(--color-border-soft);
 }
-
 .site-link {
   display: inline-flex;
   align-items: center;
@@ -319,20 +193,16 @@ const biddingSites = [
   text-decoration: none;
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
-
 .site-link:hover {
   opacity: 0.8;
   transform: translateY(-1px);
 }
-
 .panel-footer {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 16px;
-  border-top: 0.7px solid var(--color-border-soft);
 }
-
 .footer-link {
   font-size: 13px;
   color: var(--color-primary);
@@ -341,19 +211,8 @@ const biddingSites = [
   border-radius: 8px;
   transition: background-color 0.25s ease, opacity 0.25s ease;
 }
-
 .footer-link:hover {
   background: var(--color-primary-soft);
   opacity: 0.85;
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
 }
 </style>
