@@ -51,7 +51,7 @@ onMounted(() => {
   }
   const matched = accents.find((a) => a.color === themeStore.currentAccent);
   selectedAccent.value = matched ? matched.key : 'cloud';
-  selectedLayout.value = themeStore.getLayout();
+  selectedLayout.value = themeStore.layout;
 });
 
 async function selectTheme(type) {
@@ -72,8 +72,7 @@ function selectAccent(key) {
 function selectLayout(key) {
   selectedLayout.value = key;
   themeStore.setLayout(key);
-  ElMessage.success(`已切换布局：${layouts.find((l) => l.key === key)?.name || ''}，页面将刷新以生效`);
-  setTimeout(() => window.location.reload(), 800);
+  ElMessage.success(`已切换布局：${layouts.find((l) => l.key === key)?.name || ''}`);
 }
 
 function resetAll() {

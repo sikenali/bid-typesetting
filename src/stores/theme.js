@@ -188,6 +188,7 @@ function deriveAccentTokens(color, isDark) {
 export const useThemeStore = defineStore('theme', () => {
   const currentTheme = ref('parchment');
   const currentAccent = ref(DEFAULT_ACCENT);
+  const layout = ref(localStorage.getItem(LAYOUT_KEY) || 'topbar');
 
   function applyTheme(theme) {
     const root = document.documentElement;
@@ -246,8 +247,9 @@ export const useThemeStore = defineStore('theme', () => {
     return localStorage.getItem(LAYOUT_KEY) || 'topbar';
   }
 
-  function setLayout(layout) {
-    localStorage.setItem(LAYOUT_KEY, layout);
+  function setLayout(value) {
+    layout.value = value;
+    localStorage.setItem(LAYOUT_KEY, value);
   }
 
   function resetAll() {
@@ -257,6 +259,7 @@ export const useThemeStore = defineStore('theme', () => {
     applyAccent(null);
     localStorage.removeItem(ACCENT_KEY);
     currentAccent.value = DEFAULT_ACCENT;
+    layout.value = 'topbar';
     localStorage.removeItem(LAYOUT_KEY);
   }
 
@@ -272,6 +275,7 @@ export const useThemeStore = defineStore('theme', () => {
   return {
     currentTheme,
     currentAccent,
+    layout,
     setTheme,
     applyAccent,
     clearAccent,

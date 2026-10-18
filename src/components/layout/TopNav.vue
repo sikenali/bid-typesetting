@@ -6,7 +6,7 @@
       <span class="divider"></span>
       <span class="page-title">{{ title || BRAND_PRODUCT }}</span>
     </div>
-    <div class="nav-right">
+    <div v-if="!isSidebar" class="nav-right">
       <UiTip v-if="showBack" text="返回" placement="bottom">
         <button
           class="nav-btn"
@@ -34,6 +34,7 @@ import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { BRAND_NAME, BRAND_PRODUCT } from '@/constants/brand';
 import { UiTip } from '@/components/ui';
+import { useThemeStore } from '@/stores/theme';
 
 defineProps({
   showBack: { type: Boolean, default: false },
@@ -44,7 +45,9 @@ const emit = defineEmits(['open-settings']);
 
 const router = useRouter();
 const route = useRoute();
+const themeStore = useThemeStore();
 const onEditor = computed(() => route.path.startsWith('/editor'));
+const isSidebar = computed(() => themeStore.layout === 'sidebar');
 
 function emitOpenSettings() {
   emit('open-settings');

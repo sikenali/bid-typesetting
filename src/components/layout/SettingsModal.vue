@@ -43,6 +43,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useRoute } from 'vue-router';
 import ThemeSettingsView from '@/views/settings/ThemeSettingsView.vue';
 import TemplateSettingsView from '@/views/settings/TemplateSettingsView.vue';
 import ModelSettingsView from '@/views/settings/ModelSettingsView.vue';
@@ -68,12 +69,18 @@ const menuItems = [
   { key: 'about', label: '关于', icon: 'ri-information-line', component: AboutSettingsView },
 ];
 
-const activeKey = ref('theme');
+const route = useRoute();
+
+function initialTab() {
+  return menuItems.some((i) => i.key === route.query.tab) ? route.query.tab : 'theme';
+}
+
+const activeKey = ref(initialTab());
 
 watch(
   () => props.visible,
   (v) => {
-    if (v) activeKey.value = 'theme';
+    if (v) activeKey.value = initialTab();
   }
 );
 
