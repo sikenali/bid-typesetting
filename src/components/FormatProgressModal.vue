@@ -173,13 +173,13 @@ onBeforeUnmount(() => {
   transition: width 0.3s ease;
 }
 
-/* 日志面板：设计图精确值 border #EFEBE1 / 底 #FAF8F3 / 圆角 10 / 内边距 16/20 */
+/* 日志面板：圆角 10 / 内边距 16/20，颜色跟随主题（设计稿 border #EFEBE1 / 底 #FAF8F3） */
 .fp-logs {
   margin-top: 24px;
   max-height: 200px;
   overflow-y: auto;
-  border: 0.7px solid #EFEBE1;
-  background-color: #FAF8F3;
+  border: 0.7px solid var(--color-border-soft, #EDE9E0);
+  background-color: var(--color-bg-secondary, #F7F3EA);
   border-radius: 10px;
   padding: 16px 20px;
   display: flex;
