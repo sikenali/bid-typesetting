@@ -6,7 +6,7 @@ defineProps({
   styleCleanup: { type: Object, required: true },
   objectStructure: { type: Object, required: true },
   captionDetection: { type: Object, required: true },
-  globalSwitches: { type: Object, required: true },
+  applySwitches: { type: Object, required: true },
 })
 </script>
 
@@ -30,18 +30,19 @@ defineProps({
         <CheckboxField v-model="styleCleanup.clear_align_grid" label="清除对齐网格" />
         <CheckboxField v-model="styleCleanup.clear_extra_spaces" label="清除多余空格" />
         <CheckboxField v-model="styleCleanup.clean_after_formatting" label="格式化后清理" />
+        <CheckboxField v-model="styleCleanup.remove_extra_blank_lines" label="删除多余空行" />
       </div>
     </div>
 
     <div class="clean-group">
-      <div class="group-title">全局开关</div>
+      <div class="group-title">应用范围</div>
       <div class="rules-grid">
-        <CheckboxField v-model="globalSwitches.apply_page" label="应用页面设置" />
-        <CheckboxField v-model="globalSwitches.apply_body" label="应用正文格式" />
-        <CheckboxField v-model="globalSwitches.apply_headings" label="应用标题格式" />
-        <CheckboxField v-model="globalSwitches.apply_figtbl" label="应用图题表题" />
-        <CheckboxField v-model="globalSwitches.apply_toc" label="应用目录" />
-        <CheckboxField v-model="globalSwitches.apply_header_footer" label="应用页眉页脚" />
+        <CheckboxField v-model="applySwitches.apply_page" label="应用页面设置" />
+        <CheckboxField v-model="applySwitches.apply_body" label="应用正文格式" />
+        <CheckboxField v-model="applySwitches.apply_headings" label="应用标题格式" />
+        <CheckboxField v-model="applySwitches.apply_figtbl" label="应用图题表题" />
+        <CheckboxField v-model="applySwitches.apply_toc" label="应用目录" />
+        <CheckboxField v-model="applySwitches.apply_header_footer" label="应用页眉页脚" />
       </div>
     </div>
   </div>

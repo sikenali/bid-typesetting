@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from '@/utils/toast'
 import { useDocument } from '../composables/useDocument'
 import { useFormatState } from '../composables/useFormatState'
+import { useSettings } from '../composables/useSettings'
 import DocumentPreview from '../components/DocumentPreview.vue'
 import TopNav from '../components/layout/TopNav.vue'
 import PageFooter from '../components/layout/PageFooter.vue'
@@ -13,6 +14,7 @@ import BiddingSitesModal from '../components/layout/BiddingSitesModal.vue'
 const router = useRouter()
 const { getFile, getFormatted } = useDocument()
 const { beforeSnapshot, afterSnapshot, diffs, formatParams } = useFormatState()
+const { annotationEnabled, highlightEnabled } = useSettings()
 const currentFile = computed(() => getFile())
 const formattedFile = computed(() => getFormatted())
 
@@ -35,7 +37,8 @@ const showBidding = ref(false)
 const compareMode = ref('side-by-side')
 const diffIndex = ref(0)
 const syncScroll = ref(true)
-const highlightDiffs = ref(true)
+const highlightDiffs = ref(highlightEnabled.value)
+watch(highlightDiffs, (v) => { highlightEnabled.value = v })
 
 const leftScrollRef = ref(null)
 const rightScrollRef = ref(null)
@@ -139,6 +142,18 @@ const tabFields = computed(() => {
 const prevDiff = () => { if (diffIndex.value > 0) diffIndex.value-- }
 const nextDiff = () => { if (diffIndex.value < totalDiffs.value - 1) diffIndex.value++ }
 
+function deepMerge(target, src) {
+  for (const key of Object.keys(src)) {
+    const v = src[key]
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      if (!target[key] || typeof target[key] !== 'object' || Array.isArray(target[key])) target[key] = {}
+      deepMerge(target[key], v)
+    } else {
+      target[key] = Array.isArray(v) ? [...v] : v
+    }
+  }
+}
+
 function acceptAll() {
   if (totalDiffs.value === 0) {
     ElMessage.warning('当前文档无参数差异')
@@ -146,14 +161,7 @@ function acceptAll() {
   }
   if (confirm(`确认接受全部 ${totalDiffs.value} 处修改？`)) {
     if (afterSnapshot.value) {
-      const merged = JSON.parse(JSON.stringify(afterSnapshot.value))
-      for (const key of Object.keys(merged)) {
-        if (key in formatParams) {
-          if (typeof merged[key] === 'object' && !Array.isArray(merged[key])) {
-            Object.assign(formatParams[key], merged[key])
-          }
-        }
-      }
+      deepMerge(formatParams, JSON.parse(JSON.stringify(afterSnapshot.value)))
     }
     beforeSnapshot.value = JSON.parse(JSON.stringify(formatParams))
     diffs.value = []
@@ -285,7 +293,7 @@ function exportDoc() {
       </div>
     </div>
 
-    <div v-else class="diff-view">
+    <div v-else-if="annotationEnabled" class="diff-view">
       <aside class="tab-sidebar">
         <div class="sidebar-title">
           <h3>文档排版标签</h3>
@@ -350,6 +358,10 @@ function exportDoc() {
           </div>
         </div>
       </section>
+    </div>
+
+    <div v-else class="diff-off" style="display: flex; align-items: center; justify-content: center; height: 420px; color: var(--color-text-muted); font-size: 14px;">
+      已在「个人设置」中关闭批注形式展示
     </div>
 
     <div class="action-bar">

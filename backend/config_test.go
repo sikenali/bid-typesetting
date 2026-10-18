@@ -335,3 +335,74 @@ func absDiff(a, b float64) float64 {
 	}
 	return b - a
 }
+
+func TestConfigAcceptsFrontendKeySet(t *testing.T) {
+	m := map[string]any{
+		"preprocess_punctuation":                  true,
+		"preprocess_superscript":                  true,
+		"preprocess_soft_return":                  true,
+		"preprocess_markdown_to_plaintext":        true,
+		"preprocess_tab_mode":                     2,
+		"preprocess_clear_extra_spaces":           true,
+		"preprocess_clear_indents":                true,
+		"preprocess_clear_heading_indent":         true,
+		"preprocess_clear_heading_left_indent":    true,
+		"preprocess_clear_heading_right_indent":   true,
+		"preprocess_clear_heading_special_indent": true,
+		"preprocess_delete_empty_lines":           true,
+		"preprocess_clear_chart_format":           true,
+		"preprocess_clear_all_styles":             true,
+		"preprocess_clear_snap_to_grid":           true,
+		"preprocess_post_clean_styles":            true,
+		"preprocess_spaces":                       true,
+		"preprocess_object_wrapping":              true,
+		"preprocess_flatten_sdt":                  true,
+		"preprocess_fig_caption":                  true,
+		"preprocess_fig_caption_spaces":           3,
+		"preprocess_tbl_caption":                  true,
+		"preprocess_tbl_caption_spaces":           3,
+		"auto_refresh_fields":                     true,
+		"close_word_after_refresh":                true,
+		"preprocess_table_cell_enable":            true,
+		"preprocess_table_cell_font":              "宋体",
+		"preprocess_table_cell_size":              "四号",
+		"preprocess_table_cell_line_spacing":      20.0,
+		"preprocess_table_cell_min_height":        15.0,
+		"preprocess_table_cell_align":             "CENTER",
+		"preprocess_table_cell_border":            "single",
+		"preprocess_table_auto_width":             true,
+		"margins": map[string]any{
+			"top_cm": 3.7, "bottom_cm": 3.5, "left_cm": 2.8, "right_cm": 2.6,
+			"gutter_cm": 0.0, "header_margin_cm": 2.54, "paper_size": "A4",
+			"paper_width_cm": 21.0, "paper_height_cm": 29.7, "columns": 1,
+			"column_spacing_cm": 1.0, "keep_original_orientation": false,
+		},
+		"toc": map[string]any{
+			"enable":       true,
+			"level_styles": []map[string]any{{"left_indent_chars": 2.0}},
+		},
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cfg Config
+	if err := json.Unmarshal(b, &cfg); err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.PreprocessPunctuation || !cfg.PreprocessClearAllStyles || cfg.PreprocessTabMode != 2 || !cfg.PreprocessSpaces || cfg.PreprocessFigCaptionSpaces != 3 {
+		t.Errorf("preprocess_* keys not applied: %+v", cfg)
+	}
+	if !cfg.AutoRefreshFields || !cfg.CloseWordAfterRefresh {
+		t.Errorf("refresh switches not applied: %+v", cfg)
+	}
+	if !cfg.PreprocessTableCellEnable || cfg.PreprocessTableCellAlign != "CENTER" || !cfg.PreprocessTableAutoWidth {
+		t.Errorf("table cell keys not applied: %+v", cfg)
+	}
+	if cfg.Margins.TopCM != 3.7 || cfg.Margins.LeftCM != 2.8 || cfg.Margins.GutterCM != 0 || cfg.Margins.PaperSize != "A4" {
+		t.Errorf("margins not applied: %+v", cfg.Margins)
+	}
+	if !cfg.TOC.Enable || len(cfg.TOC.LevelStyles) != 1 || cfg.TOC.LevelStyles[0].LeftIndentChars != 2.0 {
+		t.Errorf("toc level_styles not applied: %+v", cfg.TOC)
+	}
+}

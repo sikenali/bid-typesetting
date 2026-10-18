@@ -89,7 +89,7 @@
 
           <div class="action-right">
             <button
-              v-if="activeTab !== 'reset' && activeTab !== 'rules'"
+              v-if="previewEnabled && activeTab !== 'reset' && activeTab !== 'rules'"
               class="btn btn-outline action-btn"
               @click="showPreviewModal = !showPreviewModal"
             >
@@ -174,7 +174,7 @@
                 :style-cleanup="formatParams.cleanup.style_cleanup"
                 :object-structure="formatParams.cleanup.object_structure"
                 :caption-detection="formatParams.cleanup.caption_detection"
-                :global-switches="formatParams.cleanup.global_switches"
+                :apply-switches="formatParams"
               />
             </RulePanelEditor>
           </div>
@@ -361,7 +361,7 @@ const { getFile, setFormatted } = useDocument()
 const currentFile = computed(() => getFile())
 const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles } = useFormatState()
 const { saveTemplate, templates } = useTemplates()
-const { clearStylesEnabled } = useSettings()
+const { clearStylesEnabled, previewEnabled } = useSettings()
 
 watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
 

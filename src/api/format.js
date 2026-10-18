@@ -17,47 +17,46 @@ function flattenCleanup(config) {
   }
 
   return {
-    PreprocessPunctuation: tc.punctuation_clean ?? false,
-    PreprocessSuperscript: tc.clear_superscript ?? false,
-    PreprocessSoftReturn: tc.soft_enter_to_hard ?? false,
-    PreprocessMarkdownToPlain: tc.markdown_tags_to_plaintext ?? false,
-    PreprocessTabEnabled: tc.tab_to_spaces_enabled ?? false,
-    PreprocessTabMode: tab_mode,
+    preprocess_punctuation: tc.punctuation_clean ?? false,
+    preprocess_superscript: tc.clear_superscript ?? false,
+    preprocess_soft_return: tc.soft_enter_to_hard ?? false,
+    preprocess_markdown_to_plaintext: tc.markdown_tags_to_plaintext ?? false,
+    preprocess_tab_mode: tab_mode,
 
-    PreprocessClearExtraSpaces: sc.clear_extra_spaces ?? false,
-    PreprocessClearIndents: sc.clear_paragraph_indent ?? false,
-    PreprocessClearHeadingIndent: sc.clear_heading_indent ?? false,
-    PreprocessClearHeadingLeftIndent: sc.clear_heading_left_indent ?? false,
-    PreprocessClearHeadingRightIndent: sc.clear_heading_right_indent ?? false,
-    PreprocessClearHeadingSpecialIndent: sc.clear_heading_special_indent ?? false,
-    PreprocessDeleteEmptyLines: sc.remove_extra_blank_lines ?? false,
-    PreprocessClearChartFormat: sc.clear_chart_format ?? false,
-    PreprocessClearAllStyles: sc.clear_all_styles ?? true,
-    PreprocessClearSnapToGrid: sc.clear_align_grid ?? true,
-    PreprocessPostCleanStyles: sc.clean_after_formatting ?? false,
+    preprocess_clear_extra_spaces: sc.clear_extra_spaces ?? false,
+    preprocess_clear_indents: sc.clear_paragraph_indent ?? false,
+    preprocess_clear_heading_indent: sc.clear_heading_indent ?? false,
+    preprocess_clear_heading_left_indent: sc.clear_heading_left_indent ?? false,
+    preprocess_clear_heading_right_indent: sc.clear_heading_right_indent ?? false,
+    preprocess_clear_heading_special_indent: sc.clear_heading_special_indent ?? false,
+    preprocess_delete_empty_lines: sc.remove_extra_blank_lines ?? false,
+    preprocess_clear_chart_format: sc.clear_chart_format ?? false,
+    preprocess_clear_all_styles: sc.clear_all_styles ?? false,
+    preprocess_clear_snap_to_grid: sc.clear_align_grid ?? true,
+    preprocess_post_clean_styles: sc.clean_after_formatting ?? false,
 
-    PreprocessSpaces: config.body?.add_space ?? true,
+    preprocess_spaces: config.body?.add_space ?? true,
 
-    PreprocessObjectWrapping: os.object_wrapping ?? true,
-    PreprocessFlattenSdt: os.collapse_sdt_tags ?? false,
+    preprocess_object_wrapping: os.object_wrapping ?? true,
+    preprocess_flatten_sdt: os.collapse_sdt_tags ?? false,
 
-    PreprocessFigCaption: cd.fig_detection_enabled ?? true,
-    PreprocessFigCaptionSpaces: cd.fig_detection_spacing ?? 2,
-    PreprocessTblCaption: cd.tbl_detection_enabled ?? true,
-    PreprocessTblCaptionSpaces: cd.tbl_detection_spacing ?? 2,
+    preprocess_fig_caption: cd.fig_detection_enabled ?? true,
+    preprocess_fig_caption_spaces: cd.fig_detection_spacing ?? 2,
+    preprocess_tbl_caption: cd.tbl_detection_enabled ?? true,
+    preprocess_tbl_caption_spaces: cd.tbl_detection_spacing ?? 2,
 
-    AutoRefreshFields: c.global_switches?.auto_refresh_fields ?? false,
-    CloseWordAfterRefresh: c.global_switches?.close_word_after_refresh ?? true,
+    auto_refresh_fields: config.auto_refresh_fields ?? false,
+    close_word_after_refresh: config.close_word_after_refresh ?? true,
 
     // Table cell settings (from formatParams.table_settings)
-    PreprocessTableCellEnable: config.table_settings?.enable ?? false,
-    PreprocessTableCellFont: config.table_settings?.cn_font ?? '宋体',
-    PreprocessTableCellSize: config.table_settings?.size_cn ?? '四号',
+    preprocess_table_cell_enable: config.table_settings?.enable ?? false,
+    preprocess_table_cell_font: config.table_settings?.cn_font ?? '宋体',
+    preprocess_table_cell_size: config.table_settings?.size_cn ?? '四号',
     preprocess_table_cell_line_spacing: config.table_settings?.line_spacing_value ?? 20,
-    PreprocessTableCellMinHeight: config.table_settings?.min_line_height ?? 15,
-    PreprocessTableCellAlign: config.table_settings?.align ?? 'CENTER',
-    PreprocessTableCellBorder: config.table_settings?.border_style ?? 'single',
-    PreprocessTableAutoWidth: config.table_settings?.auto_width ?? true,
+    preprocess_table_cell_min_height: config.table_settings?.min_line_height ?? 15,
+    preprocess_table_cell_align: config.table_settings?.align ?? 'CENTER',
+    preprocess_table_cell_border: config.table_settings?.border_style ?? 'single',
+    preprocess_table_auto_width: config.table_settings?.auto_width ?? true,
   }
 }
 
@@ -67,6 +66,18 @@ export async function formatDocument(file, config) {
 
   const backendConfig = { ...config, ...flattenCleanup(config) }
   delete backendConfig.cleanup
+
+  backendConfig.margins = { ...(config.page || {}) }
+
+  if (backendConfig.toc?.level_styles) {
+    backendConfig.toc = {
+      ...backendConfig.toc,
+      level_styles: backendConfig.toc.level_styles.map(ls => ({
+        ...ls,
+        left_indent_chars: ls.left_indent_chars ?? ls.left_indent_value ?? 0,
+      })),
+    }
+  }
 
   formData.append('config', JSON.stringify(backendConfig))
 
@@ -84,6 +95,10 @@ export async function formatDocument(file, config) {
 }
 
 export async function healthCheck() {
-  const res = await fetch(`${API_BASE}/api/health`)
-  return res.ok
+  try {
+    const res = await fetch(`${API_BASE}/api/health`)
+    return res.ok
+  } catch {
+    return false
+  }
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	wordformat "github.com/anomalyco/bid-pageformatting-backend"
 	"github.com/unidoc/unioffice/v2/common/license"
@@ -144,11 +146,26 @@ func handleConfig(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, cfg)
 	case http.MethodPut:
 		var req struct {
-			LicenseEntries []wordformat.LicenseEntryRequest `json:"license_entries"`
+			LicenseEntries json.RawMessage              `json:"license_entries"`
+			AiProviders    []wordformat.AiProviderEntry `json:"ai_providers"`
 		}
 		body, _ := io.ReadAll(r.Body)
-		json.Unmarshal(body, &req)
-		if err := wordformat.SaveLicenseEntries(req.LicenseEntries); err != nil {
+		if err := json.Unmarshal(body, &req); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid json"})
+			return
+		}
+		if len(req.LicenseEntries) > 0 && string(req.LicenseEntries) != "null" {
+			var entries []wordformat.LicenseEntryRequest
+			if err := json.Unmarshal(req.LicenseEntries, &entries); err != nil {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid license_entries"})
+				return
+			}
+			if err := wordformat.SaveLicenseEntries(entries); err != nil {
+				writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				return
+			}
+		}
+		if err := wordformat.SaveAiProviders(req.AiProviders); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
@@ -168,8 +185,21 @@ func handleTestKey(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request"})
 		return
 	}
-	result := wordformat.TestApiKey(req.Provider, req.Key, req.Model, req.Endpoint, req.Format)
-	writeJSON(w, http.StatusOK, result)
+	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
+	defer cancel()
+
+	resultCh := make(chan wordformat.TestKeyResponse, 1)
+	go func() {
+		resultCh <- wordformat.TestApiKey(req.Provider, req.Key, req.Model, req.Endpoint, req.Format)
+	}()
+
+	select {
+	case <-ctx.Done():
+		writeJSON(w, http.StatusGatewayTimeout, map[string]string{"error": "测试请求超时，请检查 Key 或网络"})
+		return
+	case result := <-resultCh:
+		writeJSON(w, http.StatusOK, result)
+	}
 }
 
 func main() {

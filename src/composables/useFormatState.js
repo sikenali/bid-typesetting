@@ -17,6 +17,9 @@ const formatParams = reactive({
   apply_figtbl: true,
   apply_toc: true,
   apply_header_footer: true,
+  apply_table: true,
+  auto_refresh_fields: false,
+  close_word_after_refresh: true,
 
   page: {
     top_cm: 3.7,
@@ -279,7 +282,6 @@ const formatParams = reactive({
       tab_to_spaces_enabled: false,
       tab_to_spaces: 1,
       markdown_tags_to_plaintext: false,
-      remove_extra_blank_lines: false,
     },
     style_cleanup: {
       clear_all_styles: false,
@@ -303,16 +305,6 @@ const formatParams = reactive({
       fig_detection_spacing: 2,
       tbl_detection_enabled: true,
       tbl_detection_spacing: 2,
-    },
-    global_switches: {
-      apply_page: true,
-      apply_body: true,
-      apply_headings: true,
-      apply_figtbl: true,
-      apply_toc: true,
-      apply_header_footer: true,
-      auto_refresh_fields: false,
-      close_word_after_refresh: true,
     },
   },
 })
