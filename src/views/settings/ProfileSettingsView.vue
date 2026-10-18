@@ -103,7 +103,7 @@ function quickTheme(key) {
         <RiPaletteLine size="18" />
         <span>外观快捷切换</span>
       </div>
-      <p class="section-desc">快速在浅色与深色主题之间切换，无需进入完整主题设置页</p>
+      <p class="section-desc">快速在浅色与深色主题之间切换；完整的外观主题、强调色与布局选项请前往「主题设置」</p>
 
       <div class="theme-quick">
         <button

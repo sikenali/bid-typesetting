@@ -1,137 +1,230 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import { ElMessage } from '@/utils/toast';
-import { useThemeStore, THEME_META, ACCENTS, DEFAULT_ACCENT, THEME_TYPES } from '@/stores/theme';
+import { useThemeStore } from '@/stores/theme';
+import { UiCheck } from '@/components/ui';
+import { setTheme as saveTheme } from '@/api/settings';
 
 const themeStore = useThemeStore();
 
-const themes = THEME_TYPES.map((k) => ({
-  key: k,
-  ...THEME_META[k],
-}));
+const themes = [
+  {
+    type: 'parchment',
+    name: '浅色主题 · 羊皮纸',
+    desc: '当前默认，长时间阅读标书不易疲劳',
+    skin: '#F7EED4',
+    topbar: '#FFFFFF',
+    content: '#E1DCD1',
+    previewBg: '#F7EED4',
+  },
+  {
+    type: 'dark',
+    name: '深色主题 · 墨夜',
+    desc: '夜间或暗光环境投标作业更护眼',
+    skin: '#333A45',
+    topbar: '#404955',
+    content: '#8E939A',
+    previewBg: '#333A45',
+  },
+];
 
-const accents = ACCENTS;
+const accents = [
+  { key: 'vermilion', name: '朱红', color: '#BE3B2E' },
+  { key: 'gold', name: '鎏金', color: '#D3A93F' },
+  { key: 'jade', name: '玉绿', color: '#3E8C6E' },
+  { key: 'cloud', name: '云蓝 · 默认', color: '#4A72A8' },
+  { key: 'ink', name: '黛墨', color: '#2F3640' },
+];
 
-function selectTheme(theme) {
-  themeStore.setTheme(theme.key);
-  ElMessage.success('已切换到「' + theme.name + '」');
+const layouts = [
+  { key: 'topbar', name: '顶栏模式 · 居中导航', desc: '六大模块在顶栏居中排布，右上角统一为返回与设置' },
+  { key: 'sidebar', name: '侧边栏模式 · 左侧导航', desc: '六大模块在左侧竖列居中，顶栏不显示图标文字' },
+];
+
+const selectedTheme = ref('parchment');
+const selectedAccent = ref('vermilion');
+const selectedLayout = ref('topbar');
+
+onMounted(() => {
+  if (themes.some((t) => t.type === themeStore.currentTheme)) {
+    selectedTheme.value = themeStore.currentTheme;
+  }
+  const matched = accents.find((a) => a.color === themeStore.currentAccent);
+  selectedAccent.value = matched ? matched.key : 'cloud';
+  selectedLayout.value = themeStore.getLayout();
+});
+
+async function selectTheme(type) {
+  selectedTheme.value = type;
+  themeStore.setTheme(type);
+  try {
+    await saveTheme(type);
+  } catch {}
 }
 
-function selectAccent(color) {
-  if (color === DEFAULT_ACCENT) {
-    themeStore.applyAccent(null);
-  } else {
-    themeStore.applyAccent(color);
-  }
-  ElMessage.success('强调色已更新');
+function selectAccent(key) {
+  selectedAccent.value = key;
+  const accent = accents.find((a) => a.key === key);
+  if (!accent) return;
+  themeStore.applyAccent(accent.color);
+}
+
+function selectLayout(key) {
+  selectedLayout.value = key;
+  themeStore.setLayout(key);
+  ElMessage.success(`已切换布局：${layouts.find((l) => l.key === key)?.name || ''}，页面将刷新以生效`);
+  setTimeout(() => window.location.reload(), 800);
 }
 
 function resetAll() {
+  selectedTheme.value = 'parchment';
+  selectedAccent.value = 'cloud';
+  selectedLayout.value = 'topbar';
   themeStore.resetAll();
-  ElMessage.success('已恢复默认主题');
+  saveTheme('parchment').catch(() => {});
+  ElMessage.success('已恢复默认');
 }
 </script>
 
 <template>
-  <div class="settings-view">
+  <div class="theme-view">
+    <!-- 页面头部卡片 -->
     <div class="page-header-card">
-      <div class="header-row">
-        <div class="header-left">
+      <div class="header-content">
+        <div class="header-info">
           <div class="breadcrumb">
-            首页 <span class="sep">/</span> 设置中心 <span class="sep">/</span> <b>主题设置</b>
+            <span>首页</span>
+            <span class="sep">/</span>
+            <span>设置中心</span>
+            <span class="sep">/</span>
+            <span class="current">主题管理</span>
           </div>
-          <h1 class="page-title">主题设置</h1>
-          <p class="page-desc">统一切换外观底色与强调色，修改即时生效</p>
+          <div class="header-title">
+            <h1>主题管理</h1>
+            <p>统一切换外观底色、强调色与导航布局模式，修改即时生效</p>
+          </div>
         </div>
-        <button class="btn-outline" @click="resetAll">
-          <RiRestartLine size="16" />
-          <span>恢复默认</span>
+        <button class="reset-button" @click="resetAll">
+          <RiRestartLine size="18" class="icon" />
+          恢复默认
         </button>
       </div>
     </div>
 
+    <!-- 外观主题卡片 -->
     <div class="section-card">
-      <div class="section-head">
-        <div>
-          <div class="section-title">
-            <RiPaletteLine size="18" />
-            <span>外观主题</span>
-          </div>
-          <p class="section-desc">选择适合当前使用场景的界面底色，浅色偏暖、深色护眼、白色纯净</p>
-        </div>
-        <button class="reset-btn" @click="resetAll">
-          <RiRestartLine size="16" />
-          <span>恢复默认</span>
-        </button>
-      </div>
-      <div class="theme-grid">
+      <div class="card-title">外观主题</div>
+      <div class="theme-group">
         <div
           v-for="theme in themes"
-          :key="theme.key"
-          class="theme-card"
-          :class="{ 'is-active': themeStore.currentTheme === theme.key }"
-          @click="selectTheme(theme)"
-          role="radio"
-          :aria-checked="themeStore.currentTheme === theme.key"
-          tabindex="0"
+          :key="theme.type"
+          class="theme-preview-card"
+          :class="{ active: selectedTheme === theme.type }"
+          @click="selectTheme(theme.type)"
         >
-          <div
-            v-if="themeStore.currentTheme === theme.key"
-            class="theme-check"
-          >
-            <RiCheckLine size="14" />
+          <UiCheck :checked="selectedTheme === theme.type" class="card-check" :size="22" />
+          <div class="preview-thumb" :style="{ backgroundColor: theme.previewBg }">
+            <div class="thumb-topbar" :style="{ backgroundColor: theme.topbar }"></div>
+            <div class="thumb-content" :style="{ backgroundColor: theme.content }"></div>
           </div>
-          <div class="theme-preview" :style="{ backgroundColor: theme.preview }">
-            <div class="theme-preview-bar" :style="{ backgroundColor: theme.previewBar }"></div>
-            <div class="theme-preview-body" :style="{ backgroundColor: theme.previewBody }">
-              <div class="theme-preview-line"></div>
-              <div class="theme-preview-line short"></div>
-              <div class="theme-preview-line"></div>
-            </div>
+          <div class="preview-info">
+            <div class="preview-name">{{ theme.name }}</div>
+            <div class="preview-desc">{{ theme.desc }}</div>
           </div>
-          <div class="theme-name">{{ theme.name }}</div>
-          <div class="theme-desc">{{ theme.description }}</div>
         </div>
       </div>
     </div>
 
+    <!-- 强调色卡片 -->
     <div class="section-card">
-      <div class="section-title">
-        <RiSwatchLine size="18" />
-        <span>强调色</span>
-      </div>
-      <p class="section-desc">强调色应用于主按钮、激活态与关键指示，与主题底色协调搭配</p>
-      <div class="accent-list">
-        <button
-          v-for="a in accents"
-          :key="a.key"
+      <div class="card-title">强调色</div>
+      <div class="accent-group">
+        <div
+          v-for="accent in accents"
+          :key="accent.key"
           class="accent-item"
-          type="button"
-          :aria-label="a.name"
+          @click="selectAccent(accent.key)"
         >
-          <div
-            class="accent-swatch"
-            :class="{ 'is-active': themeStore.currentAccent === a.color }"
-            :style="{ backgroundColor: a.color }"
-          >
-            <RiCheckLine v-if="themeStore.currentAccent === a.color" size="32" class="accent-check" />
+          <div class="accent-circle" :style="{ backgroundColor: accent.color }">
+            <RiCheckLine v-if="selectedAccent === accent.key" size="30" class="icon" />
           </div>
-          <div class="accent-name" :class="{ 'is-active': themeStore.currentAccent === a.color }">
-            {{ a.name }}
-          </div>
-        </button>
+          <div class="accent-name" :class="{ current: selectedAccent === accent.key }">{{ accent.name }}</div>
+        </div>
       </div>
     </div>
 
+    <!-- 布局切换卡片 -->
     <div class="section-card">
-      <div class="section-title">
-        <RiInformationLine size="18" />
-        <span>主题应用说明</span>
-      </div>
-      <div class="info-box">
-        <RiInformationLine size="18" class="info-icon" />
-        <div class="info-text">
-          深浅色主题与强调色会持久化到浏览器本地，下次打开应用将自动恢复上次的选择。<br />
-          如需全部还原，点击右上角「恢复默认」按钮，一键回到浅色主题与云蓝强调色。
+      <div class="card-title">布局切换</div>
+      <div class="layout-group">
+        <div
+          v-for="layout in layouts"
+          :key="layout.key"
+          class="layout-card"
+          :class="{ active: selectedLayout === layout.key }"
+          @click="selectLayout(layout.key)"
+        >
+          <UiCheck :checked="selectedLayout === layout.key" class="card-check" :size="22" />
+          <div class="layout-preview">
+            <template v-if="layout.key === 'topbar'">
+              <div class="preview-mockup topbar-mockup">
+                <div class="mockup-header">
+                  <div class="mockup-brand">
+                    <span class="brand-dot"></span>
+                    <span class="brand-text"></span>
+                    <span class="brand-text muted"></span>
+                  </div>
+                  <div class="mockup-modules">
+                    <span class="module-block" style="background:#BE3B2E"></span>
+                    <span class="module-block" style="background:#D3A93F"></span>
+                    <span class="module-block" style="background:#3E8C6E"></span>
+                    <span class="module-block" style="background:#4A72A8"></span>
+                    <span class="module-block" style="background:#BE3B2E"></span>
+                    <span class="module-block" style="background:#D3A93F"></span>
+                  </div>
+                  <div class="mockup-actions">
+                    <span class="action-dot"></span>
+                    <span class="action-dot"></span>
+                  </div>
+                </div>
+                <div class="mockup-body">
+                  <div class="mockup-side"></div>
+                  <div class="mockup-main"></div>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="preview-mockup sidebar-mockup">
+                <div class="mockup-sidebar">
+                  <span class="sidebar-mod" style="background:#D3A93F"></span>
+                  <span class="sidebar-mod" style="background:#BE3B2E"></span>
+                  <span class="sidebar-mod" style="background:#3E8C6E"></span>
+                  <span class="sidebar-mod" style="background:#4A72A8"></span>
+                  <span class="sidebar-mod" style="background:#2F3640"></span>
+                </div>
+                <div class="mockup-content">
+                  <div class="mockup-header">
+                    <div class="mockup-brand">
+                      <span class="brand-dot"></span>
+                      <span class="brand-text"></span>
+                      <span class="brand-text muted"></span>
+                    </div>
+                    <div class="mockup-actions">
+                      <span class="action-dot"></span>
+                      <span class="action-dot"></span>
+                    </div>
+                  </div>
+                  <div class="mockup-body">
+                    <div class="mockup-main"></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div class="layout-info">
+            <div class="layout-name">{{ layout.name }}</div>
+            <div class="layout-desc">{{ layout.desc }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -139,262 +232,352 @@ function resetAll() {
 </template>
 
 <style scoped>
-.settings-view {
-  padding: 20px 28px 32px;
+.theme-view {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-width: 1620px;
 }
+
+/* 页面头部卡片 */
 .page-header-card {
-  background: var(--color-bg-white);
+  background-color: var(--color-bg-white, #FFFFFF);
+  border: 0.7px solid var(--color-border-soft, #EDE9E0);
   border-radius: 16px;
   padding: 20px 24px;
 }
-.header-row {
+.header-content {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 24px;
 }
-.header-left { flex: 1; min-width: 0; }
+.header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .breadcrumb {
-  font-size: 13px;
-  color: var(--color-text-faint);
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
-  font-family: var(--font-family-cn);
+  gap: 8px;
+  font-size: 14px;
+  font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
-.breadcrumb .sep { color: var(--color-text-faint); }
-.breadcrumb b {
-  color: var(--color-text-body);
+.breadcrumb span {
+  color: var(--color-text-faint, #A7A296);
+}
+.breadcrumb span.sep {
+  color: var(--color-text-faint, #A7A296);
+}
+.breadcrumb span.current {
+  color: var(--color-text-body, #3A3A3A);
   font-weight: 500;
 }
-.page-title {
+.header-title h1 {
   font-size: 30px;
   font-weight: 700;
+  color: var(--color-text-primary, #1F1D1A);
+  margin: 12px 0 0 0;
   letter-spacing: -0.5px;
-  color: var(--color-text-primary);
-  margin: 0;
-  font-family: var(--font-family-cn);
+  font-family: "SourceHanSans-Bold", var(--font-family-cn);
   line-height: 1.2;
 }
-.page-desc {
+.header-title p {
   font-size: 15px;
-  color: var(--color-text-secondary);
-  margin: 8px 0 0;
-  font-family: var(--font-family-cn);
+  color: var(--color-text-secondary, #6E6A60);
+  margin: 8px 0 0 0;
+  font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
-.btn-outline {
+.reset-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
   height: 48px;
-  padding: 0 20px;
-  border: 0.7px solid var(--color-border);
-  border-radius: 10px;
-  background-color: var(--color-bg-white);
-  color: var(--color-text-body);
-  font-size: 14px;
-  font-family: var(--font-family-cn);
+  border: 0.7px solid var(--color-border, #E5DFD3);
+  background-color: var(--color-bg-white, #FFFFFF);
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--color-text-body, #3A3A3A);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  transition: all 0.2s;
   flex-shrink: 0;
+  font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
-.btn-outline:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  background-color: var(--color-primary-soft);
+.reset-button:hover {
+  background-color: var(--color-bg-secondary, #F7F3EA);
 }
-.section-card {
-  background: var(--color-bg-white);
-  border: 0.7px solid var(--color-border-soft);
-  border-radius: 14px;
-  padding: 24px 28px;
-}
-.section-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.section-head .section-desc { margin-bottom: 0; }
-.reset-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 20px;
-  border: 0.7px solid var(--color-border);
-  border-radius: 10px;
-  background: var(--color-bg-white);
-  color: var(--color-text-body);
-  font-size: 14px;
-  font-family: var(--font-family-cn);
-  transition: all 0.2s ease;
-}
-.reset-btn:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-.section-title {
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  font-family: var(--font-family-cn);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-primary);
-}
-.section-title span { color: var(--color-text-primary); }
-.section-desc {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin: 6px 0 20px;
-  font-family: var(--font-family-cn);
+.reset-button .icon {
+  color: var(--color-text-body, #3A3A3A);
 }
 
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+/* 通用卡片 */
+.section-card {
+  background-color: var(--color-bg-white, #FFFFFF);
+  border: 0.7px solid var(--color-border-soft, #EDE9E0);
+  border-radius: 16px;
+  padding: 24px 28px;
 }
-.theme-card {
-  position: relative;
-  background: var(--color-bg-white);
-  border: 0.7px solid var(--color-border-soft);
-  border-radius: 14px;
-  padding: 16px;
-  cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
-  outline: none;
+.card-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--color-text-primary, #1F1D1A);
+  font-family: "SourceHanSans-Medium", var(--font-family-cn);
 }
-.theme-card:hover { border-color: var(--color-border-hover); box-shadow: var(--shadow-sm); }
-.theme-card:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
-}
-.theme-card.is-active {
-  background: var(--color-primary-soft);
-  border-color: var(--color-primary);
-}
-.theme-check {
+
+/* 统一勾选徽标（UiCheck） */
+.card-check {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-bg-white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 14px;
+  right: 14px;
   z-index: 2;
 }
-.theme-preview {
+
+/* 外观主题 */
+.theme-group {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+}
+.theme-preview-card {
+  flex: 1;
+  position: relative;
+  border: 0.7px solid var(--color-border-soft, #EDE9E0);
+  background-color: var(--color-bg-white, #FFFFFF);
+  border-radius: 14px;
+  padding: 24px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.2s;
+}
+.theme-preview-card.active {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+.preview-thumb {
   width: 100%;
   height: 128px;
   border-radius: 8px;
-  overflow: hidden;
-  border: 0.7px solid var(--color-border-soft);
+  padding: 16px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
-.theme-preview-bar { height: 28px; flex-shrink: 0; }
-.theme-preview-body {
-  flex: 1;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  justify-content: flex-start;
+.thumb-topbar {
+  width: 100%;
+  height: 28px;
+  border-radius: 5px;
 }
-.theme-preview-line {
-  height: 6px;
-  border-radius: 3px;
-  background: color-mix(in srgb, #000 22%, transparent);
+.thumb-content {
+  width: 100%;
+  height: 54px;
+  border-radius: 6px;
 }
-.theme-preview-line.short { width: 55%; }
-.theme-name {
+.preview-info .preview-name {
   font-size: 16px;
   font-weight: 500;
-  color: var(--color-text-body);
-  margin-top: 12px;
-  font-family: var(--font-family-cn);
+  color: var(--color-text-primary, #1F1D1A);
+  font-family: "SourceHanSans-Medium", var(--font-family-cn);
 }
-.theme-card.is-active .theme-name { color: var(--color-primary); }
-.theme-desc {
+.preview-info .preview-desc {
   font-size: 14px;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  margin-top: 4px;
-  font-family: var(--font-family-cn);
+  color: var(--color-text-muted, #8A8578);
+  margin-top: 8px;
+  font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
 
-.accent-list {
+/* 强调色 */
+.accent-group {
   display: flex;
-  justify-content: space-around;
   gap: 40px;
-  padding: 8px 0 4px;
+  margin-top: 24px;
 }
 .accent-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  background: transparent;
-  border: none;
+  gap: 16px;
   cursor: pointer;
-  padding: 0;
-  font-family: var(--font-family-cn);
 }
-.accent-swatch {
+.accent-circle {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: transparent;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
-.accent-swatch:hover { transform: scale(1.05); }
-.accent-swatch.is-active {
-  box-shadow: 0 0 0 3px var(--color-bg-white), 0 0 0 5px var(--color-primary);
+.accent-circle .icon {
+  color: #fff;
 }
-.accent-check { color: var(--color-bg-white); }
 .accent-name {
   font-size: 15px;
-  font-weight: 400;
-  color: var(--color-text-muted);
+  color: var(--color-text-body, #3A3A3A);
+  font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
-.accent-name.is-active {
-  font-weight: 700;
-  color: var(--color-text-primary);
+.accent-name.current {
+  color: var(--color-text-primary, #1F1D1A);
+  font-weight: 500;
+  font-family: "SourceHanSans-Medium", var(--font-family-cn);
 }
 
-.info-box {
+/* 布局切换 */
+.layout-group {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+}
+.layout-card {
+  flex: 1;
+  position: relative;
+  border: 0.7px solid var(--color-border-soft, #EDE9E0);
+  background-color: var(--color-bg-white, #FFFFFF);
+  border-radius: 14px;
+  padding: 24px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.2s;
+}
+.layout-card.active {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+.layout-preview {
+  width: 100%;
+  height: 150px;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.preview-mockup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.topbar-mockup {
+  background-color: rgba(255,255,255,1);
+  border-radius: 8px;
+}
+.mockup-header {
+  height: 32px;
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mockup-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-dot {
+  width: 11px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #BE3B2E;
+}
+.brand-text {
+  width: 25px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #2F3640;
+}
+.brand-text.muted {
+  width: 17px;
+  background-color: #A7A296;
+}
+.mockup-modules {
+  display: flex;
+  gap: 8px;
+}
+.module-block {
+  width: 31px;
+  height: 10px;
+  border-radius: 50%;
+}
+.mockup-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+.action-dot {
+  width: 9px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #D6CDC8;
+}
+.mockup-body {
+  flex: 1;
+  margin-top: 12px;
   display: flex;
   gap: 12px;
-  padding: 14px 16px;
-  background: var(--color-primary-soft);
-  border-radius: 10px;
-  border: 0.7px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
-.info-icon {
-  color: var(--color-primary);
-  flex-shrink: 0;
-  margin-top: 2px;
+.mockup-side {
+  width: 85px;
+  border-radius: 6px;
+  background-color: #E2DDD2;
 }
-.info-text {
+.mockup-main {
+  flex: 1;
+  border-radius: 6px;
+  background-color: #E6E2D8;
+}
+.sidebar-mockup {
+  background-color: rgba(245,241,230,1);
+  border-radius: 8px;
+  flex-direction: row;
+}
+.mockup-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+  width: 56px;
+}
+.sidebar-mod {
+  width: 44px;
+  height: 9px;
+  border-radius: 50%;
+}
+.mockup-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-left: 12px;
+}
+.sidebar-mockup .mockup-header {
+  margin-bottom: 12px;
+}
+.sidebar-mockup .mockup-body {
+  flex: 1;
+}
+.sidebar-mockup .mockup-main {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background-color: #E6E2D8;
+}
+.layout-info .layout-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary, #1F1D1A);
+  font-family: "SourceHanSans-Medium", var(--font-family-cn);
+}
+.layout-info .layout-desc {
   font-size: 14px;
-  color: var(--color-text-body);
-  line-height: 1.7;
-  font-family: var(--font-family-cn);
+  color: var(--color-text-muted, #8A8578);
+  margin: 8px 0 0 0;
+  font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
 </style>
