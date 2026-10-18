@@ -44,7 +44,6 @@ import AboutSettingsView from '@/views/settings/AboutSettingsView.vue';
 const props = defineProps({
   visible: { type: Boolean, default: false },
   initialTab: { type: String, default: '' },
-  initialKind: { type: String, default: '' },
 });
 
 const emit = defineEmits(['update:visible']);
@@ -64,19 +63,19 @@ const menuItems = [
 
 const route = useRoute();
 
-function initialTab() {
+function computeInitialTab() {
   if (props.initialTab && menuItems.some((i) => i.key === props.initialTab)) {
     return props.initialTab;
   }
   return menuItems.some((i) => i.key === route.query.tab) ? route.query.tab : 'theme';
 }
 
-const activeKey = ref(initialTab());
+const activeKey = ref(computeInitialTab());
 
 watch(
   () => props.visible,
   (v) => {
-    if (v) activeKey.value = initialTab();
+    if (v) activeKey.value = computeInitialTab();
   }
 );
 

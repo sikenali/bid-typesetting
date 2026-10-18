@@ -5,7 +5,7 @@
     :subtitle="desc"
     icon="ri-loader-2-line"
     width="1474px"
-    :max-width="1400"
+    :max-width="1600"
     :show-footer="false"
     :show-close="!processing"
     :close-on-click-overlay="!processing"
