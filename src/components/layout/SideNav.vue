@@ -31,14 +31,15 @@ const router = useRouter();
 const modules = [
   { key: 'upload', label: '上传', icon: 'ri-upload-line', path: '/' },
   { key: 'editor', label: '排版', icon: 'ri-layout-2-line', path: '/editor' },
-  { key: 'template', label: '模板', icon: 'ri-file-list-3-line', path: '/template' },
+  { key: 'template', label: '模板', icon: 'ri-file-list-3-line', path: '/settings', query: { tab: 'template' } },
   { key: 'compare', label: '对比', icon: 'ri-contrast-2-line', path: '/compare' },
   { key: 'settings', label: '设置', icon: 'ri-settings-3-line', path: '/settings' },
   { key: 'profile', label: '个性', icon: 'ri-user-settings-line', path: '/settings', query: { tab: 'profile' } },
 ];
 
 function activeKey(item) {
-  return route.path === item.path && (!item.query || route.query.tab === undefined);
+  if (item.query) return route.path === item.path && route.query.tab === item.query.tab;
+  return route.path === item.path && !route.query.tab;
 }
 
 function go(item) {
