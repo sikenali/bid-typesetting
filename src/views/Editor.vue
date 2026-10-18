@@ -187,22 +187,6 @@
       @bidding-sites="showBiddingModal = true"
     />
 
-    <SaveTemplateModal
-      v-if="showSaveModal"
-      :params="formatParams"
-      @close="showSaveModal = false"
-      @saved="onTemplateSaved"
-    />
-
-    <LoadTemplateModal
-      v-if="showLoadModal"
-      :templates="templates"
-      @close="showLoadModal = false"
-      @select="handleLoadSelected"
-      @delete="handleDeleteTemplate"
-      @edit="() => { showLoadModal = false; showSaveModal = true; }"
-    />
-
     <!-- 文档预览 -->
     <UiModal
       v-if="showPreviewModal"
@@ -298,8 +282,7 @@ import BiddingSitesModal from '@/components/layout/BiddingSitesModal.vue'
 import UiModal from '@/components/ui/UiModal.vue'
 import FormatProgressModal from '@/components/FormatProgressModal.vue'
 import { confirmDialog } from '@/utils/confirm'
-import SaveTemplateModal from '@/components/SaveTemplateModal.vue'
-import LoadTemplateModal from '@/components/LoadTemplateModal.vue'
+import { useSettingsTab } from '@/utils/settingsTab'
 import RulePanelEditor from '@/components/RulePanelEditor.vue'
 import PagePanel from '@/components/panels/PagePanel.vue'
 import BodyPanel from '@/components/panels/BodyPanel.vue'
@@ -318,7 +301,6 @@ import CleanupRuleEditor from '@/components/rules/CleanupRuleEditor.vue'
 import { useSettings } from '@/composables/useSettings'
 import { useDocument } from '@/composables/useDocument'
 import { useFormatState } from '@/composables/useFormatState'
-import { useTemplates } from '@/composables/useTemplates'
 import { ElMessage } from '@/utils/toast'
 import { readDocxParams } from '@/utils/docxReader'
 import { healthCheck, formatDocument } from '@/api/format'
@@ -334,7 +316,6 @@ const router = useRouter()
 const { getFile, setFormatted } = useDocument()
 const currentFile = computed(() => getFile())
 const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles } = useFormatState()
-const { saveTemplate, templates } = useTemplates()
 const { clearStylesEnabled, previewEnabled } = useSettings()
 
 watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
@@ -350,8 +331,6 @@ const sideItems = [
 ]
 
 const activeTab = ref('reset')
-const showSaveModal = ref(false)
-const showLoadModal = ref(false)
 const showPreviewModal = ref(false)
 const showFormatLog = ref(false)
 const showSettings = ref(false)
@@ -491,25 +470,14 @@ onUnmounted(() => {
   vueOfficeBuffer.value = null
 })
 
-const handleSaveTemplate = () => { showSaveModal.value = true }
-const handleSave = () => { applyFormatting() }
-const handleLoadTemplate = () => { showLoadModal.value = true }
-
-const handleLoadSelected = (tpl) => {
-  if (tpl.formatParams) {
-    loadFormatParams(tpl.formatParams)
-    takeBeforeSnapshot()
-    ElMessage.success(`已载入模板：${tpl.name}`)
-  }
-  showLoadModal.value = false
+const handleSaveTemplate = () => {
+  useSettingsTab().set({ tab: 'template', kind: 'typography' })
+  showSettings.value = true
 }
-
-const handleDeleteTemplate = (id) => {
-  templates.value = templates.value.filter(t => t.id !== id)
-  try {
-    const userTemplates = templates.value.filter(t => !t.builtIn)
-    localStorage.setItem('bid-page-user-templates', JSON.stringify(userTemplates))
-  } catch {}
+const handleSave = () => { applyFormatting() }
+const handleLoadTemplate = () => {
+  useSettingsTab().set({ tab: 'template', kind: 'typography' })
+  showSettings.value = true
 }
 
 const nowTime = () => new Date().toTimeString().slice(0, 8)
@@ -647,11 +615,6 @@ const handleImportJSON = (event) => {
   }
   reader.readAsText(file)
   event.target.value = ''
-}
-
-const onTemplateSaved = ({ name, category }) => {
-  saveTemplate(name, category, formatParams)
-  showSaveModal.value = false
 }
 </script>
 
@@ -872,18 +835,18 @@ const onTemplateSaved = ({ name, category }) => {
 .icon-btn-sm {
   width: 30px;
   height: 30px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   background: var(--color-bg-white);
   border: 0.7px solid var(--color-border);
   color: var(--color-text-body);
+  font-size: 13px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-base);
 }
 .icon-btn-sm:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: var(--color-bg-secondary);
 }
 .preview-zoom {
   font-size: 13px;
@@ -899,16 +862,15 @@ const onTemplateSaved = ({ name, category }) => {
 .page-btn {
   height: 28px;
   padding: 0 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   background: var(--color-bg-white);
   border: 0.7px solid var(--color-border);
   color: var(--color-text-body);
-  font-size: 12px;
+  font-size: 13px;
   transition: all var(--transition-base);
 }
 .page-btn:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: var(--color-bg-secondary);
 }
 .page-cur {
   font-size: 13px;
@@ -920,7 +882,7 @@ const onTemplateSaved = ({ name, category }) => {
 .chip {
   height: 34px;
   padding: 0 14px;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 0.7px solid var(--color-border);
   background: var(--color-bg-white);
   color: var(--color-text-body);
@@ -929,6 +891,9 @@ const onTemplateSaved = ({ name, category }) => {
   align-items: center;
   gap: 6px;
   transition: all var(--transition-base);
+}
+.chip:hover:not(.active) {
+  background: var(--color-bg-secondary);
 }
 .chip.active {
   background: var(--color-primary);

@@ -35,6 +35,7 @@ import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { UiModal } from '@/components/ui';
 import { riToCompName } from '@/utils/icon';
+import { useSettingsTab } from '@/utils/settingsTab';
 import ThemeSettingsView from '@/views/settings/ThemeSettingsView.vue';
 import TemplateSettingsView from '@/views/settings/TemplateSettingsView.vue';
 import ModelSettingsView from '@/views/settings/ModelSettingsView.vue';
@@ -64,19 +65,33 @@ const menuItems = [
 
 const route = useRoute();
 
+const { state: tabState, clear: clearTabState } = useSettingsTab();
+
 function computeInitialTab() {
   if (props.initialTab && menuItems.some((i) => i.key === props.initialTab)) {
     return props.initialTab;
+  }
+  if (tabState.value.tab && menuItems.some((i) => i.key === tabState.value.tab)) {
+    return tabState.value.tab;
   }
   return menuItems.some((i) => i.key === route.query.tab) ? route.query.tab : 'theme';
 }
 
 const activeKey = ref(computeInitialTab());
 
+const initialKind = computed(() => {
+  if (props.initialKind) return props.initialKind;
+  if (tabState.value.kind) return tabState.value.kind;
+  return '';
+});
+
 watch(
   () => props.visible,
   (v) => {
-    if (v) activeKey.value = computeInitialTab();
+    if (v) {
+      activeKey.value = computeInitialTab();
+      queueMicrotask(() => clearTabState());
+    }
   }
 );
 
