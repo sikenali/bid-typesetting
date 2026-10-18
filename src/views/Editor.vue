@@ -347,17 +347,17 @@ const isEditMode = ref(false)
 const vueOfficeBuffer = ref(null)
 const isProcessing = ref(false)
 const formatProgress = ref(0)
+const formatStage = ref('')
 const formatLog = ref([])
 const formatElapsedSec = ref(0)
 let formatElapsedTimer = null
+let formatCreepTimer = null
 
 const formatProgressDesc = computed(() => {
   if (formatLog.value.some((l) => l.type === 'error')) return '排版失败 · 请检查后端服务或文件格式'
   if (isProcessing.value) {
-    const eta = formatProgress.value > 0
-      ? Math.max(1, Math.round((formatElapsedSec.value * (100 - formatProgress.value)) / formatProgress.value))
-      : '--'
-    return `正在处理 · 进度 ${formatProgress.value}% · 预计剩余 ${eta} 秒`
+    const stage = formatStage.value ? ` · ${formatStage.value}` : ''
+    return `正在处理${stage} · 已用时 ${formatElapsedSec.value} 秒`
   }
   const pages = totalPages.value === '--' ? '' : ` · 文档约 ${totalPages.value} 页`
   return `排版完成${pages} · 已生成对比结果`
@@ -468,6 +468,8 @@ onMounted(() => { activeTab.value = 'reset' })
 onUnmounted(() => {
   documentBuffer.value = null
   vueOfficeBuffer.value = null
+  if (formatElapsedTimer) clearInterval(formatElapsedTimer)
+  if (formatCreepTimer) clearInterval(formatCreepTimer)
 })
 
 const handleSaveTemplate = () => {
@@ -541,19 +543,40 @@ const handleOneClickModify = async () => {
     formatElapsedSec.value = Math.round((Date.now() - startedAt) / 1000)
   }, 1000)
   showFormatLog.value = true
+  // 上传与排版的耗时无法线性映射成百分比，进度条只标记真实阶段；
+  // 等待后端期间用渐近递增让进度条动起来，但不宣称精确完成度。
+  const stopCreep = () => {
+    if (formatCreepTimer) { clearInterval(formatCreepTimer); formatCreepTimer = null }
+  }
+  const creepTo = (target) => {
+    stopCreep()
+    formatCreepTimer = setInterval(() => {
+      if (formatProgress.value < target) {
+        formatProgress.value = Math.round((formatProgress.value + target) / 2 * 100) / 100
+      }
+    }, 250)
+  }
   try {
     addLog('正在检测后端服务...')
+    formatStage.value = '检查后端服务'
     const backendOk = await healthCheck()
     if (!backendOk) {
       throw new Error('排版服务未启动，请先启动后端服务（http://localhost:8099）')
     }
     addLog('后端服务正常')
-    addLog('正在读取并格式化文档...')
-    formatProgress.value = 20
+    formatProgress.value = 15
     addLog('正在调用后端排版服务...')
-    formatProgress.value = 40
-    const blob = await formatDocument(currentFile.value, formatParams)
-    formatProgress.value = 80
+    formatStage.value = '后端排版中'
+    formatProgress.value = 30
+    creepTo(79)
+    const blob = await formatDocument(currentFile.value, formatParams, {
+      onProgress: ({ phase }) => {
+        if (phase === 'response') formatProgress.value = 80
+      },
+    })
+    stopCreep()
+    formatProgress.value = 85
+    formatStage.value = '生成对比结果'
     const hLine = headingStyleLine()
     if (hLine) addLog(hLine)
     const bLine = bodyFactLine()
@@ -574,8 +597,10 @@ const handleOneClickModify = async () => {
     ElMessage.error('排版失败：' + msg)
   } finally {
     isProcessing.value = false
+    formatStage.value = ''
     clearInterval(formatElapsedTimer)
     formatElapsedTimer = null
+    stopCreep()
   }
 }
 

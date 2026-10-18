@@ -55,7 +55,6 @@ export function migrateLegacyTemplates() {
         };
       });
       settings.templates = [...merged, ...migrated];
-      console.log(`[migrateTemplates] migrated ${migrated.length} templates`);
     } else {
       settings.templates = merged;
     }

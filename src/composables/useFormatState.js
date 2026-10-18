@@ -274,7 +274,6 @@ const formatParams = reactive({
 
   cleanup: {
     text_cleanup: {
-      add_space_between_cn_en: true,
       punctuation_clean: false,
       clear_superscript: false,
       soft_enter_to_hard: false,
@@ -292,7 +291,6 @@ const formatParams = reactive({
       clear_align_grid: true,
       clear_extra_spaces: false,
       remove_extra_blank_lines: false,
-      clear_chart_format: false,
       clean_after_formatting: false,
     },
     object_structure: {

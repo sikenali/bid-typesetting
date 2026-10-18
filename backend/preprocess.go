@@ -26,8 +26,13 @@ func Preprocess(doc *document.Document, cfg *Config) error {
 			return nil
 		}},
 		{"清除标题缩进", func(d *document.Document, c *Config) error {
-			if c.PreprocessClearHeadingIndent || c.PreprocessClearHeadingLeftIndent || c.PreprocessClearHeadingRightIndent || c.PreprocessClearHeadingSpecialIndent {
-				return ClearHeadingIndents(d, c.PreprocessClearHeadingLeftIndent, c.PreprocessClearHeadingRightIndent, c.PreprocessClearHeadingSpecialIndent)
+			// The umbrella flag means "clear all heading indents"; each of the
+			// three granular flags narrows the scope instead of enabling it.
+			anyLeft := c.PreprocessClearHeadingIndent || c.PreprocessClearHeadingLeftIndent
+			anyRight := c.PreprocessClearHeadingIndent || c.PreprocessClearHeadingRightIndent
+			anySpecial := c.PreprocessClearHeadingIndent || c.PreprocessClearHeadingSpecialIndent
+			if anyLeft || anyRight || anySpecial {
+				return ClearHeadingIndents(d, anyLeft, anyRight, anySpecial)
 			}
 			return nil
 		}},

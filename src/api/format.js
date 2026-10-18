@@ -59,7 +59,16 @@ function flattenCleanup(config) {
   }
 }
 
-export async function formatDocument(file, config) {
+export const FORMAT_TIMEOUT_MS = 10 * 60 * 1000
+
+export class TimeoutError extends Error {
+  constructor(ms) {
+    super(`排版超时（${Math.round(ms / 1000)} 秒无响应）`)
+    this.name = 'TimeoutError'
+  }
+}
+
+export async function formatDocument(file, config, { onProgress, signal, timeoutMs = FORMAT_TIMEOUT_MS } = {}) {
   const formData = new FormData()
   formData.append('file', file)
 
@@ -80,17 +89,42 @@ export async function formatDocument(file, config) {
 
   formData.append('config', JSON.stringify(backendConfig))
 
-  const res = await fetch(`${getApiBase()}/api/format`, {
-    method: 'POST',
-    body: formData,
-  })
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }))
-    throw new Error(err.error || `HTTP ${res.status}`)
+  const controller = new AbortController()
+  const onAbort = () => controller.abort()
+  if (signal) {
+    if (signal.aborted) controller.abort()
+    else signal.addEventListener('abort', onAbort, { once: true })
   }
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
 
-  return await res.blob()
+  try {
+    if (onProgress) onProgress({ phase: 'upload', loaded: formData.get('file').size })
+    const res = await fetch(`${getApiBase()}/api/format`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    })
+
+    if (controller.signal.aborted) {
+      throw new TimeoutError(timeoutMs)
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }))
+      throw new Error(err.error || `HTTP ${res.status}`)
+    }
+
+    if (onProgress) onProgress({ phase: 'response' })
+    return await res.blob()
+  } catch (e) {
+    if (e && e.name === 'AbortError') {
+      throw new TimeoutError(timeoutMs)
+    }
+    throw e
+  } finally {
+    clearTimeout(timer)
+    if (signal) signal.removeEventListener('abort', onAbort)
+  }
 }
 
 export async function healthCheck() {

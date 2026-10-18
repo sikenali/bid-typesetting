@@ -9,10 +9,6 @@ export function getApiBase() {
   }
 }
 
-export function getDefaultApiBase() {
-  return DEFAULT_API_BASE
-}
-
 export function setApiBase(url) {
   const value = (url || '').trim().replace(/\/+$/, '')
   try {

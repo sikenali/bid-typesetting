@@ -13,7 +13,7 @@ const emit = defineEmits(['reset'])
 
 function toggle(obj, key) { obj[key] = !obj[key] }
 
-const styleKeys = ['clear_extra_spaces', 'clear_paragraph_indent', 'clear_heading_indent', 'remove_extra_blank_lines', 'clear_chart_format']
+const styleKeys = ['clear_extra_spaces', 'clear_paragraph_indent', 'clear_heading_indent', 'remove_extra_blank_lines']
 const textKeys = ['soft_enter_to_hard', 'tab_to_spaces_enabled', 'clear_superscript', 'punctuation_clean', 'markdown_tags_to_plaintext']
 
 const styleAllSelected = computed(() => styleKeys.every(k => props.styleCleanup[k]))
@@ -102,15 +102,6 @@ const tabSpaceOptions = [
               <div class="row-title">清理所有空行</div>
             </div>
             <div class="switch" :class="{ on: styleCleanup.remove_extra_blank_lines }" @click="toggle(styleCleanup, 'remove_extra_blank_lines')">
-              <div class="knob"></div>
-            </div>
-          </div>
-          <div class="switch-row">
-            <div class="row-body">
-              <div class="row-title">清理图表格式</div>
-              <div class="row-desc">将浮动布局的图表格式清理后转成嵌入式布局格式</div>
-            </div>
-            <div class="switch" :class="{ on: styleCleanup.clear_chart_format }" @click="toggle(styleCleanup, 'clear_chart_format')">
               <div class="knob"></div>
             </div>
           </div>

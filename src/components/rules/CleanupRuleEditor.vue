@@ -15,7 +15,6 @@ defineProps({
     <div class="clean-group">
       <div class="group-title">文本处理</div>
       <div class="rules-grid">
-        <CheckboxField v-model="textCleanup.add_space_between_cn_en" label="中英文间加空格" />
         <CheckboxField v-model="textCleanup.punctuation_clean" label="标点符号清理" />
         <CheckboxField v-model="textCleanup.clear_superscript" label="清除上标" />
         <CheckboxField v-model="textCleanup.soft_enter_to_hard" label="软回车转硬回车" />

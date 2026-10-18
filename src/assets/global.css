@@ -66,60 +66,36 @@
   --text-sm: 13px;
   --text-md: 14px;
   --text-lg: 15px;
-  --text-xl: 16px;
   --text-2xl: 18px;
-  --text-3xl: 20px;
-  --text-4xl: 24px;
-  --text-5xl: 30px;
 
-  --font-light: 300;
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
-  --font-bold: 700;
 
-  --leading-tight: 1.2;
   --leading-snug: 1.4;
   --leading-normal: 1.5;
-  --leading-relaxed: 1.6;
 
   /* ── 间距（8px 基准） ─────────────────────────────────────────── */
-  --spacing-0: 0;
   --spacing-1: 4px;
   --spacing-2: 8px;
-  --spacing-3: 12px;
   --spacing-4: 16px;
-  --spacing-5: 20px;
-  --spacing-6: 24px;
   --spacing-8: 32px;
   --spacing-10: 40px;
-  --spacing-12: 48px;
-  --spacing-16: 64px;
 
   /* ── 圆角 ─────────────────────────────────────────────────────── */
-  --radius-xs: 5px;
-  --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 18px;
-  --radius-2xl: 24px;
   --radius-full: 9999px;
 
   /* ── 尺寸 ─────────────────────────────────────────────────────── */
-  --btn-height-xs: 32px;
   --btn-height-sm: 36px;
   --btn-height-md: 44px;
   --btn-height-lg: 52px;
   --btn-height-xl: 58px;
-  --input-height-sm: 36px;
   --input-height-md: 42px;
-  --input-height-lg: 48px;
-  --input-height-xl: 52px;
-  --nav-height: 72px;
-  --footer-height: 58px;
 
   /* ── 阴影 ─────────────────────────────────────────────────────── */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
@@ -130,11 +106,8 @@
   --transition-slow: 300ms ease;
 
   --z-dropdown: 1000;
-  --z-sticky: 1020;
   --z-fixed: 1030;
-  --z-modal-backdrop: 1040;
   --z-modal: 1050;
-  --z-popover: 1060;
   --z-tooltip: 1070;
 }
 
@@ -143,21 +116,6 @@
   --color-primary: var(--color-primary);
   --color-primary-deep: var(--color-primary-deep);
   --color-primary-soft: var(--color-primary-soft);
-  --color-base: var(--color-bg-main);
-  --color-base-soft: var(--color-bg-secondary);
-  --color-base-card: var(--color-bg-card);
-  --color-base-white: var(--color-bg-white);
-  --color-base-panel: var(--color-bg-panel);
-  --color-ink: var(--color-text-primary);
-  --color-ink-body: var(--color-text-body);
-  --color-muted: var(--color-text-muted);
-  --color-faint: var(--color-text-faint);
-  --color-line: var(--color-border);
-  --color-line-soft: var(--color-border-soft);
-  --color-ok: var(--color-success);
-  --color-warn: var(--color-warning);
-  --color-err: var(--color-error);
-  --color-side-active: var(--color-primary-soft);
   --font-family-cn: var(--font-family-cn);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);

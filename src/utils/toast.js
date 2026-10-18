@@ -6,8 +6,7 @@ import { ref } from 'vue';
  *   import { ElMessage } from '@/utils/toast'
  *   ElMessage.success('已保存')
  *
- * 也保留了 useToast() 形态（返回 { toasts, show, success, error, info }），
- * 供 ToastContainer.vue 渲染同一份响应式列表。
+ * useToastState() 供 ToastContainer.vue 读取同一份响应式列表。
  */
 
 const toasts = ref([]);
@@ -83,14 +82,3 @@ export function useToastState() {
   return { toasts };
 }
 
-/** 兼容旧的 useToast() 调用形态 */
-export function useToast() {
-  return {
-    toasts,
-    show: showToast,
-    success: (msg, duration) => showToast(msg, 'success', duration),
-    error: (msg, duration) => showToast(msg, 'error', duration),
-    info: (msg, duration) => showToast(msg, 'info', duration),
-    warning: (msg, duration) => showToast(msg, 'warning', duration),
-  };
-}
