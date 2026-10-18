@@ -2,7 +2,13 @@
 import { ref, onMounted, watch } from 'vue';
 import { ElMessage } from '@/utils/toast';
 import { getTemplateList, createTemplate, updateTemplate, deleteTemplate, resetTemplates } from '@/api/settings';
-import { UiInput, UiSwitch, UiModal, UiTip } from '@/components/ui';
+import { UiInput, UiSwitch, UiModal, UiTip, UiRadioGroup } from '@/components/ui';
+import TypographyTemplateEditor from '@/components/settings/TypographyTemplateEditor.vue';
+import PreviewTemplateModal from '@/components/PreviewTemplateModal.vue';
+
+const props = defineProps({
+  initialKind: { type: String, default: '' },
+});
 
 const templates = ref([]);
 const loading = ref(false);
@@ -14,12 +20,30 @@ watch(viewMode, (v) => {
   try { localStorage.setItem('settings.template.viewMode', v); } catch {}
 });
 const searchQuery = ref('');
+const kindFilter = ref('all');
 const showAddDialog = ref(false);
 const newTemplateName = ref('');
 const newTemplateDesc = ref('');
 const newTemplateCategory = ref('');
+const newTemplateKind = ref('outline');
 const newTemplateContent = ref([]); // eslint-disable-line
 const newTemplateContentText = ref(''); // eslint-disable-line
+
+function kindLabel(k) {
+  return k === 'typography' ? '排版' : '大纲';
+}
+
+const showPreviewDialog = ref(false);
+const previewingTpl = ref(null);
+
+function openPreview(tpl) {
+  if (tpl.kind === 'typography') {
+    previewingTpl.value = tpl;
+    showPreviewDialog.value = true;
+  } else {
+    ElMessage.info('大纲模板预览即将上线');
+  }
+}
 
 async function loadTemplates() {
   loading.value = true;
@@ -43,9 +67,12 @@ const filteredTemplates = ref([]);
 
 function applyFilter() {
   let list = templates.value;
+  if (kindFilter.value !== 'all') {
+    list = list.filter(t => (t.kind || 'outline') === kindFilter.value);
+  }
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase();
-    list = list.filter(t => t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
+    list = list.filter(t => (t.name || '').toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q));
   }
   filteredTemplates.value = list;
 }
@@ -115,13 +142,16 @@ async function handleAdd() {
     ElMessage.warning('请输入模板名称'); return;
   }
   try {
+    const isTypo = newTemplateKind.value === 'typography';
     await createTemplate({
       name: newTemplateName.value.trim(),
       description: newTemplateDesc.value.trim(),
       category: newTemplateCategory.value.trim() || '自定义',
       type: 'custom',
+      kind: newTemplateKind.value,
       keywords: [],
-      content: parseContentText(newTemplateContentText.value),
+      content: isTypo ? [] : parseContentText(newTemplateContentText.value),
+      formatParams: isTypo ? {} : undefined,
       enabled: 1,
     });
     await loadTemplates();
@@ -130,6 +160,7 @@ async function handleAdd() {
     newTemplateDesc.value = '';
     newTemplateCategory.value = '';
     newTemplateContentText.value = '';
+    newTemplateKind.value = 'outline';
     applyFilter();
     ElMessage.success('已添加');
   } catch (err) {
@@ -161,6 +192,7 @@ const editName = ref('');
 const editDesc = ref('');
 const editCategory = ref('');
 const editContentText = ref('');
+const editFormatParams = ref({});
 
 function openEdit(tpl) {
   editingTpl.value = tpl;
@@ -168,7 +200,27 @@ function openEdit(tpl) {
   editDesc.value = tpl.description;
   editCategory.value = tpl.category;
   editContentText.value = formatContentText(tpl.content || []);
+  if (tpl.kind === 'typography') {
+    editFormatParams.value = JSON.parse(JSON.stringify(tpl.formatParams || {}));
+    ensureFullFormatParams(editFormatParams.value);
+  }
   showEditDialog.value = true;
+}
+
+function ensureFullFormatParams(fp) {
+  fp.page = fp.page || {};
+  fp.body = fp.body || {};
+  fp.headings = fp.headings || [];
+  fp.patterns = fp.patterns || { rules: [] };
+  fp.fig_caption = fp.fig_caption || {};
+  fp.tbl_caption = fp.tbl_caption || {};
+  fp.table = fp.table || {};
+  fp.table_settings = fp.table_settings || {};
+  fp.toc = fp.toc || { enable: false };
+  fp.header_footer = fp.header_footer || {};
+  fp.cleanup = fp.cleanup || {
+    text_cleanup: {}, style_cleanup: {}, object_structure: {}, caption_detection: {},
+  };
 }
 
 async function confirmEdit() {
@@ -176,14 +228,17 @@ async function confirmEdit() {
     ElMessage.warning('请输入模板名称');
     return;
   }
+  const isTypo = editingTpl.value.kind === 'typography';
   try {
     await updateTemplate(parseInt(editingTpl.value.id), {
       name: editName.value.trim(),
       description: editDesc.value.trim(),
       category: editCategory.value.trim() || '自定义',
       type: editingTpl.value.type,
+      kind: editingTpl.value.kind,
       keywords: [],
-      content: parseContentText(editContentText.value),
+      content: isTypo ? [] : parseContentText(editContentText.value),
+      formatParams: isTypo ? editFormatParams.value : undefined,
     });
     await loadTemplates();
     applyFilter();
@@ -195,6 +250,9 @@ async function confirmEdit() {
 }
 
 onMounted(() => {
+  if (props.initialKind) {
+    kindFilter.value = props.initialKind;
+  }
   loadTemplates().then(applyFilter);
 });
 </script>
@@ -229,6 +287,11 @@ onMounted(() => {
           <RiAddLine class="icon" />
           <span>新增模板</span>
         </button>
+        <div class="kind-filter">
+          <button class="kind-btn" :class="{ active: kindFilter === 'all' }" @click="kindFilter = 'all'; applyFilter()">全部</button>
+          <button class="kind-btn" :class="{ active: kindFilter === 'outline' }" @click="kindFilter = 'outline'; applyFilter()">大纲</button>
+          <button class="kind-btn" :class="{ active: kindFilter === 'typography' }" @click="kindFilter = 'typography'; applyFilter()">排版</button>
+        </div>
       </div>
       <div class="toolbar-right">
         <UiInput
@@ -268,7 +331,7 @@ onMounted(() => {
           <tbody>
             <tr v-for="tpl in filteredTemplates" :key="tpl.id" class="list-row">
               <td class="col-name">
-                <span class="row-name">{{ tpl.name }}</span>
+                <span class="row-name">{{ tpl.name }}<span class="kind-tag" :class="'kind-' + (tpl.kind || 'outline')">{{ kindLabel(tpl.kind) }}</span></span>
                 <span class="row-category">{{ tpl.category }}</span>
               </td>
               <td class="col-desc">
@@ -276,6 +339,7 @@ onMounted(() => {
               </td>
               <td class="col-action">
                 <div class="row-actions">
+                  <button class="action-btn preview" @click="openPreview(tpl)">预览</button>
                   <button class="action-btn edit" @click="openEdit(tpl)">修改</button>
                   <button class="action-btn delete" @click="openDelete(tpl)">删除</button>
                   <UiSwitch :model-value="tpl.enabled" size="sm" @update:model-value="toggleEnabled(tpl)" />
@@ -303,11 +367,12 @@ onMounted(() => {
         >
           <div class="grid-card-body">
             <div class="grid-card-icon">{{ tpl.category }}</div>
-            <div class="grid-card-title">{{ tpl.name }}</div>
+            <div class="grid-card-title">{{ tpl.name }}<span class="kind-tag" :class="'kind-' + (tpl.kind || 'outline')">{{ kindLabel(tpl.kind) }}</span></div>
             <div class="grid-card-desc">{{ tpl.description }}</div>
           </div>
           <div class="grid-card-footer">
             <div class="grid-card-actions">
+              <button class="action-btn preview" @click="openPreview(tpl)">预览</button>
               <button class="action-btn edit" @click="openEdit(tpl)">修改</button>
               <button class="action-btn delete" @click="openDelete(tpl)">删除</button>
               <UiSwitch :model-value="tpl.enabled" size="sm" @update:model-value="toggleEnabled(tpl)" />
@@ -323,22 +388,28 @@ onMounted(() => {
       title="新增模板"
       subtitle="填写模板基本信息，创建后可在列表中启用"
       icon="ri-add-line"
-      :width="560"
+      :width="newTemplateKind === 'typography' ? 1200 : 560"
+      :max-width="newTemplateKind === 'typography' ? 1400 : 600"
+      :height="newTemplateKind === 'typography' ? '88vh' : undefined"
       @confirm="handleAdd"
     >
+      <div class="form-group">
+        <label class="form-label">模板类型 <span class="required">*</span></label>
+        <UiRadioGroup v-model="newTemplateKind" :options="[{ value: 'outline', label: '大纲模板' }, { value: 'typography', label: '排版模板' }]"/>
+      </div>
       <div class="form-group">
         <label class="form-label">模板名称 <span class="required">*</span></label>
         <UiInput v-model="newTemplateName" placeholder="请输入模板名称" />
       </div>
       <div class="form-group">
         <label class="form-label">模板描述</label>
-        <UiInput v-model="newTemplateDesc" multiline :rows="3" placeholder="请输入模板描述（可选）" />
+        <UiInput v-model="newTemplateDesc" multiline :rows="2" placeholder="请输入模板描述（可选）" />
       </div>
       <div class="form-group">
         <label class="form-label">所属分类</label>
-        <UiInput v-model="newTemplateCategory" placeholder="例如：商务标、技术标" />
+        <UiInput v-model="newTemplateCategory" placeholder="例如：公文、学术、军标、商务、创意" />
       </div>
-      <div class="form-group">
+      <div v-if="newTemplateKind === 'outline'" class="form-group">
         <label class="form-label">大纲内容 <span class="required">*</span></label>
         <UiInput
           v-model="newTemplateContentText"
@@ -348,6 +419,13 @@ onMounted(() => {
         />
         <span class="form-hint">每行一个章节，编号表示层级（1=一级，2=二级）</span>
       </div>
+      <div v-else class="form-group">
+        <label class="form-label">排版参数（默认空白，保存后在编辑弹窗里可全量编辑）</label>
+        <div class="empty-note">
+          <RiInformationLine class="empty-note-icon" />
+          <p>新建的排版模板将使用默认空参数，可在列表页点击「修改」进入全量参数编辑。</p>
+        </div>
+      </div>
     </UiModal>
 
     <!-- 编辑模板弹窗 -->
@@ -356,30 +434,52 @@ onMounted(() => {
       title="编辑模板"
       subtitle="修改模板基本信息"
       icon="ri-edit-line"
-      :width="560"
+      :width="editingTpl?.kind === 'typography' ? 1200 : 560"
+      :max-width="editingTpl?.kind === 'typography' ? 1400 : 600"
+      :height="editingTpl?.kind === 'typography' ? '88vh' : undefined"
       @confirm="confirmEdit"
     >
-      <div class="form-group">
-        <label class="form-label">模板名称 <span class="required">*</span></label>
-        <UiInput v-model="editName" placeholder="请输入模板名称" />
+      <div v-if="editingTpl?.kind === 'typography'" class="edit-typography">
+        <div class="form-group">
+          <label class="form-label">模板名称 <span class="required">*</span></label>
+          <UiInput v-model="editName" placeholder="请输入模板名称" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">模板描述</label>
+          <UiInput v-model="editDesc" multiline :rows="2" placeholder="请输入模板描述（可选）" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">所属分类</label>
+          <UiInput v-model="editCategory" placeholder="例如：公文、学术、军标" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">排版参数（全量编辑）</label>
+          <TypographyTemplateEditor v-model="editFormatParams" />
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">模板描述</label>
-        <UiInput v-model="editDesc" multiline :rows="3" placeholder="请输入模板描述（可选）" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">所属分类</label>
-        <UiInput v-model="editCategory" placeholder="例如：商务标、技术标" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">大纲内容 <span class="required">*</span></label>
-        <UiInput
-          v-model="editContentText"
-          multiline
-          :rows="8"
-          placeholder="按层级输入章节，格式：1. 一级标题&#10;1.1 二级标题&#10;2. 另一个一级标题"
-        />
-        <span class="form-hint">每行一个章节，编号表示层级（1=一级，2=二级）</span>
+      <div v-else>
+        <div class="form-group">
+          <label class="form-label">模板名称 <span class="required">*</span></label>
+          <UiInput v-model="editName" placeholder="请输入模板名称" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">模板描述</label>
+          <UiInput v-model="editDesc" multiline :rows="3" placeholder="请输入模板描述（可选）" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">所属分类</label>
+          <UiInput v-model="editCategory" placeholder="例如：商务标、技术标" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">大纲内容 <span class="required">*</span></label>
+          <UiInput
+            v-model="editContentText"
+            multiline
+            :rows="8"
+            placeholder="按层级输入章节，格式：1. 一级标题&#10;1.1 二级标题&#10;2. 另一个一级标题"
+          />
+          <span class="form-hint">每行一个章节，编号表示层级（1=一级，2=二级）</span>
+        </div>
       </div>
     </UiModal>
     <!-- 删除模板确认弹窗 -->
@@ -407,6 +507,13 @@ onMounted(() => {
     >
       <p class="confirm-text">确定恢复默认模板？自定义模板将被清除。</p>
     </UiModal>
+
+    <!-- 排版模板预览弹窗 -->
+    <PreviewTemplateModal
+      v-if="showPreviewDialog && previewingTpl"
+      :template="previewingTpl"
+      @close="showPreviewDialog = false"
+    />
   </div>
 </template>
 
@@ -457,7 +564,7 @@ onMounted(() => {
 .toolbar-right { display: flex; align-items: center; gap: 12px; }
 .btn-add {
   display: inline-flex; align-items: center; gap: 8px; padding: 0 20px; height: 46px;
-  border: none; border-radius: 10px; background: var(--color-primary, #C0392B); color: #fff;
+  border: none; border-radius: 10px; background: var(--color-primary, #C0392B); color: var(--color-on-primary, #fff);
   font-size: 16px; font-weight: 500; cursor: pointer;
   font-family: "SourceHanSans-Medium", var(--font-family-cn); transition: all 0.2s;
 }
@@ -571,6 +678,19 @@ onMounted(() => {
 .form-label .required { color: var(--color-primary, #C0392B); }
 .form-group .ui-input { width: 100%; }
 .form-hint { font-size: 12px; color: var(--color-text-muted, #8A8578); font-family: "SourceHanSans-Regular", var(--font-family-cn); margin-top: 4px; }
+
+/* 类型筛选 pill */
+.kind-filter { display: inline-flex; gap: 4px; padding: 4px; background: var(--color-bg-white); border: 0.7px solid var(--color-border); border-radius: 12px; }
+.kind-btn { padding: 0 14px; height: 34px; border: none; border-radius: 8px; background: transparent; color: var(--color-text-muted); font-size: 14px; cursor: pointer; font-family: "SourceHanSans-Regular", var(--font-family-cn); }
+.kind-btn.active { background: var(--color-primary-soft); color: var(--color-primary); }
+.kind-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; }
+.kind-tag.kind-outline { background: var(--color-bg-secondary); color: var(--color-text-muted); }
+.kind-tag.kind-typography { background: var(--color-primary-soft); color: var(--color-primary); }
+.action-btn.preview { color: var(--color-primary); }
+.edit-typography { display: flex; flex-direction: column; gap: 14px; }
+.empty-note { padding: 20px; background: var(--color-bg-secondary); border-radius: 12px; text-align: center; color: var(--color-text-muted); }
+.empty-note p { margin: 6px 0 0 0; font-size: 13px; font-family: "SourceHanSans-Regular", var(--font-family-cn); }
+.empty-note-icon { color: var(--color-primary); font-family: "remixicon", sans-serif; font-style: normal; font-size: 22px; }
 
 /* 确认类弹窗正文 */
 .confirm-text {

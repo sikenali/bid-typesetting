@@ -24,7 +24,7 @@
         </div>
       </nav>
       <div class="panel-content">
-        <component :is="activeComponent" :key="activeKey" />
+        <component :is="activeComponent" :key="activeKey" :initial-kind="initialKind" />
       </div>
     </div>
   </UiModal>
@@ -44,6 +44,7 @@ import AboutSettingsView from '@/views/settings/AboutSettingsView.vue';
 const props = defineProps({
   visible: { type: Boolean, default: false },
   initialTab: { type: String, default: '' },
+  initialKind: { type: String, default: '' },
 });
 
 const emit = defineEmits(['update:visible']);
