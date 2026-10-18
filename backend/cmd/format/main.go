@@ -46,7 +46,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := wordformat.SaveDocx(doc, outputPath); err != nil {
+	if err := wordformat.SaveDocx(doc, outputPath, inputPath); err != nil {
 		fmt.Fprintf(os.Stderr, "保存文档失败: %v\n", err)
 		os.Exit(1)
 	}

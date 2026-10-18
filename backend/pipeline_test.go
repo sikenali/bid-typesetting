@@ -19,7 +19,7 @@ func TestSaveDocxWritesUpdateFields(t *testing.T) {
 	}
 
 	out := filepath.Join(t.TempDir(), "out.docx")
-	if err := SaveDocx(doc, out); err != nil {
+	if err := SaveDocx(doc, out, ""); err != nil {
 		t.Fatal(err)
 	}
 

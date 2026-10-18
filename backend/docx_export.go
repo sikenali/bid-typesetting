@@ -5,29 +5,385 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
-	"reflect"
+	"path"
+	"regexp"
+	"sort"
 	"strings"
-	"unsafe"
 
-	"github.com/unidoc/unioffice/v2/common"
 	"github.com/unidoc/unioffice/v2/document"
 )
 
-// SaveDocx writes a document to a zip file using only public APIs, bypassing
-// the unioffice license check. This is intended for test/validation purposes
-// where running on a system without a license is required.
+// SaveDocx writes a document as a valid .docx zip package using only public
+// unioffice APIs, bypassing the license-gated Save/SaveToFile.
 //
-// The output is a valid docx file containing the document body, styles,
-// settings, numbering, relationships, content types, app properties, and
-// core properties. It omits some optional parts (theme, headers, footers,
-// font table, web settings, custom properties) that are not critical for
-// basic validation.
-func SaveDocx(doc *document.Document, outputPath string) error {
-	if err := os.MkdirAll(parentDir(outputPath), 0o755); err != nil {
+// It serialises every part reachable from the document object (body, styles,
+// settings, numbering, theme, font table, headers, footers, relationships,
+// content types, properties), carries binary parts such as word/media/* over
+// from the source file, then reconciles the relationship tables and content
+// type overrides so the package contains no dangling references.
+//
+// sourcePath may name the file the document was opened from. It may be empty
+// (for documents built from scratch or intermediate round-trips), in which
+// case parts unioffice does not expose cannot be recovered.
+func SaveDocx(doc *document.Document, outputPath, sourcePath string) error {
+	if err := os.MkdirAll(parentDir(outputPath), 0o644); err != nil {
 		return err
 	}
 
+	parts, err := collectParts(doc, sourcePath)
+	if err != nil {
+		return err
+	}
+	reconcileParts(parts)
+
+	return writeZip(outputPath, parts)
+}
+
+// collectParts assembles the zip entry contents, keyed by part name.
+func collectParts(doc *document.Document, sourcePath string) (map[string][]byte, error) {
+	parts := map[string][]byte{}
+
+	add := func(name string, v interface{}) error {
+		data, err := marshalXML(v)
+		if err != nil {
+			return fmt.Errorf("marshal %s: %w", name, err)
+		}
+		if data == nil {
+			return nil
+		}
+		var buf bytes.Buffer
+		buf.WriteString(xml.Header)
+		buf.Write(data)
+		parts[name] = buf.Bytes()
+		return nil
+	}
+
+	if err := add("[Content_Types].xml", doc.ContentTypes.X()); err != nil {
+		return nil, err
+	}
+	if err := add("_rels/.rels", doc.Rels.X()); err != nil {
+		return nil, err
+	}
+	if err := add("docProps/app.xml", doc.AppProperties.X()); err != nil {
+		return nil, err
+	}
+	if err := add("docProps/core.xml", doc.CoreProperties.X()); err != nil {
+		return nil, err
+	}
+	if err := add("word/document.xml", doc.X()); err != nil {
+		return nil, err
+	}
+	if err := add("word/_rels/document.xml.rels", doc.DocRels().X()); err != nil {
+		return nil, err
+	}
+	if err := add("word/settings.xml", doc.Settings.X()); err != nil {
+		return nil, err
+	}
+	if err := add("word/styles.xml", doc.Styles.X()); err != nil {
+		return nil, err
+	}
+	if err := add("word/numbering.xml", doc.Numbering.X()); err != nil {
+		return nil, err
+	}
+
+	if themes := doc.Themes(); len(themes) > 0 && themes[0] != nil {
+		if err := add("word/theme/theme1.xml", themes[0]); err != nil {
+			return nil, err
+		}
+	}
+	if ft := doc.FontTable(); ft != nil {
+		if err := add("word/fontTable.xml", ft); err != nil {
+			return nil, err
+		}
+	}
+
+	// Headers and footers are the parts that used to be dropped and replaced
+	// with empty placeholders, which silently erased every page header and
+	// footer formatting the user had configured.
+	for _, h := range doc.Headers() {
+		if err := add(headerFooterPart(h.Index(), false), h.X()); err != nil {
+			return nil, err
+		}
+	}
+	for _, f := range doc.Footers() {
+		if err := add(headerFooterPart(f.Index(), true), f.X()); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := carryOverBinaryParts(parts, sourcePath); err != nil {
+		return nil, err
+	}
+	return parts, nil
+}
+
+func headerFooterPart(index int, footer bool) string {
+	if footer {
+		return fmt.Sprintf("word/footer%d.xml", index+1)
+	}
+	return fmt.Sprintf("word/header%d.xml", index+1)
+}
+
+// carryOverBinaryParts copies parts the document object does not expose back to
+// the writer: media, embeddings, charts, diagrams, glyphs, themes and the
+// per-part relationship files that images and embedded objects rely on.
+func carryOverBinaryParts(parts map[string][]byte, sourcePath string) error {
+	if sourcePath == "" {
+		return nil
+	}
+	r, err := zip.OpenReader(sourcePath)
+	if err != nil {
+		// The source may be gone (round-trip through a temp file). The package
+		// is still valid on its own.
+		return nil
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		name := f.Name
+		if parts[name] != nil {
+			continue
+		}
+		switch {
+		case strings.HasPrefix(name, "word/media/"),
+			strings.HasPrefix(name, "word/embeddings/"),
+			strings.HasPrefix(name, "word/charts/"),
+			strings.HasPrefix(name, "word/diagrams/"),
+			strings.HasPrefix(name, "word/glyphs/"),
+			strings.HasPrefix(name, "word/theme/"),
+			strings.HasPrefix(name, "customXml/"),
+			strings.HasPrefix(name, "word/_rels/header"),
+			strings.HasPrefix(name, "word/_rels/footer"),
+			name == "word/fontTable.xml",
+			name == "word/webSettings.xml",
+			name == "word/stylesWithEffects.xml":
+		default:
+			continue
+		}
+		data, err := readZipEntry(f)
+		if err != nil {
+			return fmt.Errorf("read %s from source: %w", name, err)
+		}
+		parts[name] = data
+	}
+	return nil
+}
+
+func readZipEntry(f *zip.File) ([]byte, error) {
+	rc, err := f.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer rc.Close()
+	return io.ReadAll(rc)
+}
+
+var (
+	relTagRE       = regexp.MustCompile(`<Relationship\b[^>]*/?>(?:\s*</Relationship>)?`)
+	attrIDRE       = regexp.MustCompile(`Id="([^"]*)"`)
+	attrTargetRE   = regexp.MustCompile(`Target="([^"]*)"`)
+	attrTargetMode = regexp.MustCompile(`TargetMode="([^"]*)"`)
+	overrideRE     = regexp.MustCompile(`<Override\b[^>]*/?>(?:\s*</Override>)?`)
+	attrPartNameRE = regexp.MustCompile(`PartName="([^"]*)"`)
+	attrExtRE      = regexp.MustCompile(`Extension="([^"]*)"`)
+	refIDRE        = regexp.MustCompile(`(?:r|pr|a14|a|vml|w10|rds):[a-zA-Z]*?(?:id|embed|link|relId)="([^"]+)"`)
+)
+
+// reconcileParts removes relationship entries and content type overrides that
+// point at parts we did not write, and makes sure every part we did write has
+// a content type. The result is a package whose references all resolve.
+func reconcileParts(parts map[string][]byte) {
+	for _, name := range sortedParts(parts) {
+		if !strings.HasSuffix(name, ".rels") {
+			continue
+		}
+		baseDir, owner := splitRelsPart(name)
+		parts[name] = reconcileRels(parts[name], parts, owner, baseDir)
+	}
+	if ct, ok := parts["[Content_Types].xml"]; ok {
+		parts["[Content_Types].xml"] = reconcileContentTypes(ct, parts)
+	}
+}
+
+// splitRelsPart parses a rels part name such as "word/_rels/document.xml.rels"
+// into the directory its targets resolve against and the part whose content
+// references its relationship ids.
+func splitRelsPart(relsName string) (baseDir, owner string) {
+	dirs := strings.Split(relsName, "/")
+	if len(dirs) < 2 || dirs[len(dirs)-2] != "_rels" {
+		return "", ""
+	}
+	owner = strings.TrimSuffix(dirs[len(dirs)-1], ".rels")
+	if owner == "" {
+		return "", ""
+	}
+	return strings.TrimSuffix(strings.Join(dirs[:len(dirs)-2], "/"), "/"), owner
+}
+
+func reconcileRels(data []byte, parts map[string][]byte, owner, baseDir string) []byte {
+	ids := map[string]bool{}
+	if body, ok := parts[owner]; ok {
+		for _, id := range refIDRE.FindAllStringSubmatch(string(body), -1) {
+			ids[id[1]] = true
+		}
+	}
+	return dropTags(data, relTagRE, func(tag []byte) bool {
+		return keepRel(tag, parts, ids, baseDir)
+	})
+}
+
+func keepRel(tag []byte, parts map[string][]byte, ids map[string]bool, baseDir string) bool {
+	mode := sub(tag, attrTargetMode)
+	target := sub(tag, attrTargetRE)
+	id := sub(tag, attrIDRE)
+	if target == "" {
+		return false
+	}
+	if mode != "" && strings.EqualFold(mode, "External") {
+		return true
+	}
+	if strings.Contains(target, "://") || strings.HasPrefix(target, "#") {
+		return true
+	}
+	if _, ok := parts[resolveTarget(baseDir, target)]; ok {
+		return true
+	}
+	// A relationship whose target we did not write is only safe to keep when
+	// the owning part never references that id.
+	if id != "" && ids[id] {
+		return false
+	}
+	return false
+}
+
+// sub extracts the first capture group of re from tag as a string.
+func sub(tag []byte, re *regexp.Regexp) string {
+	m := re.FindSubmatch(tag)
+	if len(m) < 2 {
+		return ""
+	}
+	return string(m[1])
+}
+
+// resolveTarget resolves a relationship target against the owning part's
+// directory, following the package-part path rules including ../ steps.
+func resolveTarget(baseDir, target string) string {
+	clean := strings.ReplaceAll(strings.TrimSpace(target), "\\", "/")
+	if clean == "" || strings.HasPrefix(clean, "http") || strings.HasPrefix(clean, "#") {
+		return ""
+	}
+	seg := strings.Split(clean, "/")
+	if baseDir != "" {
+		seg = append(strings.Split(baseDir, "/"), seg...)
+	}
+	out := make([]string, 0, len(seg))
+	for _, s := range seg {
+		switch {
+		case s == "" || s == ".":
+		case s == "..":
+			if len(out) == 0 {
+				return ""
+			}
+			out = out[:len(out)-1]
+		default:
+			out = append(out, s)
+		}
+	}
+	return strings.Join(out, "/")
+}
+
+func reconcileContentTypes(data []byte, parts map[string][]byte) []byte {
+	base := dropTags(data, overrideRE, func(tag []byte) bool {
+		name := sub(tag, attrPartNameRE)
+		if name == "" {
+			return true
+		}
+		_, ok := parts[strings.TrimPrefix(name, "/")]
+		return ok
+	})
+
+	haveExt := map[string]bool{}
+	for name := range parts {
+		if ext := path.Ext(strings.TrimSuffix(name, ".rels")); ext != "" {
+			haveExt[strings.TrimPrefix(ext, ".")] = true
+		}
+	}
+
+	var add bytes.Buffer
+	for ext := range haveExt {
+		if bytes.Contains(base, []byte(`Extension="`+ext+`"`)) {
+			continue
+		}
+		_, _ = fmt.Fprintf(&add, `<Default Extension="%s" ContentType="%s"></Default>`, ext, contentTypeFor(ext))
+	}
+	if add.Len() == 0 {
+		return base
+	}
+	idx := bytes.Index(base, []byte("</Types>"))
+	if idx < 0 {
+		return base
+	}
+	res := append([]byte(nil), base[:idx]...)
+	res = append(res, add.Bytes()...)
+	res = append(res, base[idx:]...)
+	return res
+}
+
+// dropTags removes tags for which keep returns false. Everything before the
+// first tag and after the last one is always preserved so the wrapper element
+// stays well-formed; kept tags are rejoined with a single space.
+func dropTags(data []byte, re *regexp.Regexp, keep func([]byte) bool) []byte {
+	locs := re.FindAllIndex(data, -1)
+	if len(locs) == 0 {
+		return data
+	}
+
+	var out bytes.Buffer
+	out.Write(data[:locs[0][0]])
+	first := true
+	for _, loc := range locs {
+		if keep(data[loc[0]:loc[1]]) {
+			if !first {
+				out.WriteString(" ")
+			}
+			out.Write(data[loc[0]:loc[1]])
+			first = false
+		}
+	}
+	out.Write(data[locs[len(locs)-1][1]:])
+	return out.Bytes()
+}
+
+func contentTypeFor(ext string) string {
+	switch strings.ToLower(ext) {
+	case "jpeg", "jpg":
+		return "image/jpeg"
+	case "png":
+		return "image/png"
+	case "gif":
+		return "image/gif"
+	case "bmp":
+		return "image/bmp"
+	case "tiff":
+		return "image/tiff"
+	case "wmf":
+		return "image/x-wmf"
+	case "emf":
+		return "image/x-emf"
+	case "svg":
+		return "image/svg+xml"
+	case "bin":
+		return "application/vnd.openxmlformats-officedocument.oleObject"
+	case "xlsx":
+		return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	default:
+		return "application/octet-stream"
+	}
+}
+
+func writeZip(outputPath string, parts map[string][]byte) error {
 	f, err := os.Create(outputPath)
 	if err != nil {
 		return err
@@ -35,127 +391,30 @@ func SaveDocx(doc *document.Document, outputPath string) error {
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
-	defer zw.Close()
-
-	// [Content_Types].xml
-	if err := writeZipXML(zw, "[Content_Types].xml", doc.ContentTypes.X()); err != nil {
-		return fmt.Errorf("write [Content_Types].xml: %w", err)
-	}
-
-	// _rels/.rels
-	if err := writeZipXML(zw, "_rels/.rels", doc.Rels.X()); err != nil {
-		return fmt.Errorf("write _rels/.rels: %w", err)
-	}
-
-	// docProps/app.xml
-	if err := writeZipXML(zw, "docProps/app.xml", doc.AppProperties.X()); err != nil {
-		return fmt.Errorf("write docProps/app.xml: %w", err)
-	}
-
-	// docProps/core.xml
-	if err := writeZipXML(zw, "docProps/core.xml", doc.CoreProperties.X()); err != nil {
-		return fmt.Errorf("write docProps/core.xml: %w", err)
-	}
-
-	// word/document.xml
-	if err := writeZipXML(zw, "word/document.xml", doc.X()); err != nil {
-		return fmt.Errorf("write word/document.xml: %w", err)
-	}
-
-	// word/_rels/document.xml.rels (uses the unexported _dfe field)
-	relsWritten := false
-	if rels := documentInternalRels(doc); rels != nil {
-		if err := writeZipXML(zw, "word/_rels/document.xml.rels", rels); err == nil {
-			relsWritten = true
+	for _, name := range sortedParts(parts) {
+		w, err := zw.Create(name)
+		if err != nil {
+			return fmt.Errorf("zip entry %s: %w", name, err)
+		}
+		if _, err := w.Write(parts[name]); err != nil {
+			return fmt.Errorf("write %s: %w", name, err)
 		}
 	}
-	// If we couldn't extract the rels via reflection, write a default set
-	// that covers the parts we serialize plus the header/footer placeholders.
-	if !relsWritten {
-		if err := writeRaw(zw, "word/_rels/document.xml.rels", minimalDocumentRelsXML); err != nil {
-			return fmt.Errorf("write word/_rels/document.xml.rels: %w", err)
-		}
-	}
-
-	// word/settings.xml
-	if err := writeZipXML(zw, "word/settings.xml", doc.Settings.X()); err != nil {
-		return fmt.Errorf("write word/settings.xml: %w", err)
-	}
-
-	// word/styles.xml
-	if err := writeZipXML(zw, "word/styles.xml", doc.Styles.X()); err != nil {
-		return fmt.Errorf("write word/styles.xml: %w", err)
-	}
-
-	// word/numbering.xml
-	if err := writeZipXML(zw, "word/numbering.xml", doc.Numbering.X()); err != nil {
-		return fmt.Errorf("write word/numbering.xml: %w", err)
-	}
-
-	// Provide minimal placeholder header/footer XML files so that the
-	// header/footer references in document.xml (e.g. r:id="rId4") resolve
-	// to a valid file. This is needed because we don't serialize the
-	// unioffice-managed headers/footers arrays.
-	if err := writeRaw(zw, "word/header1.xml", minimalHeaderXML); err != nil {
-		return fmt.Errorf("write word/header1.xml: %w", err)
-	}
-	if err := writeRaw(zw, "word/footer1.xml", minimalFooterXML); err != nil {
-		return fmt.Errorf("write word/footer1.xml: %w", err)
-	}
-
-	return nil
+	return zw.Close()
 }
 
-// writeRaw writes a fixed string to a zip entry.
-func writeRaw(zw *zip.Writer, name, content string) error {
-	w, err := zw.Create(name)
-	if err != nil {
-		return err
+func sortedParts(parts map[string][]byte) []string {
+	names := make([]string, 0, len(parts))
+	for name := range parts {
+		names = append(names, name)
 	}
-	_, err = w.Write([]byte(content))
-	return err
+	sort.Strings(names)
+	return names
 }
 
-const minimalHeaderXML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p/></w:hdr>`
-
-const minimalFooterXML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p/></w:ftr>`
-
-const minimalDocumentRelsXML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>
-<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>
-<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
-<Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>
-</Relationships>`
-
-// writeZipXML creates a file in the zip and writes the XML-marshaled content
-// with an XML header. encoding/xml's encoder will invoke the type's
-// MarshalXML method if it implements xml.Marshaler, which preserves the
-// namespace attributes and element names defined by the wml schema types.
-func writeZipXML(zw *zip.Writer, name string, v interface{}) error {
-	w, err := zw.Create(name)
-	if err != nil {
-		return err
-	}
-
-	data, err := marshalXML(v)
-	if err != nil {
-		return err
-	}
-
-	var buf bytes.Buffer
-	buf.WriteString(xml.Header)
-	buf.Write(data)
-	_, err = w.Write(buf.Bytes())
-	return err
-}
-
-// marshalXML uses encoding/xml to serialize a value. The standard library
-// automatically invokes the value's xml.Marshaler implementation if present,
-// which is how unioffice's wml.* types add their namespace attributes.
+// marshalXML serialises a value with encoding/xml. The encoder calls the type's
+// MarshalXML method, which is how unioffice's schema types emit their namespace
+// attributes and element names.
 func marshalXML(v interface{}) ([]byte, error) {
 	if v == nil {
 		return nil, nil
@@ -172,40 +431,6 @@ func marshalXML(v interface{}) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// documentInternalRels returns the document's word/_rels/document.xml.rels
-// relationships via reflection + unsafe. The field is unexported in unioffice,
-// so we have to use unsafe.Pointer to get an exported view.
-func documentInternalRels(doc *document.Document) interface{} {
-	v := reflect.ValueOf(doc).Elem()
-	f := v.FieldByName("_dfe")
-	if !f.IsValid() {
-		return nil
-	}
-	// Use unsafe to access the unexported field as an exported type.
-	ptr := unsafe.Pointer(f.UnsafeAddr())
-	relPtr := (*common.Relationships)(ptr)
-	// _dfe is a common.Relationships value. Use its X() method.
-	type xRel interface {
-		X() interface{}
-	}
-	if r, ok := interface{}(relPtr).(xRel); ok {
-		inner := r.X()
-		// Only return if the rels has actual content.
-		if inner == nil {
-			return nil
-		}
-		// Check if the inner XML has any relationships
-		if rl, ok := inner.(interface{ Relationship() []interface{} }); ok {
-			if len(rl.Relationship()) == 0 {
-				return nil
-			}
-		}
-		return inner
-	}
-	return nil
-}
-
-// parentDir returns the parent directory of a file path.
 func parentDir(p string) string {
 	idx := strings.LastIndex(p, "/")
 	if idx < 0 {
