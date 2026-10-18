@@ -78,9 +78,9 @@ const themeTokens = {
     '--color-badge-idle': '#EFEBE1',
   },
   dark: {
-    '--color-primary': '#82AEDD',
-    '--color-primary-deep': '#A9C6EA',
-    '--color-primary-soft': '#1B2A3A',
+    '--color-primary': '#4D76B4',
+    '--color-primary-deep': '#698CC0',
+    '--color-primary-soft': '#1C2A41',
     '--color-bg-main': '#17171A',
     '--color-bg-secondary': '#1C1C1F',
     '--color-bg-card': '#232324',
@@ -99,9 +99,9 @@ const themeTokens = {
     '--color-success': '#5CB98C',
     '--color-success-strong': '#7BC8A4',
     '--color-success-soft': '#1D3329',
-    '--color-info': '#82AEDD',
-    '--color-info-deep': '#A9C6EA',
-    '--color-info-soft': '#1B2A3A',
+    '--color-info': '#4D76B4',
+    '--color-info-deep': '#698CC0',
+    '--color-info-soft': '#1C2A41',
     '--color-warning': '#F2B23E',
     '--color-warning-soft': '#38300F',
     '--color-error': '#E86A5A',
@@ -169,12 +169,20 @@ function tintHex(hex, amount) {
   return '#' + toHex(mix(rgb.r)) + toHex(mix(rgb.g)) + toHex(mix(rgb.b));
 }
 
+function scaleHex(hex, factor) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+  const toHex = (v) => Math.max(0, Math.min(255, Math.round(v * factor))).toString(16).padStart(2, '0');
+  return '#' + toHex(rgb.r) + toHex(rgb.g) + toHex(rgb.b);
+}
+
 /**
  * 从强调色派生 primary-deep / primary-soft
+ * 浅色主题 soft = 高亮淡色；深色主题 soft = 同色相压暗（不能接近纯黑，否则在深色底上不可见）
  */
 function deriveAccentTokens(color, isDark) {
   const deep = isDark ? tintHex(color, 0.16) : shiftHex(color, -24);
-  const soft = isDark ? tintHex(color, -0.72) : tintHex(color, 0.88);
+  const soft = isDark ? scaleHex(color, 0.36) : tintHex(color, 0.88);
   return {
     '--color-primary': color,
     '--color-primary-deep': deep,
