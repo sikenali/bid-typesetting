@@ -15,6 +15,9 @@ import { useThemeStore } from '@/stores/theme'
 import ToastContainer from '@/components/ToastContainer.vue'
 import ConfirmHost from '@/components/ConfirmHost.vue'
 import SideNav from '@/components/layout/SideNav.vue'
+import { migrateLegacyTemplates } from '@/utils/migrateTemplates'
+
+migrateLegacyTemplates()
 
 const themeStore = useThemeStore()
 const isSidebar = computed(() => themeStore.layout === 'sidebar')
