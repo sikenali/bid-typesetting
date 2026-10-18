@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { confirmDialog } from '@/utils/confirm'
 
 const emit = defineEmits(['close', 'select', 'delete', 'edit'])
 const props = defineProps({
@@ -52,9 +53,9 @@ function handleSelect(tpl) {
   emit('select', tpl)
 }
 
-function handleDelete(e, tpl) {
+async function handleDelete(e, tpl) {
   e.stopPropagation()
-  if (!confirm('确定删除此模板吗？')) return
+  if (!(await confirmDialog('确定删除此模板吗？'))) return
   emit('delete', tpl.id)
 }
 </script>

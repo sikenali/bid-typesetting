@@ -324,6 +324,7 @@ import SettingsModal from '@/components/layout/SettingsModal.vue'
 import CreditQualificationModal from '@/components/layout/CreditQualificationModal.vue'
 import BiddingSitesModal from '@/components/layout/BiddingSitesModal.vue'
 import UiModal from '@/components/ui/UiModal.vue'
+import { confirmDialog } from '@/utils/confirm'
 import SaveTemplateModal from '@/components/SaveTemplateModal.vue'
 import LoadTemplateModal from '@/components/LoadTemplateModal.vue'
 import RulePanelEditor from '@/components/RulePanelEditor.vue'
@@ -432,9 +433,9 @@ function paperLabel(size) {
   return size
 }
 
-function handleLargeFileWarning() {
+async function handleLargeFileWarning() {
   if (!isLargeFile.value) return true
-  return confirm(`文档较大（${totalPages.value} 页），排版可能需要较长时间，是否继续？`)
+  return await confirmDialog(`文档较大（${totalPages.value} 页），排版可能需要较长时间，是否继续？`)
 }
 
 watch(currentPage, (page) => {

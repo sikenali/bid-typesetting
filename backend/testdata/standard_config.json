@@ -38,7 +38,6 @@
   "preprocess_table_cell_border": "all",
   "preprocess_table_auto_width": true,
   "auto_refresh_fields": true,
-  "close_word_after_refresh": true,
   "margins": {
     "top_cm": 2.54,
     "bottom_cm": 2.54,

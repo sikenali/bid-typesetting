@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8099'
+import { getApiBase } from '@/utils/apiBase'
 
 function flattenCleanup(config) {
   const c = config.cleanup || {}
@@ -46,7 +46,6 @@ function flattenCleanup(config) {
     preprocess_tbl_caption_spaces: cd.tbl_detection_spacing ?? 2,
 
     auto_refresh_fields: config.auto_refresh_fields ?? false,
-    close_word_after_refresh: config.close_word_after_refresh ?? true,
 
     // Table cell settings (from formatParams.table_settings)
     preprocess_table_cell_enable: config.table_settings?.enable ?? false,
@@ -81,7 +80,7 @@ export async function formatDocument(file, config) {
 
   formData.append('config', JSON.stringify(backendConfig))
 
-  const res = await fetch(`${API_BASE}/api/format`, {
+  const res = await fetch(`${getApiBase()}/api/format`, {
     method: 'POST',
     body: formData,
   })
@@ -96,7 +95,7 @@ export async function formatDocument(file, config) {
 
 export async function healthCheck() {
   try {
-    const res = await fetch(`${API_BASE}/api/health`)
+    const res = await fetch(`${getApiBase()}/api/health`)
     return res.ok
   } catch {
     return false

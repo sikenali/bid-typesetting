@@ -9,39 +9,38 @@ type Config struct {
 	ApplyHeaderFooter bool `json:"apply_header_footer"`
 	ApplyTable        bool `json:"apply_table"`
 
-	PreprocessSpaces            bool `json:"preprocess_spaces"`
-	PreprocessFigCaption        bool `json:"preprocess_fig_caption"`
-	PreprocessFigCaptionSpaces  int  `json:"preprocess_fig_caption_spaces"`
-	PreprocessTblCaption        bool `json:"preprocess_tbl_caption"`
-	PreprocessTblCaptionSpaces  int  `json:"preprocess_tbl_caption_spaces"`
-	PreprocessSuperscript       bool `json:"preprocess_superscript"`
-	PreprocessPunctuation       bool `json:"preprocess_punctuation"`
-	PreprocessObjectWrapping    bool `json:"preprocess_object_wrapping"`
-	PreprocessSoftReturn        bool `json:"preprocess_soft_return"`
-	PreprocessTabMode           int  `json:"preprocess_tab_mode"`
-	PreprocessClearAllStyles    bool `json:"preprocess_clear_all_styles"`
-	PreprocessClearIndents      bool `json:"preprocess_clear_indents"`
-	PreprocessDeleteEmptyLines  bool `json:"preprocess_delete_empty_lines"`
-	PreprocessClearSnapToGrid   bool `json:"preprocess_clear_snap_to_grid"`
-	PreprocessFlattenSDT        bool `json:"preprocess_flatten_sdt"`
-	PreprocessPostCleanStyles   bool `json:"preprocess_post_clean_styles"`
-	PreprocessMarkdownToPlain   bool `json:"preprocess_markdown_to_plaintext"`
-	PreprocessClearExtraSpaces  bool `json:"preprocess_clear_extra_spaces"`
-	PreprocessClearChartFormat  bool `json:"preprocess_clear_chart_format"`
-	PreprocessClearHeadingIndent       bool `json:"preprocess_clear_heading_indent"`
-	PreprocessClearHeadingLeftIndent   bool `json:"preprocess_clear_heading_left_indent"`
-	PreprocessClearHeadingRightIndent  bool `json:"preprocess_clear_heading_right_indent"`
-	PreprocessClearHeadingSpecialIndent bool `json:"preprocess_clear_heading_special_indent"`
-	PreprocessTableCellEnable       bool    `json:"preprocess_table_cell_enable"`
-	PreprocessTableCellFont         string  `json:"preprocess_table_cell_font"`
-	PreprocessTableCellSize         string  `json:"preprocess_table_cell_size"`
-	PreprocessTableCellLineSpacing float64 `json:"preprocess_table_cell_line_spacing"`
-	PreprocessTableCellMinHeight    float64 `json:"preprocess_table_cell_min_height"`
-	PreprocessTableCellAlign        string  `json:"preprocess_table_cell_align"`
-	PreprocessTableCellBorder       string  `json:"preprocess_table_cell_border"`
-	PreprocessTableAutoWidth        bool    `json:"preprocess_table_auto_width"`
-	AutoRefreshFields               bool    `json:"auto_refresh_fields"`
-	CloseWordAfterRefresh           bool    `json:"close_word_after_refresh"`
+	PreprocessSpaces                    bool    `json:"preprocess_spaces"`
+	PreprocessFigCaption                bool    `json:"preprocess_fig_caption"`
+	PreprocessFigCaptionSpaces          int     `json:"preprocess_fig_caption_spaces"`
+	PreprocessTblCaption                bool    `json:"preprocess_tbl_caption"`
+	PreprocessTblCaptionSpaces          int     `json:"preprocess_tbl_caption_spaces"`
+	PreprocessSuperscript               bool    `json:"preprocess_superscript"`
+	PreprocessPunctuation               bool    `json:"preprocess_punctuation"`
+	PreprocessObjectWrapping            bool    `json:"preprocess_object_wrapping"`
+	PreprocessSoftReturn                bool    `json:"preprocess_soft_return"`
+	PreprocessTabMode                   int     `json:"preprocess_tab_mode"`
+	PreprocessClearAllStyles            bool    `json:"preprocess_clear_all_styles"`
+	PreprocessClearIndents              bool    `json:"preprocess_clear_indents"`
+	PreprocessDeleteEmptyLines          bool    `json:"preprocess_delete_empty_lines"`
+	PreprocessClearSnapToGrid           bool    `json:"preprocess_clear_snap_to_grid"`
+	PreprocessFlattenSDT                bool    `json:"preprocess_flatten_sdt"`
+	PreprocessPostCleanStyles           bool    `json:"preprocess_post_clean_styles"`
+	PreprocessMarkdownToPlain           bool    `json:"preprocess_markdown_to_plaintext"`
+	PreprocessClearExtraSpaces          bool    `json:"preprocess_clear_extra_spaces"`
+	PreprocessClearChartFormat          bool    `json:"preprocess_clear_chart_format"`
+	PreprocessClearHeadingIndent        bool    `json:"preprocess_clear_heading_indent"`
+	PreprocessClearHeadingLeftIndent    bool    `json:"preprocess_clear_heading_left_indent"`
+	PreprocessClearHeadingRightIndent   bool    `json:"preprocess_clear_heading_right_indent"`
+	PreprocessClearHeadingSpecialIndent bool    `json:"preprocess_clear_heading_special_indent"`
+	PreprocessTableCellEnable           bool    `json:"preprocess_table_cell_enable"`
+	PreprocessTableCellFont             string  `json:"preprocess_table_cell_font"`
+	PreprocessTableCellSize             string  `json:"preprocess_table_cell_size"`
+	PreprocessTableCellLineSpacing      float64 `json:"preprocess_table_cell_line_spacing"`
+	PreprocessTableCellMinHeight        float64 `json:"preprocess_table_cell_min_height"`
+	PreprocessTableCellAlign            string  `json:"preprocess_table_cell_align"`
+	PreprocessTableCellBorder           string  `json:"preprocess_table_cell_border"`
+	PreprocessTableAutoWidth            bool    `json:"preprocess_table_auto_width"`
+	AutoRefreshFields                   bool    `json:"auto_refresh_fields"`
 
 	Margins       Margins        `json:"margins"`
 	Body          BodyStyle      `json:"body"`
@@ -109,18 +108,18 @@ type Margins struct {
 }
 
 type TableStyle struct {
-	Enable                bool    `json:"enable"`
-	CNFont                string  `json:"cn_font"`
-	ENFont                string  `json:"en_font"`
-	SizeCN                string  `json:"size_cn"`
-	Autofit               bool    `json:"autofit"`
-	LineSpacingMode       string  `json:"line_spacing_mode"`
-	LineSpacingValue      float64 `json:"line_spacing_value"`
-	Align                 string  `json:"align"`
-	CellAlign             string  `json:"cell_align"`
-	MinRowHeightPT        float64 `json:"min_row_height_pt"`
-	EnableCellFormatting  bool    `json:"enable_cell_formatting"`
-	StyleType             string  `json:"style_type"`
+	Enable               bool    `json:"enable"`
+	CNFont               string  `json:"cn_font"`
+	ENFont               string  `json:"en_font"`
+	SizeCN               string  `json:"size_cn"`
+	Autofit              bool    `json:"autofit"`
+	LineSpacingMode      string  `json:"line_spacing_mode"`
+	LineSpacingValue     float64 `json:"line_spacing_value"`
+	Align                string  `json:"align"`
+	CellAlign            string  `json:"cell_align"`
+	MinRowHeightPT       float64 `json:"min_row_height_pt"`
+	EnableCellFormatting bool    `json:"enable_cell_formatting"`
+	StyleType            string  `json:"style_type"`
 }
 
 type TableSettings struct {
@@ -145,47 +144,47 @@ type TOCConfig struct {
 }
 
 type TOCLevel struct {
-	CNFont            string  `json:"cn_font"`
-	ENFont            string  `json:"en_font"`
-	SizeCN            string  `json:"size_cn"`
-	Bold              bool    `json:"bold"`
-	Italic            bool    `json:"italic"`
-	ColorRGB          [3]int  `json:"color_rgb"`
-	LineSpacingMode   string  `json:"line_spacing_mode"`
-	LineSpacingValue  float64 `json:"line_spacing_value"`
-	TabLeader         string  `json:"tab_leader"`
-	LeftIndentChars   float64 `json:"left_indent_chars"`
-	RightIndentValue  float64 `json:"right_indent_value"`
-	RightIndentUnit   string  `json:"right_indent_unit"`
+	CNFont               string  `json:"cn_font"`
+	ENFont               string  `json:"en_font"`
+	SizeCN               string  `json:"size_cn"`
+	Bold                 bool    `json:"bold"`
+	Italic               bool    `json:"italic"`
+	ColorRGB             [3]int  `json:"color_rgb"`
+	LineSpacingMode      string  `json:"line_spacing_mode"`
+	LineSpacingValue     float64 `json:"line_spacing_value"`
+	TabLeader            string  `json:"tab_leader"`
+	LeftIndentChars      float64 `json:"left_indent_chars"`
+	RightIndentValue     float64 `json:"right_indent_value"`
+	RightIndentUnit      string  `json:"right_indent_unit"`
 	FirstLineIndentChars float64 `json:"first_line_indent_chars"`
-	Align             string  `json:"align"`
-	SpaceBeforeValue  float64 `json:"space_before_value"`
-	SpaceBeforeUnit   string  `json:"space_before_unit"`
-	SpaceAfterValue   float64 `json:"space_after_value"`
-	SpaceAfterUnit    string  `json:"space_after_unit"`
+	Align                string  `json:"align"`
+	SpaceBeforeValue     float64 `json:"space_before_value"`
+	SpaceBeforeUnit      string  `json:"space_before_unit"`
+	SpaceAfterValue      float64 `json:"space_after_value"`
+	SpaceAfterUnit       string  `json:"space_after_unit"`
 }
 
 type HeaderFooter struct {
-	EnableHeader          bool    `json:"enable_header"`
-	EnableFooter          bool    `json:"enable_footer"`
-	HeaderText            string  `json:"header_text"`
-	HeaderCNFont          string  `json:"header_cn_font"`
-	HeaderENFont          string  `json:"header_en_font"`
-	HeaderSizeCN          string  `json:"header_size_cn"`
-	HeaderAlign           string  `json:"header_align"`
-	HeaderBold            bool    `json:"header_bold"`
-	HeaderItalic          bool    `json:"header_italic"`
-	HeaderUnderlineType   string  `json:"header_underline_type"`
-	HeaderTopCM           float64 `json:"header_top_cm"`
-	FooterBottomCM        float64 `json:"footer_bottom_cm"`
-	PageNumberFromBody    bool    `json:"page_number_from_body"`
-	ClearFooter           bool    `json:"clear_footer"`
-	FooterCNFont          string  `json:"footer_cn_font"`
-	FooterENFont          string  `json:"footer_en_font"`
-	FooterSizeCN          string  `json:"footer_size_cn"`
-	FooterAlign           string  `json:"footer_align"`
-	FooterItalic          bool    `json:"footer_italic"`
-	FooterPageNumberType  string  `json:"footer_page_number_type"`
+	EnableHeader         bool    `json:"enable_header"`
+	EnableFooter         bool    `json:"enable_footer"`
+	HeaderText           string  `json:"header_text"`
+	HeaderCNFont         string  `json:"header_cn_font"`
+	HeaderENFont         string  `json:"header_en_font"`
+	HeaderSizeCN         string  `json:"header_size_cn"`
+	HeaderAlign          string  `json:"header_align"`
+	HeaderBold           bool    `json:"header_bold"`
+	HeaderItalic         bool    `json:"header_italic"`
+	HeaderUnderlineType  string  `json:"header_underline_type"`
+	HeaderTopCM          float64 `json:"header_top_cm"`
+	FooterBottomCM       float64 `json:"footer_bottom_cm"`
+	PageNumberFromBody   bool    `json:"page_number_from_body"`
+	ClearFooter          bool    `json:"clear_footer"`
+	FooterCNFont         string  `json:"footer_cn_font"`
+	FooterENFont         string  `json:"footer_en_font"`
+	FooterSizeCN         string  `json:"footer_size_cn"`
+	FooterAlign          string  `json:"footer_align"`
+	FooterItalic         bool    `json:"footer_italic"`
+	FooterPageNumberType string  `json:"footer_page_number_type"`
 }
 
 type PatternConfig struct {

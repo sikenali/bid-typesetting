@@ -2,11 +2,13 @@
   <div class="app-shell">
     <router-view />
     <ToastContainer />
+    <ConfirmHost />
   </div>
 </template>
 
 <script setup>
 import ToastContainer from '@/components/ToastContainer.vue'
+import ConfirmHost from '@/components/ConfirmHost.vue'
 </script>
 
 <style scoped>

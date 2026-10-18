@@ -19,7 +19,6 @@ const formatParams = reactive({
   apply_header_footer: true,
   apply_table: true,
   auto_refresh_fields: false,
-  close_word_after_refresh: true,
 
   page: {
     top_cm: 3.7,

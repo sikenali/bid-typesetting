@@ -70,6 +70,21 @@ func RunPipeline(doc *document.Document, cfg *Config) error {
 			}
 			return nil
 		}},
+		{"自动刷新域", func(d *document.Document, c *Config) error {
+			if c.AutoRefreshFields {
+				d.Settings.SetUpdateFieldsOnOpen(true)
+			}
+			return nil
+		}},
+		{"格式化后清理", func(d *document.Document, c *Config) error {
+			if !c.PreprocessPostCleanStyles {
+				return nil
+			}
+			if err := ClearExtraSpaces(d); err != nil {
+				return err
+			}
+			return DeleteEmptyLines(d)
+		}},
 	}
 
 	for _, step := range pipeline {

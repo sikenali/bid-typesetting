@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { ElMessage } from '@/utils/toast';
 import { useApiKeys } from '@/composables/useApiKeys';
+import { getApiBase, getDefaultApiBase, setApiBase } from '@/utils/apiBase';
 
 const {
   apiKeys, apiKeyForm, configTab, customApiFormat, customEndpoint, customModelId,
@@ -9,9 +10,28 @@ const {
   addApiKey, removeApiKey, toggleApiKey, toggleKeyVisibility, resetForm, persistConfig, loadConfig,
 } = useApiKeys();
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8099';
-const API_CONFIG_URL = API_BASE + '/api/config';
-const API_TEST_URL = API_BASE + '/api/config/test-key';
+const apiConfigUrl = () => getApiBase() + '/api/config';
+const apiTestUrl = () => getApiBase() + '/api/config/test-key';
+
+const apiBaseInput = ref(getApiBase());
+const defaultApiBase = getDefaultApiBase();
+
+function saveApiBase() {
+  const v = apiBaseInput.value.trim();
+  if (v && !/^https?:\/\//i.test(v)) {
+    ElMessage.warning('地址需以 http:// 或 https:// 开头');
+    return;
+  }
+  setApiBase(v);
+  apiBaseInput.value = getApiBase();
+  ElMessage.success(v ? '后端地址已更新' : '已恢复默认后端地址');
+}
+
+function resetApiBase() {
+  setApiBase('');
+  apiBaseInput.value = getApiBase();
+  ElMessage.success('已恢复默认后端地址');
+}
 
 const providers = [
   { group: '国内', items: ['阿里云', '百度', '智谱', 'DeepSeek', 'Moonshot', '零一万物'] },
@@ -76,7 +96,7 @@ async function saveApiKey() {
 
 async function syncKeysToBackend() {
   try {
-    const res = await fetch(API_CONFIG_URL);
+    const res = await fetch(apiConfigUrl());
     if (!res.ok) throw new Error('读取配置失败');
     const data = await res.json();
     const merged = [...(data.ai_providers || [])];
@@ -85,7 +105,7 @@ async function syncKeysToBackend() {
       if (idx >= 0) merged[idx] = key;
       else merged.push(key);
     }
-    const putRes = await fetch(API_CONFIG_URL, {
+    const putRes = await fetch(apiConfigUrl(), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ai_providers: merged }),
@@ -102,7 +122,7 @@ async function handleTestKey(key) {
   testFailed.value[key.id] = false;
   if (testTimeouts.value[key.id]) clearTimeout(testTimeouts.value[key.id]);
   try {
-    const res = await fetch(API_TEST_URL, {
+    const res = await fetch(apiTestUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -180,6 +200,32 @@ function switchTab(v) {
       </div>
       <h1 class="page-title">模型管理</h1>
       <p class="page-desc">配置 AI 服务商与模型密钥，支持连通性测试与多密钥管理</p>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">
+        <RiServerLine size="18" />
+        <span>后端服务地址</span>
+      </div>
+      <p class="section-desc">前端调用排版服务的地址，默认 {{ defaultApiBase }}；修改后保存即生效，并持久化到本地</p>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">服务地址</label>
+          <UiInput v-model="apiBaseInput" :placeholder="defaultApiBase" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-outline" @click="resetApiBase()">
+          <RiRestartLine size="15" />
+          <span>恢复默认</span>
+        </button>
+        <button class="btn-primary" @click="saveApiBase()">
+          <RiCheckLine size="15" />
+          <span>保存地址</span>
+        </button>
+      </div>
     </div>
 
     <div class="section-card">

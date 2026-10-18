@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from '@/utils/toast'
+import { confirmDialog } from '@/utils/confirm'
 import { useDocument } from '../composables/useDocument'
 import { useFormatState } from '../composables/useFormatState'
 import { useSettings } from '../composables/useSettings'
@@ -154,12 +155,12 @@ function deepMerge(target, src) {
   }
 }
 
-function acceptAll() {
+async function acceptAll() {
   if (totalDiffs.value === 0) {
     ElMessage.warning('当前文档无参数差异')
     return
   }
-  if (confirm(`确认接受全部 ${totalDiffs.value} 处修改？`)) {
+  if (await confirmDialog(`确认接受全部 ${totalDiffs.value} 处修改？`)) {
     if (afterSnapshot.value) {
       deepMerge(formatParams, JSON.parse(JSON.stringify(afterSnapshot.value)))
     }

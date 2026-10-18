@@ -47,7 +47,6 @@ func TestConfigParsesAllFields(t *testing.T) {
 		"preprocess_table_cell_border": "all",
 		"preprocess_table_auto_width": true,
 		"auto_refresh_fields": true,
-		"close_word_after_refresh": true,
 		"margins": {
 			"top_cm": 2.54,
 			"bottom_cm": 2.54,
@@ -362,7 +361,6 @@ func TestConfigAcceptsFrontendKeySet(t *testing.T) {
 		"preprocess_tbl_caption":                  true,
 		"preprocess_tbl_caption_spaces":           3,
 		"auto_refresh_fields":                     true,
-		"close_word_after_refresh":                true,
 		"preprocess_table_cell_enable":            true,
 		"preprocess_table_cell_font":              "宋体",
 		"preprocess_table_cell_size":              "四号",
@@ -393,7 +391,7 @@ func TestConfigAcceptsFrontendKeySet(t *testing.T) {
 	if !cfg.PreprocessPunctuation || !cfg.PreprocessClearAllStyles || cfg.PreprocessTabMode != 2 || !cfg.PreprocessSpaces || cfg.PreprocessFigCaptionSpaces != 3 {
 		t.Errorf("preprocess_* keys not applied: %+v", cfg)
 	}
-	if !cfg.AutoRefreshFields || !cfg.CloseWordAfterRefresh {
+	if !cfg.AutoRefreshFields {
 		t.Errorf("refresh switches not applied: %+v", cfg)
 	}
 	if !cfg.PreprocessTableCellEnable || cfg.PreprocessTableCellAlign != "CENTER" || !cfg.PreprocessTableAutoWidth {
