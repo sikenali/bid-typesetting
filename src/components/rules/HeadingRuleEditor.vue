@@ -97,7 +97,7 @@ const activeLevel = ref(0)
 .tab-btn.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary, #fff);
   font-weight: 500;
 }
 .rules-grid {

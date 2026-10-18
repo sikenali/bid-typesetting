@@ -49,6 +49,7 @@ const themeTokens = {
     '--color-primary': '#4A72A8',
     '--color-primary-deep': '#3A5C96',
     '--color-primary-soft': '#E9EFF9',
+    '--color-on-primary': '#FFFFFF',
     '--color-bg-main': '#FAF7F2',
     '--color-bg-secondary': '#F7F3EA',
     '--color-bg-card': '#FCFBF8',
@@ -81,6 +82,7 @@ const themeTokens = {
     '--color-primary': '#4D76B4',
     '--color-primary-deep': '#698CC0',
     '--color-primary-soft': '#1C2A41',
+    '--color-on-primary': '#FFFFFF',
     '--color-bg-main': '#17171A',
     '--color-bg-secondary': '#1C1C1F',
     '--color-bg-card': '#232324',
@@ -118,6 +120,7 @@ const themeTokens = {
     '--color-primary': '#4A72A8',
     '--color-primary-deep': '#3A5C96',
     '--color-primary-soft': '#E9EFF9',
+    '--color-on-primary': '#FFFFFF',
     '--color-bg-main': '#FFFFFF',
     '--color-bg-secondary': '#F7F7F8',
     '--color-bg-card': '#FAFAFA',
@@ -181,8 +184,27 @@ function scaleHex(hex, factor) {
   return '#' + toHex(rgb.r) + toHex(rgb.g) + toHex(rgb.b);
 }
 
+/** WCAG 相对亮度 */
+function relLum(hex) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return 0;
+  const ch = (v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * ch(rgb.r) + 0.7152 * ch(rgb.g) + 0.0722 * ch(rgb.b);
+}
+
 /**
- * 从强调色派生 primary-deep / primary-soft
+ * 主色面上的文字色。亮度 > 0.3 的浅色强调色（如鎏金 #D3A93F）上白字仅 2.2:1，
+ * 改用深色字可达 7.6:1；阈值取 0.3，落在鎏金与玉绿之间。
+ */
+function inkOn(color) {
+  return relLum(color) > 0.3 ? '#1F1D1A' : '#FFFFFF';
+}
+
+/**
+ * 从强调色派生 primary-deep / primary-soft / on-primary
  * 浅色主题 soft = 高亮淡色；深色主题 soft = 同色相压暗（不能接近纯黑，否则在深色底上不可见）
  */
 function deriveAccentTokens(color, isDark) {
@@ -195,6 +217,7 @@ function deriveAccentTokens(color, isDark) {
     '--color-info': color,
     '--color-info-deep': deep,
     '--color-info-soft': soft,
+    '--color-on-primary': inkOn(color),
   };
 }
 

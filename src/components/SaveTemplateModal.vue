@@ -298,7 +298,7 @@ function handleSave() {
 }
 .btn-primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary, #fff);
   border: none;
 }
 .btn-primary:hover:not(:disabled) {

@@ -59,6 +59,6 @@ const currentValue = computed({
 }
 .align-btn.active {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary, #fff);
 }
 </style>

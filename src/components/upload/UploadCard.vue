@@ -445,7 +445,7 @@ onBeforeUnmount(() => {
   width: 292px;
   height: 60px;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary, #fff);
   border: none;
   border-radius: 10px;
   display: inline-flex;

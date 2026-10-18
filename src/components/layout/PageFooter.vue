@@ -112,7 +112,7 @@ function emitBidding() {
 
 .footer-icon-btn:hover {
   background-color: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-on-primary, #fff);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }

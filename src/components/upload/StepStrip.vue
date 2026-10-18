@@ -120,7 +120,7 @@ function lineFilled(i) {
 
 .num-active {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary, #fff);
 }
 
 .num-done {
