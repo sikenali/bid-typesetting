@@ -272,42 +272,14 @@
       </div>
     </UiModal>
 
-    <!-- 排版进度 -->
-    <UiModal
-      v-if="showFormatLog"
+    <!-- 排版进度（Calicat 设计图「排版进度卡片」1:1 弹框） -->
+    <FormatProgressModal
       v-model="showFormatLog"
-      :title="isProcessing ? '排版处理中…' : '排版完成'"
-      icon="ri-sparkling-line"
-      width="500px"
-      :show-footer="false"
-      :show-close="!isProcessing"
-      :close-on-click-overlay="false"
-      :close-on-esc="!isProcessing"
-    >
-      <div class="progress-inner">
-        <div class="progress-head">
-          <span class="progress-label">进度</span>
-          <span class="progress-value">{{ formatProgress }}%</span>
-        </div>
-        <div class="progress-bar" role="progressbar" :aria-valuenow="formatProgress" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-fill" :style="{ width: formatProgress + '%' }"></div>
-        </div>
-        <div class="log-box">
-          <div
-            v-for="(log, index) in formatLog"
-            :key="index"
-            class="log-row"
-            :class="{ error: log.type === 'error' }"
-          >
-            <span class="log-time">[{{ log.time }}]</span> {{ log.msg }}
-          </div>
-        </div>
-        <button
-          class="btn btn-outline progress-close"
-          @click="showFormatLog = false"
-        >{{ isProcessing ? '请稍候…' : '关闭' }}</button>
-      </div>
-    </UiModal>
+      :progress="formatProgress"
+      :processing="isProcessing"
+      :logs="formatLog"
+      :desc="formatProgressDesc"
+    />
 
     <SettingsModal v-model:visible="showSettings" />
     <CreditQualificationModal v-model:visible="showCreditModal" />
@@ -324,6 +296,7 @@ import SettingsModal from '@/components/layout/SettingsModal.vue'
 import CreditQualificationModal from '@/components/layout/CreditQualificationModal.vue'
 import BiddingSitesModal from '@/components/layout/BiddingSitesModal.vue'
 import UiModal from '@/components/ui/UiModal.vue'
+import FormatProgressModal from '@/components/FormatProgressModal.vue'
 import { confirmDialog } from '@/utils/confirm'
 import SaveTemplateModal from '@/components/SaveTemplateModal.vue'
 import LoadTemplateModal from '@/components/LoadTemplateModal.vue'
@@ -396,6 +369,20 @@ const vueOfficeBuffer = ref(null)
 const isProcessing = ref(false)
 const formatProgress = ref(0)
 const formatLog = ref([])
+const formatElapsedSec = ref(0)
+let formatElapsedTimer = null
+
+const formatProgressDesc = computed(() => {
+  if (formatLog.value.some((l) => l.type === 'error')) return '排版失败 · 请检查后端服务或文件格式'
+  if (isProcessing.value) {
+    const eta = formatProgress.value > 0
+      ? Math.max(1, Math.round((formatElapsedSec.value * (100 - formatProgress.value)) / formatProgress.value))
+      : '--'
+    return `正在处理 · 进度 ${formatProgress.value}% · 预计剩余 ${eta} 秒`
+  }
+  const pages = totalPages.value === '--' ? '' : ` · 文档约 ${totalPages.value} 页`
+  return `排版完成${pages} · 已生成对比结果`
+})
 const detectedParams = ref(null)
 const showDetectedInfo = ref(false)
 const fileInput = ref(null)
@@ -525,8 +512,47 @@ const handleDeleteTemplate = (id) => {
   } catch {}
 }
 
+const nowTime = () => new Date().toTimeString().slice(0, 8)
+
 const addLog = (msg, type = 'info') => {
-  formatLog.value.push({ msg, type, time: new Date().toLocaleTimeString() })
+  formatLog.value.push({ msg, type, time: nowTime() })
+}
+
+const ALIGN_TEXT = { LEFT: '左对齐', CENTER: '居中', RIGHT: '右对齐', JUSTIFY: '两端对齐' }
+
+const maxHeadingLevel = () => headings.value.reduce((m, h) => Math.max(m, h.level || 1), 0)
+
+const docFactLine = () => {
+  const parts = []
+  if (totalPages.value !== '--') parts.push(`文档约 ${totalPages.value} 页`)
+  const lvl = maxHeadingLevel()
+  if (headings.value.length > 0) parts.push(`识别 ${lvl} 级标题、共 ${headings.value.length} 条`)
+  else parts.push('未检测到编号型标题')
+  return parts.join('，')
+}
+
+const headingStyleLine = () => {
+  const list = formatParams.headings || []
+  if (list.length === 0) return ''
+  const lvl = Math.min(Math.max(maxHeadingLevel(), 1), list.length)
+  const cfg = list[lvl - 1]
+  const segs = [`${lvl} 级标题：${cfg.cn_font} / ${cfg.size_cn}`]
+  if (cfg.align && ALIGN_TEXT[cfg.align]) segs.push(ALIGN_TEXT[cfg.align])
+  return `应用样式 ${segs.join(' / ')}`
+}
+
+const bodyFactLine = () => {
+  const b = formatParams.body
+  if (!b) return ''
+  const mode = b.line_spacing_mode
+  let spacing
+  if (mode === 'EXACT') spacing = `固定行距 ${b.line_spacing_value} 磅`
+  else if (mode === 'MULTIPLE') spacing = `${b.line_spacing_value} 倍行距`
+  else if (mode === 'ONE_POINT_FIVE') spacing = '1.5 倍行距'
+  else if (mode === 'DOUBLE') spacing = '双倍行距'
+  else if (mode === 'AT_LEAST') spacing = `最小行距 ${b.line_spacing_value} 磅`
+  else spacing = '单倍行距'
+  return `统一正文 ${b.cn_font} ${b.size_cn}、${spacing}、首行缩进 ${b.first_line_indent_chars} 字符`
 }
 
 const handleOneClickModify = async () => {
@@ -537,7 +563,15 @@ const handleOneClickModify = async () => {
   if (!await handleLargeFileWarning()) return
   isProcessing.value = true
   formatProgress.value = 0
-  formatLog.value = [{ msg: '开始排版处理...', type: 'info', time: '' }]
+  formatLog.value = [
+    { msg: '开始解析文档结构…', type: 'info', time: nowTime() },
+    { msg: docFactLine(), type: 'info', time: nowTime() },
+  ]
+  formatElapsedSec.value = 0
+  const startedAt = Date.now()
+  formatElapsedTimer = setInterval(() => {
+    formatElapsedSec.value = Math.round((Date.now() - startedAt) / 1000)
+  }, 1000)
   showFormatLog.value = true
   try {
     addLog('正在检测后端服务...')
@@ -552,11 +586,14 @@ const handleOneClickModify = async () => {
     formatProgress.value = 40
     const blob = await formatDocument(currentFile.value, formatParams)
     formatProgress.value = 80
-    addLog('正在应用排版结果...')
+    const hLine = headingStyleLine()
+    if (hLine) addLog(hLine)
+    const bLine = bodyFactLine()
+    if (bLine) addLog(bLine)
     setFormatted(blob)
     applyFormatting()
     formatProgress.value = 100
-    addLog('排版完成！')
+    addLog('排版完成，已生成对比结果')
     setTimeout(() => {
       showFormatLog.value = false
       router.push('/compare')
@@ -569,6 +606,8 @@ const handleOneClickModify = async () => {
     ElMessage.error('排版失败：' + msg)
   } finally {
     isProcessing.value = false
+    clearInterval(formatElapsedTimer)
+    formatElapsedTimer = null
   }
 }
 
@@ -929,68 +968,6 @@ const onTemplateSaved = ({ name, category }) => {
 }
 .preview-empty p {
   font-size: 14px;
-}
-
-/* ── 排版进度 ── */
-.progress-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.progress-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.progress-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-body);
-}
-.progress-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-primary);
-}
-.progress-bar {
-  width: 100%;
-  height: 10px;
-  background: var(--color-border-soft);
-  border-radius: 9999px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--color-primary);
-  border-radius: 9999px;
-  transition: width 0.3s ease;
-}
-.log-box {
-  max-height: 192px;
-  overflow-y: auto;
-  background: var(--color-bg-card);
-  border: 0.7px solid var(--color-border-soft);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.log-row {
-  font-size: 12px;
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  color: var(--color-text-body);
-  line-height: 1.7;
-}
-.log-row.error {
-  color: var(--color-error);
-}
-.log-time {
-  color: var(--color-text-muted);
-  margin-right: 4px;
-}
-.progress-close {
-  align-self: flex-end;
 }
 
 /* ── docx 渲染 ── */
