@@ -1,9 +1,11 @@
 <template>
   <header class="top-nav">
-    <div class="nav-left" @click="router.push('/')">
-      <RiTargetLine class="tool-logo" size="26" />
-      <span class="brand-cn">{{ BRAND_NAME }}</span>
-      <span class="divider"></span>
+    <div class="nav-left" :class="{ 'is-static': isSidebar }" @click="!isSidebar && router.push('/')">
+      <template v-if="!isSidebar">
+        <RiTargetLine class="tool-logo" size="26" />
+        <span class="brand-cn">{{ BRAND_NAME }}</span>
+        <span class="divider"></span>
+      </template>
       <span class="page-title">{{ title || BRAND_PRODUCT }}</span>
     </div>
     <div v-if="!isSidebar" class="nav-right">
@@ -78,6 +80,17 @@ function emitOpenSettings() {
 
 .nav-left:hover .brand-cn {
   color: var(--color-primary);
+}
+
+.nav-left.is-static {
+  cursor: default;
+  user-select: text;
+}
+
+.nav-left.is-static .page-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .tool-logo {
