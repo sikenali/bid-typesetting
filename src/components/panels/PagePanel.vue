@@ -1,6 +1,6 @@
 <script setup>
 import DropdownSelect from '../ui/DropdownSelect.vue'
-import { paperSizes } from '../../constants/ui'
+import { paperSizes, pageOrientations } from '../../constants/ui'
 
 defineProps({
   params: { type: Object, required: true },
@@ -62,6 +62,15 @@ defineProps({
         <div class="field-cell">
           <span class="field-label">纸张大小</span>
           <DropdownSelect v-model="params.paper_size" :options="paperSizes" width-class="flex-1" />
+        </div>
+        <div class="field-cell">
+          <span class="field-label">纸张方向</span>
+          <DropdownSelect
+            v-model="params.orientation"
+            :options="pageOrientations"
+            width-class="flex-1"
+            :disabled="params.keep_original_orientation"
+          />
         </div>
         <div class="field-cell">
           <span class="field-label">装订线</span>

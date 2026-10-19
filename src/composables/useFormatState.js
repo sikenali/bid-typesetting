@@ -33,6 +33,7 @@ const formatParams = reactive({
     columns: 1,
     column_spacing_cm: 1,
     keep_original_orientation: false,
+    orientation: 'portrait',
   },
 
   body: {
@@ -56,6 +57,12 @@ const formatParams = reactive({
     align: 'JUSTIFY',
     add_space: true,
     space_count: 1,
+    underline_type: 'single',
+    color: '',
+    highlight: '',
+    strike: false,
+    keep_with_next: false,
+    page_break_before: false,
   },
 
   headings: [

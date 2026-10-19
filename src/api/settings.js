@@ -241,7 +241,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 2.54, bottom_cm: 2.54, left_cm: 3.17, right_cm: 3.17, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '小四', bold: false, italic: false, underline: false, line_spacing_mode: 'ONE_POINT_FIVE', line_spacing_value: 1.5, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: true, space_count: 1 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '小四', bold: false, italic: false, underline: false, line_spacing_mode: 'ONE_POINT_FIVE', line_spacing_value: 1.5, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: true, space_count: 1, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'SINGLE', line_spacing_value: 28, space_before_value: 12, space_before_unit: 'line', space_after_value: 6, space_after_unit: 'line', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'SINGLE', line_spacing_value: 28, space_before_value: 12, space_before_unit: 'line', space_after_value: 6, space_after_unit: 'line', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -277,7 +277,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 2.54, bottom_cm: 2.54, left_cm: 3.17, right_cm: 3.17, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '小四', bold: false, italic: false, underline: false, line_spacing_mode: 'ONE_POINT_FIVE', line_spacing_value: 1.5, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: true, space_count: 1 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '小四', bold: false, italic: false, underline: false, line_spacing_mode: 'ONE_POINT_FIVE', line_spacing_value: 1.5, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: true, space_count: 1, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'SINGLE', line_spacing_value: 28, space_before_value: 12, space_before_unit: 'line', space_after_value: 6, space_after_unit: 'line', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'SINGLE', line_spacing_value: 28, space_before_value: 12, space_before_unit: 'line', space_after_value: 6, space_after_unit: 'line', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -313,7 +313,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 3.7, bottom_cm: 3.5, left_cm: 2.8, right_cm: 2.6, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '仿宋', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0 },
+      body: { cn_font: '仿宋', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '楷体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -346,7 +346,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 3.7, bottom_cm: 3.5, left_cm: 2.8, right_cm: 2.6, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -383,7 +383,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 3.7, bottom_cm: 3.5, left_cm: 2.8, right_cm: 2.6, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -420,7 +420,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 3.7, bottom_cm: 3.5, left_cm: 2.8, right_cm: 2.6, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -457,7 +457,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 3.7, bottom_cm: 3.5, left_cm: 2.8, right_cm: 2.6, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
@@ -494,7 +494,7 @@ const DEFAULT_TEMPLATES = [
     createdAt: Date.now(),
     formatParams: {
       page: { paper_size: 'A4', top_cm: 3.7, bottom_cm: 3.5, left_cm: 2.8, right_cm: 2.6, gutter_cm: 0, header_margin_cm: 1.5, orientation: 'portrait' },
-      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0 },
+      body: { cn_font: '宋体', en_font: 'Times New Roman', size_cn: '三号', bold: false, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, first_line_indent_chars: 2, align: 'JUSTIFY', add_space: false, space_count: 0, underline_type: 'single', color: '', highlight: '', strike: false, keep_with_next: false, page_break_before: false },
       headings: [
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '三号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },
         { cn_font: '黑体', en_font: 'Times New Roman', size_cn: '四号', bold: true, italic: false, underline: false, line_spacing_mode: 'EXACT', line_spacing_value: 28, space_before_value: 0, space_before_unit: 'pt', space_after_value: 0, space_after_unit: 'pt', first_line_indent_chars: 0, align: 'LEFT', add_space: false, space_count: 0 },

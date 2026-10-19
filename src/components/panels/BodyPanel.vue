@@ -4,7 +4,7 @@ import CheckboxToggle from '../ui/CheckboxToggle.vue'
 import DropdownSelect from '../ui/DropdownSelect.vue'
 import SpacingInput from '../ui/SpacingInput.vue'
 import AlignButtonGroup from '../ui/AlignButtonGroup.vue'
-import { cnFonts, enFonts, sizeCN, lineSpacingModes, spacingUnits } from '../../constants/ui'
+import { cnFonts, enFonts, sizeCN, lineSpacingModes, spacingUnits, underlineTypes, highlightColors, textColors } from '../../constants/ui'
 
 defineProps({
   params: { type: Object, required: true },
@@ -44,6 +44,44 @@ defineProps({
             <CheckboxToggle v-model="params.italic" label="斜体" />
             <CheckboxToggle v-model="params.underline" label="下划线" />
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-title">
+        <RiBrushLine size="16" />
+        <span>文字效果</span>
+      </div>
+      <div class="field-row">
+        <div class="field-cell">
+          <span class="field-label">字体颜色</span>
+          <div class="swatch-group" role="radiogroup" aria-label="字体颜色">
+            <button
+              v-for="c in textColors"
+              :key="c.value || 'auto'"
+              type="button"
+              class="swatch"
+              :class="{ active: (params.color || '') === c.value }"
+              :title="c.label"
+              :aria-label="c.label"
+              @click="params.color = c.value"
+            >
+              <span class="swatch-chip" :style="c.color ? { background: c.color } : { background: 'transparent' }"></span>
+              <span class="swatch-name">{{ c.label }}</span>
+            </button>
+          </div>
+        </div>
+        <div class="field-cell">
+          <span class="field-label">下划线样式</span>
+          <DropdownSelect v-model="params.underline_type" :options="underlineTypes" width-class="flex-1" :disabled="!params.underline" />
+        </div>
+        <div class="field-cell">
+          <span class="field-label">高亮底纹</span>
+          <DropdownSelect v-model="params.highlight" :options="highlightColors" width-class="flex-1" placeholder="无高亮" />
+        </div>
+        <div class="field-cell">
+          <CheckboxToggle v-model="params.strike" label="删除线" />
         </div>
       </div>
     </div>
@@ -130,6 +168,23 @@ defineProps({
         </div>
       </div>
     </div>
+
+    <div class="group">
+      <div class="group-title">
+        <RiListCheck2 size="16" />
+        <span>段落行为</span>
+      </div>
+      <div class="field-row">
+        <div class="field-cell">
+          <span class="field-label">与下段同页</span>
+          <CheckboxToggle v-model="params.keep_with_next" label="同页" />
+        </div>
+        <div class="field-cell">
+          <span class="field-label">段前分页</span>
+          <CheckboxToggle v-model="params.page_break_before" label="分页" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -198,4 +253,39 @@ defineProps({
 }
 .input-box:focus { border-color: var(--color-primary); background: var(--color-bg-white); }
 .input-unit { font-size: 14px; color: var(--color-text-muted); }
+.swatch-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px 0 8px;
+  background: var(--color-bg-card);
+  border: 0.7px solid var(--color-border);
+  border-radius: 9px;
+  font-size: 13px;
+  color: var(--color-text-body);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+.swatch:hover { border-color: var(--color-primary); }
+.swatch.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-deep);
+}
+.swatch-chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 0.7px solid var(--color-border);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.swatch-name { line-height: 1; }
 </style>

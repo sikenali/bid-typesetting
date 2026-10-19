@@ -304,13 +304,7 @@ import { useFormatState } from '@/composables/useFormatState'
 import { ElMessage } from '@/utils/toast'
 import { readDocxParams } from '@/utils/docxReader'
 import { healthCheck, formatDocument } from '@/api/format'
-import { DocxEditor } from '@eigenpal/docx-editor-vue'
-import '@eigenpal/docx-editor-vue/styles.css'
-import VueOfficeDocx from '@vue-office/docx'
-import '@vue-office/docx/lib/index.css'
-import VueOfficePdf from '@vue-office/pdf'
-import VueOfficeExcel from '@vue-office/excel'
-import '@vue-office/excel/lib/index.css'
+import { DocxEditor, VueOfficeDocx, VueOfficePdf, VueOfficeExcel } from '@/lib/officeRenderers'
 
 const router = useRouter()
 const { getFile, setFormatted } = useDocument()

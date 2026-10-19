@@ -57,3 +57,37 @@ export const paperSizes = [
   { value: 'Letter', label: 'Letter (21.6×27.9cm)', w: 21.6, h: 27.9 },
   { value: 'custom', label: '自定义', w: 21.0, h: 29.7 },
 ]
+
+export const pageOrientations = [
+  { value: 'portrait', label: '纵向' },
+  { value: 'landscape', label: '横向' },
+]
+
+export const underlineTypes = [
+  { value: 'none', label: '无下划线' },
+  { value: 'single', label: '单下划线' },
+  { value: 'double', label: '双下划线' },
+  { value: 'dashed', label: '虚线下划线' },
+  { value: 'dotted', label: '点线下划线' },
+  { value: 'wavy', label: '波浪下划线' },
+]
+
+export const highlightColors = [
+  { value: '', label: '无高亮' },
+  { value: 'yellow', label: '黄色' },
+  { value: 'green', label: '绿色' },
+  { value: 'cyan', label: '青色' },
+  { value: 'red', label: '红色' },
+  { value: 'magenta', label: '品红' },
+  { value: 'blue', label: '蓝色' },
+]
+
+export const textColors = [
+  { value: '', label: '自动', color: '' },
+  { value: '#000000', label: '黑色', color: '#000000' },
+  { value: '#C00000', label: '红色', color: '#C00000' },
+  { value: '#0070C0', label: '蓝色', color: '#0070C0' },
+  { value: '#548235', label: '绿色', color: '#548235' },
+  { value: '#7030A0', label: '紫色', color: '#7030A0' },
+  { value: '#808080', label: '灰色', color: '#808080' },
+]

@@ -1,11 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import VueOfficeDocx from '@vue-office/docx'
-import '@vue-office/docx/lib/index.css'
-import VueOfficePdf from '@vue-office/pdf'
-import VueOfficeExcel from '@vue-office/excel'
-import '@vue-office/excel/lib/index.css'
-import VueOfficePptx from '@vue-office/pptx'
+import { VueOfficeDocx, VueOfficePdf, VueOfficeExcel, VueOfficePptx } from '@/lib/officeRenderers'
 
 const props = defineProps({
   file: {
