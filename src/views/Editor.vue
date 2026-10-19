@@ -322,7 +322,6 @@ const currentFile = computed(() => getFile())
 const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles, ensureTabBeforeSnapshot, saveTabAfterSnapshot, resetTab, cancelTab, clearTabSnapshots } = useFormatState()
 const { clearStylesEnabled, previewEnabled } = useSettings()
 
-watch(activeTab, (tab) => { ensureTabBeforeSnapshot(tab) })
 watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
 
 const sideItems = [
@@ -336,6 +335,7 @@ const sideItems = [
 ]
 
 const activeTab = ref('reset')
+watch(activeTab, (tab) => { ensureTabBeforeSnapshot(tab) })
 const showPreviewModal = ref(false)
 const showFormatLog = ref(false)
 const showSettings = ref(false)

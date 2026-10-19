@@ -64,7 +64,7 @@
         ref="inputRef"
         type="file"
         class="file-input"
-        :accept="accept"
+        :accept="ACCEPT"
         :disabled="state === 'processing'"
         @click.stop
         @change="handleFileChange"
