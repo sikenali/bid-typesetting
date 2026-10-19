@@ -610,7 +610,7 @@ onMounted(() => {
 .list-table th:last-child { text-align: right; }
 .list-table td { padding: 0 40px; height: 76px; vertical-align: middle; border-bottom: 0.7px solid var(--color-border-soft, #EDE9E0); }
 .list-table td:last-child { text-align: right; }
-.col-name { width: 430px; flex-shrink: 0; }
+.col-name { width: 280px; flex-shrink: 0; }
 .col-desc { flex: 1; }
 .col-action { width: 260px; flex-shrink: 0; }
 .row-name {
@@ -622,7 +622,7 @@ onMounted(() => {
   font-family: "SourceHanSans-Regular", var(--font-family-cn);
 }
 .row-desc { font-size: 15px; color: var(--color-text-secondary, #6E6A60); font-family: "SourceHanSans-Regular", var(--font-family-cn); }
-.row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 24px; }
+.row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 14px; }
 
 /* 操作按钮（与技能管理一致） */
 .row-actions .action-btn {

@@ -29,12 +29,6 @@ function onHighlightChange(v) {
     </div>
 
     <div class="section-card">
-      <div class="section-title">
-        <RiEyeLine size="18" />
-        <span>显示偏好</span>
-      </div>
-      <p class="section-desc">控制预览按钮与文档批注展示方式，所有开关即时生效</p>
-
       <div class="switch-list">
         <div class="switch-row">
           <div class="switch-left">
@@ -134,23 +128,7 @@ function onHighlightChange(v) {
   background: var(--color-bg-white);
   border: 0.7px solid var(--color-border-soft);
   border-radius: 14px;
-  padding: 24px 28px;
-}
-.section-title {
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  font-family: var(--font-family-cn);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title > svg { color: var(--color-primary); }
-.section-desc {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin: 6px 0 16px;
-  font-family: var(--font-family-cn);
+  padding: 20px 28px 28px;
 }
 
 .switch-list { display: flex; flex-direction: column; }

@@ -27,6 +27,7 @@
             :class="{ active: activeTab === item.id }"
             @click="activeTab = item.id"
           >
+            <component :is="item.icon" size="18" />
             <span class="side-item-label">{{ item.label }}</span>
           </button>
         </nav>
@@ -93,7 +94,7 @@
               class="btn btn-outline action-btn"
               @click="showPreviewModal = !showPreviewModal"
             >
-              <RiEyeLine size="17" />
+              <RiEyeLine size="15" />
               <span>预览</span>
             </button>
             <button
@@ -101,8 +102,8 @@
               :disabled="isProcessing"
               @click="handleOneClickModify"
             >
-              <RiLoader2Line v-if="isProcessing" size="17" class="spinner" />
-              <RiSparklingLine v-else size="17" />
+              <RiLoader2Line v-if="isProcessing" size="15" class="spinner" />
+              <RiSparklingLine v-else size="15" />
               <span>{{ isProcessing ? '排版中…' : '一键排版' }}</span>
             </button>
           </div>
@@ -273,7 +274,15 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import {
+  RiPagesLine,
+  RiHeading,
+  RiTextSnippet,
+  RiListCheck2,
+  RiBarChart2Line,
+  RiLayoutTop2Line,
+  RiBrushLine,
+} from '@remixicon/vue'
 import TopNav from '@/components/layout/TopNav.vue'
 import PageFooter from '@/components/layout/PageFooter.vue'
 import SettingsModal from '@/components/layout/SettingsModal.vue'
@@ -315,13 +324,13 @@ const { clearStylesEnabled, previewEnabled } = useSettings()
 watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
 
 const sideItems = [
-  { id: 'page', label: '页面', icon: 'RiPagesLine' },
-  { id: 'heading', label: '标题', icon: 'RiHeading' },
-  { id: 'body', label: '正文', icon: 'RiTextSnippet' },
-  { id: 'toc', label: '目录', icon: 'RiListCheck2' },
-  { id: 'chart', label: '图表', icon: 'RiBarChart2Line' },
-  { id: 'header', label: '页面页脚', icon: 'RiLayoutTop2Line' },
-  { id: 'reset', label: '初始化', icon: 'RiBrushLine' },
+  { id: 'page', label: '页面', icon: RiPagesLine },
+  { id: 'heading', label: '标题', icon: RiHeading },
+  { id: 'body', label: '正文', icon: RiTextSnippet },
+  { id: 'toc', label: '目录', icon: RiListCheck2 },
+  { id: 'chart', label: '图表', icon: RiBarChart2Line },
+  { id: 'header', label: '页面页脚', icon: RiLayoutTop2Line },
+  { id: 'reset', label: '初始化', icon: RiBrushLine },
 ]
 
 const activeTab = ref('reset')
@@ -753,13 +762,13 @@ const handleImportJSON = (event) => {
   margin-top: auto;
   padding-top: 24px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
 }
 .side-btn {
-  height: 50px;
-  width: 100%;
-  font-size: 16px;
+  height: 46px;
+  flex: 1;
+  font-size: 15px;
 }
 
 /* ── 主内容区 ── */
@@ -811,7 +820,8 @@ const handleImportJSON = (event) => {
   gap: 12px;
 }
 .action-btn {
-  height: 46px;
+  height: 42px;
+  padding: 0 20px;
 }
 .content-scroll {
   flex: 1;
