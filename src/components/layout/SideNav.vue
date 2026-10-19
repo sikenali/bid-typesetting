@@ -1,49 +1,27 @@
 <template>
   <aside class="side-nav">
     <div class="side-top">
-      <button class="side-logo" title="文版猩" aria-label="回到首页" @click="goHome">
+      <button class="side-logo" title="回到上传" aria-label="回到上传" @click="goHome">
         <RiTargetLine size="26" />
       </button>
     </div>
 
-    <nav class="side-body" aria-label="模块导航">
-      <div class="rail-group">
-        <UiTip
-          v-for="item in navMain"
-          :key="item.key"
-          :text="item.label"
-          placement="right"
+    <nav class="side-body" aria-label="设置导航">
+      <UiTip
+        v-for="item in navSettings"
+        :key="item.key"
+        :text="item.label"
+        placement="right"
+      >
+        <button
+          class="rail-btn"
+          :class="{ active: activeKey(item) }"
+          @click="go(item)"
         >
-          <button
-            class="rail-btn"
-            :class="{ active: activeKey(item) }"
-            @click="go(item)"
-          >
-            <component :is="riToCompName(item.icon)" size="22" />
-            <span class="rail-label">{{ item.label }}</span>
-          </button>
-        </UiTip>
-      </div>
-
-      <div class="rail-divider" aria-hidden="true"></div>
-
-      <div class="rail-group">
-        <UiTip
-          v-for="item in navSettings"
-          :key="item.key"
-          :text="item.label"
-          placement="right"
-        >
-          <button
-            class="rail-btn"
-            :class="{ active: activeKey(item) }"
-            @click="go(item)"
-          >
-            <component :is="riToCompName(item.icon)" size="22" />
-            <span class="rail-label">{{ item.label }}</span>
-          </button>
-        </UiTip>
-      </div>
+          <component :is="riToCompName(item.icon)" size="22" />
+          <span class="rail-label">{{ item.label }}</span>
+        </button>
+      </UiTip>
     </nav>
 
     <div class="side-bottom">
@@ -64,12 +42,6 @@ import { riToCompName } from '@/utils/icon';
 
 const route = useRoute();
 const router = useRouter();
-
-const navMain = [
-  { key: 'upload', label: '上传', icon: 'ri-upload-line', path: '/' },
-  { key: 'editor', label: '排版', icon: 'ri-layout-2-line', path: '/editor' },
-  { key: 'compare', label: '对比', icon: 'ri-contrast-2-line', path: '/compare' },
-];
 
 const navSettings = [
   { key: 'theme', label: '主题', icon: 'ri-palette-line', path: '/settings', query: { tab: 'theme' } },
@@ -141,20 +113,7 @@ function goAbout() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-}
-
-.rail-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.rail-divider {
-  width: 28px;
-  height: 0.7px;
-  background-color: var(--color-border-soft);
+  gap: 16px;
 }
 
 .rail-btn {
