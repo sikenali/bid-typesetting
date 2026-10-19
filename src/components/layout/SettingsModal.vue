@@ -95,6 +95,15 @@ watch(
   }
 );
 
+watch(
+  () => route.query.tab,
+  (v) => {
+    if (props.visible && menuItems.some((i) => i.key === v)) {
+      activeKey.value = v;
+    }
+  }
+);
+
 const activeComponent = computed(() => menuItems.find((i) => i.key === activeKey.value)?.component);
 
 function selectTab(key) {

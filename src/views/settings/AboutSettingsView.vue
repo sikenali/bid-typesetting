@@ -1,7 +1,7 @@
 <script setup>
-import { BRAND_NAME, BRAND_PRODUCT, BRAND_YEAR } from '@/constants/brand';
+import { APP_VERSION, BRAND_NAME, BRAND_PRODUCT, BRAND_YEAR } from '@/constants/brand';
 
-const appVersion = 'V1.0.0';
+const appVersion = APP_VERSION;
 </script>
 
 <template>

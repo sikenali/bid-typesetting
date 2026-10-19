@@ -1,40 +1,82 @@
 <template>
   <aside class="side-nav">
-    <nav class="nav-rail" aria-label="模块导航">
-      <UiTip
-        v-for="item in modules"
-        :key="item.key"
-        :text="item.label"
-        placement="right"
-      >
-        <button
-          class="rail-btn"
-          :class="{ active: activeKey(item) }"
-          @click="go(item)"
+    <div class="side-top">
+      <button class="side-logo" title="文版猩" aria-label="回到首页" @click="goHome">
+        <RiTargetLine size="26" />
+      </button>
+    </div>
+
+    <nav class="side-body" aria-label="模块导航">
+      <div class="rail-group">
+        <UiTip
+          v-for="item in navMain"
+          :key="item.key"
+          :text="item.label"
+          placement="right"
         >
-          <component :is="riToCompName(item.icon)" size="22" />
-          <span class="rail-label">{{ item.label }}</span>
+          <button
+            class="rail-btn"
+            :class="{ active: activeKey(item) }"
+            @click="go(item)"
+          >
+            <component :is="riToCompName(item.icon)" size="22" />
+            <span class="rail-label">{{ item.label }}</span>
+          </button>
+        </UiTip>
+      </div>
+
+      <div class="rail-divider" aria-hidden="true"></div>
+
+      <div class="rail-group">
+        <UiTip
+          v-for="item in navSettings"
+          :key="item.key"
+          :text="item.label"
+          placement="right"
+        >
+          <button
+            class="rail-btn"
+            :class="{ active: activeKey(item) }"
+            @click="go(item)"
+          >
+            <component :is="riToCompName(item.icon)" size="22" />
+            <span class="rail-label">{{ item.label }}</span>
+          </button>
+        </UiTip>
+      </div>
+    </nav>
+
+    <div class="side-bottom">
+      <UiTip text="关于" placement="right">
+        <button class="side-version" @click="goAbout">
+          {{ APP_VERSION }}
         </button>
       </UiTip>
-    </nav>
+    </div>
   </aside>
 </template>
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
+import { APP_VERSION } from '@/constants/brand';
 import { UiTip } from '@/components/ui';
 import { riToCompName } from '@/utils/icon';
 
 const route = useRoute();
 const router = useRouter();
 
-const modules = [
+const navMain = [
   { key: 'upload', label: '上传', icon: 'ri-upload-line', path: '/' },
   { key: 'editor', label: '排版', icon: 'ri-layout-2-line', path: '/editor' },
-  { key: 'template', label: '模板', icon: 'ri-file-list-3-line', path: '/settings', query: { tab: 'template' } },
   { key: 'compare', label: '对比', icon: 'ri-contrast-2-line', path: '/compare' },
-  { key: 'settings', label: '设置', icon: 'ri-settings-3-line', path: '/settings' },
+];
+
+const navSettings = [
+  { key: 'theme', label: '主题', icon: 'ri-palette-line', path: '/settings', query: { tab: 'theme' } },
+  { key: 'template', label: '模板', icon: 'ri-file-list-2-line', path: '/settings', query: { tab: 'template' } },
+  { key: 'model', label: '模型', icon: 'ri-cpu-line', path: '/settings', query: { tab: 'model' } },
   { key: 'profile', label: '个性', icon: 'ri-user-settings-line', path: '/settings', query: { tab: 'profile' } },
+  { key: 'about', label: '关于', icon: 'ri-information-line', path: '/settings', query: { tab: 'about' } },
 ];
 
 function activeKey(item) {
@@ -44,6 +86,14 @@ function activeKey(item) {
 
 function go(item) {
   router.push(item.query ? { path: item.path, query: item.query } : item.path);
+}
+
+function goHome() {
+  router.push('/');
+}
+
+function goAbout() {
+  router.push({ path: '/settings', query: { tab: 'about' } });
 }
 </script>
 
@@ -59,13 +109,52 @@ function go(item) {
   flex-direction: column;
 }
 
-.nav-rail {
-  flex: 1;
+.side-top {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 0 10px;
+}
+
+.side-logo {
+  border: none;
+  padding: 6px;
+  border-radius: 12px;
+  background-color: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.side-logo:hover {
+  background-color: var(--color-primary-soft);
+}
+
+.side-body {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 10px;
+}
+
+.rail-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.rail-divider {
+  width: 28px;
+  height: 0.7px;
+  background-color: var(--color-border-soft);
 }
 
 .rail-btn {
@@ -112,5 +201,33 @@ function go(item) {
 .rail-btn.active .rail-label {
   color: var(--color-primary);
   font-weight: 500;
+}
+
+.side-bottom {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 14px;
+}
+
+.side-version {
+  border: none;
+  padding: 5px 8px;
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--color-text-muted);
+  font-size: 10.5px;
+  line-height: 1.2;
+  font-family: var(--font-family-num, inherit);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.side-version:hover {
+  color: var(--color-primary);
+  background-color: var(--color-primary-soft);
 }
 </style>

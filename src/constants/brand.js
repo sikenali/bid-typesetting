@@ -1,3 +1,4 @@
+export const APP_VERSION = 'V' + __APP_VERSION__;
 export const BRAND_NAME = '文版猩';
 export const BRAND_SHORT = '文版猩';
 export const BRAND_PRODUCT = '智能化文件排版工具';
