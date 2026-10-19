@@ -274,6 +274,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   RiPagesLine,
   RiHeading,
@@ -318,9 +319,10 @@ import { DocxEditor, VueOfficeDocx, VueOfficePdf, VueOfficeExcel } from '@/lib/o
 const router = useRouter()
 const { getFile, setFormatted } = useDocument()
 const currentFile = computed(() => getFile())
-const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles } = useFormatState()
+const { formatParams, beforeSnapshot, afterSnapshot, applyFormatting, takeBeforeSnapshot, loadFormatParams, syncClearStyles, ensureTabBeforeSnapshot, saveTabAfterSnapshot, resetTab, cancelTab, clearTabSnapshots } = useFormatState()
 const { clearStylesEnabled, previewEnabled } = useSettings()
 
+watch(activeTab, (tab) => { ensureTabBeforeSnapshot(tab) })
 watch(clearStylesEnabled, (val) => { syncClearStyles(val) }, { immediate: true })
 
 const sideItems = [
@@ -442,6 +444,7 @@ watch(currentFile, async (file) => {
       } catch {}
     }
 
+    clearTabSnapshots()
     takeBeforeSnapshot()
 
     const { value: htmlContent } = await mammoth.convertToHtml({ arrayBuffer: buf })
@@ -466,7 +469,7 @@ watch(currentFile, async (file) => {
   }
 }, { immediate: true })
 
-onMounted(() => { activeTab.value = 'reset' })
+onMounted(() => { activeTab.value = 'reset'; ensureTabBeforeSnapshot('reset') })
 
 onUnmounted(() => {
   documentBuffer.value = null
@@ -479,7 +482,10 @@ const handleSaveTemplate = () => {
   useSettingsTab().set({ tab: 'template', kind: 'typography' })
   showSettings.value = true
 }
-const handleSave = () => { applyFormatting() }
+const handleSave = () => {
+  saveTabAfterSnapshot(activeTab.value)
+  applyFormatting()
+}
 const handleLoadTemplate = () => {
   useSettingsTab().set({ tab: 'template', kind: 'typography' })
   showSettings.value = true
@@ -608,14 +614,11 @@ const handleOneClickModify = async () => {
 }
 
 const handleCancel = () => {
-  const target = afterSnapshot.value || beforeSnapshot.value
-  if (target) Object.assign(formatParams, JSON.parse(JSON.stringify(target)))
+  cancelTab(activeTab.value)
 }
 
 const handleReset = () => {
-  if (beforeSnapshot.value) {
-    Object.assign(formatParams, JSON.parse(JSON.stringify(beforeSnapshot.value)))
-  }
+  resetTab(activeTab.value)
 }
 
 const handleExportJSON = () => {

@@ -317,6 +317,63 @@ const beforeSnapshot = ref(null)
 const afterSnapshot = ref(null)
 const diffs = ref([])
 
+// ── Per-tab snapshots ──────────────────────────────────────────────
+const TAB_KEYS = {
+  page: ['page'],
+  heading: ['headings', 'patterns'],
+  body: ['body'],
+  toc: ['toc'],
+  chart: ['fig_caption', 'tbl_caption', 'table', 'table_settings'],
+  header: ['header_footer'],
+  reset: ['cleanup'],
+}
+
+const tabBeforeSnapshots = ref({})
+const tabAfterSnapshots = ref({})
+
+function getTabData(tabId) {
+  const keys = TAB_KEYS[tabId]
+  if (!keys) return null
+  const data = {}
+  for (const k of keys) data[k] = JSON.parse(JSON.stringify(formatParams[k]))
+  return data
+}
+
+function setTabData(tabId, data) {
+  const keys = TAB_KEYS[tabId]
+  if (!keys) return
+  for (const k of keys) {
+    if (data[k] !== undefined) formatParams[k] = JSON.parse(JSON.stringify(data[k]))
+  }
+}
+
+function ensureTabBeforeSnapshot(tabId) {
+  if (!tabBeforeSnapshots.value[tabId]) {
+    tabBeforeSnapshots.value[tabId] = getTabData(tabId)
+  }
+}
+
+function saveTabAfterSnapshot(tabId) {
+  ensureTabBeforeSnapshot(tabId)
+  tabAfterSnapshots.value[tabId] = getTabData(tabId)
+}
+
+function resetTab(tabId) {
+  if (tabBeforeSnapshots.value[tabId]) {
+    setTabData(tabId, tabBeforeSnapshots.value[tabId])
+  }
+}
+
+function cancelTab(tabId) {
+  const snap = tabAfterSnapshots.value[tabId] || tabBeforeSnapshots.value[tabId]
+  if (snap) setTabData(tabId, snap)
+}
+
+function clearTabSnapshots() {
+  tabBeforeSnapshots.value = {}
+  tabAfterSnapshots.value = {}
+}
+
 function takeBeforeSnapshot() {
   beforeSnapshot.value = JSON.parse(JSON.stringify(formatParams))
 }
@@ -399,6 +456,11 @@ export function useFormatState() {
     applyFormatting,
     loadFormatParams,
     syncClearStyles,
+    ensureTabBeforeSnapshot,
+    saveTabAfterSnapshot,
+    resetTab,
+    cancelTab,
+    clearTabSnapshots,
   }
 }
 
