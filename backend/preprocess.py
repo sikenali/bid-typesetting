@@ -69,19 +69,29 @@ def clear_extra_spaces(doc):
 
 
 def clear_chart_format(doc):
-    """Clear formatting on chart/figure paragraphs by resetting direct formatting."""
+    """Clear formatting on chart/figure/table caption paragraphs by resetting direct formatting."""
     import re
     re_fig = re.compile(r'^[图圖](\s*)([\d一二三四五六七八九十百千]+)')
+    re_tbl = re.compile(r'^表(\s*)([\d一二三四五六七八九十百千]+)')
     for p in doc.paragraphs:
         text = get_paragraph_text(p)
-        if re_fig.match(text):
+        if re_fig.match(text) or re_tbl.match(text):
             for r in p.runs:
                 rPr = r._element.get_or_add_rPr()
-                for tag in ('w:b', 'w:i', 'w:strike', 'w:color', 'w:highlight',
-                            'w:u', 'w:sz', 'w:szCs', 'w:rFonts'):
+                # Clear run-level formatting
+                for tag in ('w:b', 'w:bCs', 'w:i', 'w:iCs', 'w:strike', 'w:dstrike',
+                            'w:color', 'w:highlight', 'w:u', 'w:uCs',
+                            'w:sz', 'w:szCs', 'w:rFonts', 'w:spacing',
+                            'w:w', 'w:lang', 'w:position'):
                     el = rPr.find(qn(tag))
                     if el is not None:
                         rPr.remove(el)
+            # Clear paragraph-level formatting
+            pPr = p._element.get_or_add_pPr()
+            for tag in ('w:jc', 'w:ind', 'w:spacing', 'w:tabs', 'w:shd'):
+                el = pPr.find(qn(tag))
+                if el is not None:
+                    pPr.remove(el)
 
 
 def flatten_sdt(doc):

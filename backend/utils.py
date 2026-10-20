@@ -42,11 +42,14 @@ HIGHLIGHT_MAP = {
 }
 
 UNDERLINE_MAP = {
-    'single': 'single', 'single': 'single',
-    'double': 'double', 'double': 'double',
-    'dotted': 'dotted', 'dotted': 'dotted',
-    'dashed': 'dashed', 'dashed': 'dashed',
-    'wavy': 'wave', 'wavy': 'wave',
+    'single': 'single',
+    'double': 'double',
+    'dotted': 'dotted',
+    'dashed': 'dashed',
+    'wavy': 'wave',
+    'thick': 'thick',
+    'word': 'word',
+    'none': 'none',
 }
 
 
