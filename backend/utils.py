@@ -186,6 +186,12 @@ def set_line_spacing(pPr, mode, value):
     elif mode == 'SINGLE':
         spacing.set(qn('w:line'), '240')
         spacing.set(qn('w:lineRule'), 'auto')
+    elif mode == 'DOUBLE':
+        spacing.set(qn('w:line'), '480')
+        spacing.set(qn('w:lineRule'), 'auto')
+    elif mode == 'ONE_POINT_FIVE':
+        spacing.set(qn('w:line'), '360')
+        spacing.set(qn('w:lineRule'), 'auto')
 
 
 def set_space_before(pPr, value, unit):

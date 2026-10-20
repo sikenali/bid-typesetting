@@ -18,6 +18,7 @@ const formatParams = reactive({
   apply_toc: true,
   apply_header_footer: true,
   apply_table: true,
+  apply_numbering: true,
   auto_refresh_fields: false,
 
   page: {
@@ -244,6 +245,7 @@ const formatParams = reactive({
 
   toc: {
     enable: false,
+    enable_level_styles: true,
     title_text: '目录',
     title_cn_font: '黑体',
     title_en_font: 'Times New Roman',
@@ -275,6 +277,7 @@ const formatParams = reactive({
     footer_en_font: 'Times New Roman',
     footer_size_cn: '五号',
     footer_align: 'CENTER',
+    footer_bold: false,
     footer_italic: false,
     footer_page_number_type: 'standard',
   },
@@ -297,6 +300,7 @@ const formatParams = reactive({
       clear_heading_special_indent: false,
       clear_align_grid: true,
       clear_extra_spaces: false,
+      clear_chart_format: false,
       remove_extra_blank_lines: false,
       clean_after_formatting: false,
     },

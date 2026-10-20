@@ -279,7 +279,7 @@ def adjust_caption_spacing(doc, cfg):
             set_space_after(pPr, spaces / 20, '磅')
 
 
-def apply_preprocess_table_cells(doc, font, size_cn, line_spacing, align, border, min_height, auto_width):
+def apply_preprocess_table_cells(doc, font, en_font, size_cn, line_spacing, align, border, min_height, auto_width):
     from format_table import apply_cell_borders
     from docx.enum.table import WD_ALIGN_VERTICAL
     from docx.oxml.ns import qn
@@ -313,7 +313,7 @@ def apply_preprocess_table_cells(doc, font, size_cn, line_spacing, align, border
                     apply_cell_borders(cell, border)
                 if align and align in vmap:
                     cell.vertical_alignment = vmap[align]
-                style = {'cn_font': font, 'en_font': font, 'size_cn': size_cn}
+                style = {'cn_font': font, 'en_font': en_font or font, 'size_cn': size_cn}
                 if line_spacing and float(line_spacing) > 0:
                     style['line_spacing_mode'] = 'MULTIPLE'
                     style['line_spacing_value'] = float(line_spacing)
@@ -368,6 +368,7 @@ def preprocess(doc, cfg):
     if cfg.get('preprocess_table_cell_enable'):
         apply_preprocess_table_cells(doc,
             cfg.get('preprocess_table_cell_font', '宋体'),
+            cfg.get('preprocess_table_cell_en_font', 'Times New Roman'),
             cfg.get('preprocess_table_cell_size', '四号'),
             cfg.get('preprocess_table_cell_line_spacing', 20),
             cfg.get('preprocess_table_cell_align', 'CENTER'),

@@ -50,6 +50,7 @@ function flattenCleanup(config) {
     // Table cell settings (from formatParams.table_settings)
     preprocess_table_cell_enable: config.table_settings?.enable ?? false,
     preprocess_table_cell_font: config.table_settings?.cn_font ?? '宋体',
+    preprocess_table_cell_en_font: config.table_settings?.en_font ?? 'Times New Roman',
     preprocess_table_cell_size: config.table_settings?.size_cn ?? '四号',
     preprocess_table_cell_line_spacing: config.table_settings?.line_spacing_value ?? 20,
     preprocess_table_cell_min_height: config.table_settings?.min_line_height ?? 15,

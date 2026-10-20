@@ -23,7 +23,7 @@ def _configure_run(run, cn_font, en_font, size_cn, bold, italic, underline_type)
         set_underline_type(rPr, underline_type, '#000000')
 
 
-def _add_field(paragraph, field_code):
+def _add_field(paragraph, field_code, font_config=None):
     run = paragraph.add_run()
     fld_begin = OxmlElement('w:fldChar')
     fld_begin.set(qn('w:fldCharType'), 'begin')
@@ -46,6 +46,13 @@ def _add_field(paragraph, field_code):
     fld_end = OxmlElement('w:fldChar')
     fld_end.set(qn('w:fldCharType'), 'end')
     end_run._element.append(fld_end)
+
+    # Apply font configuration to all runs in the field
+    if font_config:
+        for r in [run, instr_run, sep_run, text_run, end_run]:
+            _configure_run(r, font_config.get('cn_font', ''), font_config.get('en_font', ''),
+                           font_config.get('size_cn', ''), font_config.get('bold', False),
+                           font_config.get('italic', False), font_config.get('underline_type', ''))
 
 
 def apply_header_footer(doc, hf):
@@ -89,21 +96,29 @@ def apply_header_footer(doc, hf):
                 if not hf.get('page_number_from_body', False):
                     num_type = hf.get('footer_page_number_type', 'standard')
                     num_type_lower = num_type.lower() if num_type else ''
+                    footer_font = {
+                        'cn_font': hf.get('footer_cn_font', ''),
+                        'en_font': hf.get('footer_en_font', ''),
+                        'size_cn': hf.get('footer_size_cn', ''),
+                        'bold': hf.get('footer_bold', False),
+                        'italic': hf.get('footer_italic', False),
+                        'underline_type': hf.get('footer_underline_type', ''),
+                    }
                     if num_type_lower in ('page_only', '仅页码'):
-                        _add_field(p, 'PAGE')
+                        _add_field(p, 'PAGE', footer_font)
                     elif num_type_lower in ('none', '无'):
                         pass
                     elif num_type_lower in ('standard', '标准'):
-                        _add_field(p, 'PAGE')
+                        _add_field(p, 'PAGE', footer_font)
                         p.add_run(' / ')
-                        _add_field(p, 'NUMPAGES')
+                        _add_field(p, 'NUMPAGES', footer_font)
                     elif num_type_lower in ('dash', '短横线'):
-                        _add_field(p, 'PAGE')
+                        _add_field(p, 'PAGE', footer_font)
                         p.add_run(' - ')
-                        _add_field(p, 'NUMPAGES')
+                        _add_field(p, 'NUMPAGES', footer_font)
                     elif num_type_lower in ('simple', '简单'):
-                        _add_field(p, 'PAGE')
+                        _add_field(p, 'PAGE', footer_font)
                     else:
-                        _add_field(p, 'PAGE')
+                        _add_field(p, 'PAGE', footer_font)
                         p.add_run(' / ')
-                        _add_field(p, 'NUMPAGES')
+                        _add_field(p, 'NUMPAGES', footer_font)
