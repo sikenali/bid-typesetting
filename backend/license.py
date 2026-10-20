@@ -56,8 +56,6 @@ def save_license_entries(entries):
                 key = encrypt(key)
             result.append({'name': name, 'key': key, 'encrypted': True})
         cfg['license_entries'] = result
-        if entries and entries[0].get('key'):
-            cfg['unidoc_license_key'] = entries[0]['key']
         _save_config(cfg)
 
 
@@ -92,7 +90,7 @@ def _trim_endpoint_suffix(ep):
     return ep
 
 
-def _test_models_endpoint(base_url, api_key):
+def _test_models_endpoint(base_url, api_key, provider=''):
     models_url = _trim_endpoint_suffix(base_url) + '/models'
     try:
         resp = requests.get(models_url, headers={'Authorization': 'Bearer ' + api_key}, timeout=8)
@@ -103,13 +101,13 @@ def _test_models_endpoint(base_url, api_key):
     elif resp.status_code in (401, 403):
         return {'available': False, 'error': 'API key invalid'}
     elif resp.status_code == 404:
-        return _test_chat_completions(_trim_endpoint_suffix(base_url), api_key, '')
+        return _test_chat_completions(_trim_endpoint_suffix(base_url), api_key, '', provider)
     else:
         return {'available': False, 'error': 'unexpected status %d' % resp.status_code}
 
 
-def _test_chat_completions(base_url, api_key, model):
-    is_anthropic = str(model).lower() == 'anthropic'
+def _test_chat_completions(base_url, api_key, model, provider=''):
+    is_anthropic = 'anthropic' in base_url.lower() or str(provider).lower() == 'anthropic'
     messages_url = base_url + ('/messages' if is_anthropic else '/chat/completions')
     payload = {'model': model, 'messages': [{'role': 'user', 'content': 'Hi'}]}
     if is_anthropic:
@@ -135,7 +133,7 @@ def test_api_key(provider, api_key, model, custom_endpoint, custom_format):
     if custom_endpoint:
         return _test_custom_endpoint(custom_endpoint, api_key, model, custom_format)
     base_url = _get_default_base_url(provider)
-    return _test_models_endpoint(base_url, api_key)
+    return _test_models_endpoint(base_url, api_key, provider)
 
 
 def _test_custom_endpoint(endpoint, api_key, model, custom_format):

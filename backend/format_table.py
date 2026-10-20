@@ -43,16 +43,46 @@ def apply_cell_borders(cell, style):
             border.set(qn('w:color'), color)
             tcBorders.append(border)
     elif style in ('内部', 'inside', 'INSIDE'):
-        for side in ('top', 'left', 'bottom', 'right'):
-            border = OxmlElement('w:' + side)
-            border.set(qn('w:val'), val)
-            border.set(qn('w:sz'), sz)
-            border.set(qn('w:color'), color)
-            tcBorders.append(border)
+        # Inside borders are handled at table level in _set_table_borders
+        return
     old = tcPr.find(qn('w:tcBorders'))
     if old is not None:
         tcPr.remove(old)
     tcPr.append(tcBorders)
+
+
+def _set_table_borders(tbl, style):
+    """Set table-level borders for inside/outside/all styles."""
+    tblPr = tbl._tbl.tblPr
+    # Remove existing tblBorders
+    old = tblPr.find(qn('w:tblBorders'))
+    if old is not None:
+        tblPr.remove(old)
+    if style in ('内部', 'inside', 'INSIDE'):
+        # Only set inside borders (horizontal and vertical between cells)
+        tblBorders = OxmlElement('w:tblBorders')
+        for side in ('insideH', 'insideV'):
+            border = OxmlElement('w:' + side)
+            border.set(qn('w:val'), 'single')
+            border.set(qn('w:sz'), '4')
+            border.set(qn('w:color'), '000000')
+            tblBorders.append(border)
+        # Set outer borders to none
+        for side in ('top', 'left', 'bottom', 'right'):
+            border = OxmlElement('w:' + side)
+            border.set(qn('w:val'), 'none')
+            border.set(qn('w:sz'), '0')
+            tblBorders.append(border)
+        tblPr.append(tblBorders)
+    elif style in ('外框', 'outside', 'OUTSIDE'):
+        tblBorders = OxmlElement('w:tblBorders')
+        for side in ('top', 'left', 'bottom', 'right'):
+            border = OxmlElement('w:' + side)
+            border.set(qn('w:val'), 'single')
+            border.set(qn('w:sz'), '4')
+            border.set(qn('w:color'), '000000')
+            tblBorders.append(border)
+        tblPr.append(tblBorders)
 
 
 def _set_table_alignment(tbl, align):
@@ -156,6 +186,9 @@ def apply_table_settings(doc, ts):
     for tbl in doc.tables:
         if ts.get('auto_width'):
             _set_table_autofit(tbl)
+        border_style = ts.get('border_style', '')
+        if border_style and border_style in ('内部', 'inside', 'INSIDE'):
+            _set_table_borders(tbl, border_style)
         for row in tbl.rows:
             min_h = ts.get('min_line_height', 0) or 0
             if min_h and float(min_h) > 0:

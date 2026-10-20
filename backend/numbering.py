@@ -9,12 +9,16 @@ def _build_pattern_regex(rule):
     if rule.get('scheme') == 'ARABIC':
         scheme = r'\d+'
     wrapper_map = {
-        'DUNHAO': r'[、]', 'DOUBLE_PAREN': r'[）)]', 'DOT': r'[.．]',
-        'SINGLE_PAREN': r'[)]', 'PAREN': r'[)]', 'BRACKET': r'[]]',
+        'DUNHAO': r'[、]', 'DOUBLE_PAREN': r'[（(][\s]*(%s)[\s]*[）)]', 'DOT': r'[.．]',
+        'SINGLE_PAREN': r'[（(][\s]*(%s)[\s]*[）)]', 'PAREN': r'[（(][\s]*(%s)[\s]*[）)]', 'BRACKET': r'[【\[][\s]*(%s)[\s]*[】\]]',
     }
     wrapper = wrapper_map.get(rule.get('wrapper', ''), '')
     if not wrapper:
         return None
+    # For paren/bracket wrappers, the scheme is already inside the wrapper pattern
+    if wrapper.count('%s') > 0:
+        wrapper = wrapper % scheme
+        return re.compile(r'^%s?\s*(.*)' % wrapper)
     return re.compile(r'^(%s)%s?\s*(.*)' % (scheme, wrapper))
 
 

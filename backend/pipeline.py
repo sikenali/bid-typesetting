@@ -24,7 +24,7 @@ def run_pipeline(doc, cfg):
         ('表格格式', lambda: _table_step(doc, cfg)),
         ('目录格式', lambda: apply_toc_format(doc, cfg.get('toc', {})) if cfg.get('apply_toc') else None),
         ('页眉页脚', lambda: apply_header_footer(doc, cfg.get('header_footer', {})) if cfg.get('apply_header_footer') else None),
-        ('编号模式', lambda: apply_numbering(doc, cfg.get('patterns', {}))),
+        ('编号模式', lambda: apply_numbering(doc, cfg.get('patterns', {})) if cfg.get('apply_numbering', True) else None),
         ('TOC域代码', lambda: inject_toc(doc, cfg.get('toc', {})) if cfg.get('apply_toc') else None),
         ('自动刷新域', lambda: _set_update_fields_on_open(doc) if cfg.get('auto_refresh_fields') else None),
         ('格式化后清理', lambda: _post_clean(doc, cfg) if not cfg.get('preprocess_post_clean_styles') is False else None),

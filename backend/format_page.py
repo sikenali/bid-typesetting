@@ -6,8 +6,6 @@ from utils import cm_to_twips
 
 
 def apply_page_setup_with_hf(doc, margins, hf=None):
-    section = doc.sections[0]
-
     top_cm = margins.get('top_cm', 2.54)
     bottom_cm = margins.get('bottom_cm', 2.54)
     left_cm = margins.get('left_cm', 3.17)
@@ -21,15 +19,6 @@ def apply_page_setup_with_hf(doc, margins, hf=None):
             header_cm = hf['header_top_cm']
         if hf.get('footer_bottom_cm', 0) > 0:
             footer_cm = hf['footer_bottom_cm']
-
-    section.top_margin = Cm(top_cm)
-    section.bottom_margin = Cm(bottom_cm)
-    section.left_margin = Cm(left_cm)
-    section.right_margin = Cm(right_cm)
-    section.header_distance = Cm(header_cm)
-    section.footer_distance = Cm(footer_cm)
-    if gutter_cm > 0:
-        section.gutter = Cm(gutter_cm)
 
     keep_original = margins.get('keep_original_orientation', False)
     if not keep_original:
@@ -46,26 +35,41 @@ def apply_page_setup_with_hf(doc, margins, hf=None):
 
         orientation = margins.get('orientation', 'portrait')
         landscape = orientation == 'landscape' or paper_size in ('A4-L', 'A3-L')
-
-        if landscape:
-            section.orientation = WD_ORIENT.LANDSCAPE
-            section.page_width = Cm(paper_h)
-            section.page_height = Cm(paper_w)
-        else:
-            section.orientation = WD_ORIENT.PORTRAIT
-            section.page_width = Cm(paper_w)
-            section.page_height = Cm(paper_h)
+    else:
+        landscape = False
+        paper_w = paper_h = None
 
     columns = margins.get('columns', 1)
-    if columns > 1:
-        sectPr = section._sectPr
-        old_cols = sectPr.find(qn('w:cols'))
-        if old_cols is not None:
-            sectPr.remove(old_cols)
-        cols = OxmlElement('w:cols')
-        cols.set(qn('w:num'), str(columns))
-        space_twips = int(cm_to_twips(margins.get('column_spacing_cm', 1)))
-        if space_twips < 0:
-            space_twips = 0
-        cols.set(qn('w:space'), str(space_twips))
-        sectPr.append(cols)
+    space_twips = int(cm_to_twips(margins.get('column_spacing_cm', 1)))
+    if space_twips < 0:
+        space_twips = 0
+
+    for section in doc.sections:
+        section.top_margin = Cm(top_cm)
+        section.bottom_margin = Cm(bottom_cm)
+        section.left_margin = Cm(left_cm)
+        section.right_margin = Cm(right_cm)
+        section.header_distance = Cm(header_cm)
+        section.footer_distance = Cm(footer_cm)
+        if gutter_cm > 0:
+            section.gutter = Cm(gutter_cm)
+
+        if not keep_original and paper_w and paper_h:
+            if landscape:
+                section.orientation = WD_ORIENT.LANDSCAPE
+                section.page_width = Cm(paper_h)
+                section.page_height = Cm(paper_w)
+            else:
+                section.orientation = WD_ORIENT.PORTRAIT
+                section.page_width = Cm(paper_w)
+                section.page_height = Cm(paper_h)
+
+        if columns > 1:
+            sectPr = section._sectPr
+            old_cols = sectPr.find(qn('w:cols'))
+            if old_cols is not None:
+                sectPr.remove(old_cols)
+            cols = OxmlElement('w:cols')
+            cols.set(qn('w:num'), str(columns))
+            cols.set(qn('w:space'), str(space_twips))
+            sectPr.append(cols)

@@ -56,6 +56,10 @@ function flattenCleanup(config) {
     preprocess_table_cell_align: config.table_settings?.align ?? 'CENTER',
     preprocess_table_cell_border: config.table_settings?.border_style ?? 'single',
     preprocess_table_auto_width: config.table_settings?.auto_width ?? true,
+
+    // Table formatting (from formatParams.table)
+    apply_table: config.apply_table ?? false,
+    apply_numbering: config.apply_numbering ?? true,
   }
 }
 

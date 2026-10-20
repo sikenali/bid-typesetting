@@ -21,9 +21,11 @@ defineProps({
     <InputField v-model="params.space_after_value" label="段后间距" :unit="params.space_after_unit" :min="0" :step="1" />
     <InputField v-model="params.left_indent_value" label="左缩进" :unit="params.left_indent_unit" :min="0" />
     <InputField v-model="params.right_indent_value" label="右缩进" :unit="params.right_indent_unit" :min="0" />
+    <InputField v-model="params.space_count" label="空格数" :min="1" :max="5" :step="1" />
     <SelectField v-model="params.color" label="字体颜色" :options="textColors" />
     <SelectField v-model="params.highlight" label="高亮底纹" :options="highlightColors" />
     <SelectField v-model="params.underline_type" label="下划线样式" :options="underlineTypes" />
+    <SelectField v-model="params.align" label="对齐方式" :options="[{ value: 'LEFT', label: '左对齐' }, { value: 'CENTER', label: '居中' }, { value: 'RIGHT', label: '右对齐' }, { value: 'JUSTIFY', label: '两端对齐' }]" />
     <div class="checkbox-row">
       <CheckboxField v-model="params.bold" label="加粗" />
       <CheckboxField v-model="params.italic" label="斜体" />

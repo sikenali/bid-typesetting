@@ -152,6 +152,84 @@ const currentParams = () => activeLevel.value === 0 ? props.figCaption : props.t
         <div class="sub-title-row">
           <div class="sub-title">
             <RiTableLine size="16" />
+            <span>表格设置</span>
+          </div>
+          <div class="switch" :class="{ on: props.table.enable }" @click="props.table.enable = !props.table.enable">
+            <div class="knob"></div>
+          </div>
+        </div>
+
+        <div class="level-body" :class="{ disabled: !props.table.enable }">
+          <div class="level-group">
+            <div class="level-subtitle">表格样式</div>
+            <div class="field-row">
+              <div class="field-cell">
+                <span class="field-label">表格样式</span>
+                <DropdownSelect v-model="props.table.style_type" :options="[{ value: '', label: '无' }, { value: 'TableGrid', label: '网格表' }, { value: 'TableNormal', label: '普通表格' }]" width-class="flex-1" compact />
+              </div>
+              <div class="field-cell">
+                <CheckboxToggle v-model="props.table.autofit" label="自动适应窗口" />
+              </div>
+              <div class="field-cell">
+                <span class="field-label">对齐方式</span>
+                <AlignButtonGroup v-model="props.table.align" :options="[
+                  { value: 'LEFT', icon: RiAlignLeft },
+                  { value: 'CENTER', icon: RiAlignCenter },
+                  { value: 'RIGHT', icon: RiAlignRight },
+                ]" />
+              </div>
+            </div>
+          </div>
+
+          <div class="level-group">
+            <div class="level-subtitle">行与单元格</div>
+            <div class="field-row">
+              <div class="field-cell">
+                <span class="field-label">最小行高</span>
+                <SpacingInput v-model="props.table.min_row_height_pt" unit="磅" step="0.5" aria-label="最小行高" />
+              </div>
+              <div class="field-cell">
+                <CheckboxToggle v-model="props.table.enable_cell_formatting" label="单元格格式" />
+              </div>
+              <div class="field-cell">
+                <span class="field-label">单元格对齐</span>
+                <DropdownSelect v-model="props.table.cell_align" :options="[{ value: '', label: '无' }, { value: 'TOP', label: '顶部' }, { value: 'CENTER', label: '居中' }, { value: 'BOTTOM', label: '底部' }]" width-class="flex-1" compact />
+              </div>
+            </div>
+          </div>
+
+          <div class="level-group">
+            <div class="level-subtitle">单元格字体</div>
+            <div class="field-row">
+              <div class="field-cell">
+                <span class="field-label">中文字体</span>
+                <DropdownSelect v-model="props.table.cn_font" :options="cnFonts" width-class="flex-1" compact />
+              </div>
+              <div class="field-cell">
+                <span class="field-label">英文字体</span>
+                <DropdownSelect v-model="props.table.en_font" :options="enFonts" width-class="flex-1" compact />
+              </div>
+              <div class="field-cell">
+                <span class="field-label">字号</span>
+                <DropdownSelect v-model="props.table.size_cn" :options="sizeCN" width-class="flex-1" compact />
+              </div>
+              <div class="field-cell">
+                <span class="field-label">行距模式</span>
+                <DropdownSelect v-model="props.table.line_spacing_mode" :options="lineSpacingModes" width-class="flex-1" compact />
+              </div>
+              <div class="field-cell">
+                <span class="field-label">行距数值</span>
+                <SpacingInput v-model="props.table.line_spacing_value" unit="磅" step="0.5" aria-label="行距数值" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-card">
+        <div class="sub-title-row">
+          <div class="sub-title">
+            <RiTableLine size="16" />
             <span>表格单元格</span>
           </div>
           <div class="switch" :class="{ on: props.tableSettings.enable }" @click="props.tableSettings.enable = !props.tableSettings.enable">

@@ -85,7 +85,7 @@ def apply_toc_format(doc, toc_cfg):
                 cn_font = ls.get('cn_font', '')
                 en_font = ls.get('en_font', '')
                 size_cn = ls.get('size_cn', '')
-                bold = ls.get('bold', False)
+                bold = ls.get('bold', None)
                 italic = ls.get('italic', False)
                 color_rgb = ls.get('color_rgb', [0, 0, 0])
                 for r in p.runs:
@@ -97,7 +97,8 @@ def apply_toc_format(doc, toc_cfg):
                             set_east_asia(rPr, cn_font)
                     if size_cn:
                         r.font.size = Pt(cn_size_to_pt(size_cn))
-                    r.font.bold = bold
+                    if bold is not None:
+                        r.font.bold = bold
                     if italic:
                         r.font.italic = True
                     if color_rgb != [0, 0, 0]:

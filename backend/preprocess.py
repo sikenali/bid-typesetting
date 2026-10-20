@@ -69,7 +69,19 @@ def clear_extra_spaces(doc):
 
 
 def clear_chart_format(doc):
-    pass
+    """Clear formatting on chart/figure paragraphs by resetting direct formatting."""
+    import re
+    re_fig = re.compile(r'^[图圖](\s*)([\d一二三四五六七八九十百千]+)')
+    for p in doc.paragraphs:
+        text = get_paragraph_text(p)
+        if re_fig.match(text):
+            for r in p.runs:
+                rPr = r._element.get_or_add_rPr()
+                for tag in ('w:b', 'w:i', 'w:strike', 'w:color', 'w:highlight',
+                            'w:u', 'w:sz', 'w:szCs', 'w:rFonts'):
+                    el = rPr.find(qn(tag))
+                    if el is not None:
+                        rPr.remove(el)
 
 
 def flatten_sdt(doc):
@@ -229,7 +241,14 @@ def normalize_punct(text):
 
 
 def clear_object_wrapping(doc):
-    pass
+    """Remove object wrapping (anchor) settings from inline objects."""
+    for p in doc.paragraphs:
+        pPr = p._element.get_or_add_pPr()
+        # Remove any wrap settings
+        for wrap_tag in ('w:framePr', 'w:pPrChange'):
+            el = pPr.find(qn(wrap_tag))
+            if el is not None:
+                pPr.remove(el)
 
 
 def delete_empty_lines(doc):
@@ -316,7 +335,7 @@ def preprocess(doc, cfg):
     any_special = cfg.get('preprocess_clear_heading_indent') or cfg.get('preprocess_clear_heading_special_indent')
     if any_left or any_right or any_special:
         clear_heading_indents(doc, any_left, any_right, any_special)
-    if cfg.get('preprocess_clear_snap_to_grid', True):
+    if cfg.get('preprocess_clear_snap_to_grid', False):
         clear_snap_to_grid(doc)
     if cfg.get('preprocess_clear_extra_spaces'):
         clear_extra_spaces(doc)

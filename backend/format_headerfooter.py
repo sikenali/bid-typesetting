@@ -51,65 +51,59 @@ def _add_field(paragraph, field_code):
 def apply_header_footer(doc, hf):
     if not hf:
         return
-    section = doc.sections[0]
-
-    if hf.get('enable_header'):
-        header = section.header
-        header.is_linked_to_previous = False
-        for p in header.paragraphs:
-            for r in p.runs:
-                r.text = ''
-        if header.paragraphs:
-            p = header.paragraphs[0]
-            for r in p.runs:
-                r.text = ''
-            align = hf.get('header_align', '')
-            if align and align in ALIGN_MAP:
-                p.alignment = ALIGN_MAP[align]
-            run = p.add_run()
-            _configure_run(run, hf.get('header_cn_font', ''), hf.get('header_en_font', ''),
-                           hf.get('header_size_cn', ''), hf.get('header_bold', False),
-                           hf.get('header_italic', False), hf.get('header_underline_type', ''))
-            run.text = hf.get('header_text', '')
-
-    if hf.get('enable_footer'):
-        footer = section.footer
-        footer.is_linked_to_previous = False
-        if hf.get('clear_footer', True):
-            for p in footer.paragraphs:
+    for section in doc.sections:
+        if hf.get('enable_header'):
+            header = section.header
+            header.is_linked_to_previous = False
+            for p in header.paragraphs:
                 for r in p.runs:
                     r.text = ''
-        if footer.paragraphs:
-            p = footer.paragraphs[0]
-            for r in p.runs:
-                r.text = ''
-            align = hf.get('footer_align', '')
-            if align and align in ALIGN_MAP:
-                p.alignment = ALIGN_MAP[align]
+            if header.paragraphs:
+                p = header.paragraphs[0]
+                for r in p.runs:
+                    r.text = ''
+                align = hf.get('header_align', '')
+                if align and align in ALIGN_MAP:
+                    p.alignment = ALIGN_MAP[align]
+                run = p.add_run()
+                _configure_run(run, hf.get('header_cn_font', ''), hf.get('header_en_font', ''),
+                               hf.get('header_size_cn', ''), hf.get('header_bold', False),
+                               hf.get('header_italic', False), hf.get('header_underline_type', ''))
+                run.text = hf.get('header_text', '')
 
-            if not hf.get('page_number_from_body', False):
-                num_type = hf.get('footer_page_number_type', 'standard')
-                num_type_lower = num_type.lower() if num_type else ''
-                if num_type_lower in ('page_only', '仅页码'):
-                    _add_field(p, 'PAGE')
-                elif num_type_lower in ('none', '无'):
-                    pass
-                elif num_type_lower in ('standard', '标准'):
-                    _add_field(p, 'PAGE')
-                    p.add_run(' / ')
-                    _add_field(p, 'NUMPAGES')
-                elif num_type_lower in ('dash', '短横线'):
-                    _add_field(p, 'PAGE')
-                    p.add_run(' - ')
-                    _add_field(p, 'NUMPAGES')
-                elif num_type_lower in ('simple', '简单'):
-                    _add_field(p, 'PAGE')
-                else:
-                    _add_field(p, 'PAGE')
-                    p.add_run(' / ')
-                    _add_field(p, 'NUMPAGES')
+        if hf.get('enable_footer'):
+            footer = section.footer
+            footer.is_linked_to_previous = False
+            if hf.get('clear_footer', True):
+                for p in footer.paragraphs:
+                    for r in p.runs:
+                        r.text = ''
+            if footer.paragraphs:
+                p = footer.paragraphs[0]
+                for r in p.runs:
+                    r.text = ''
+                align = hf.get('footer_align', '')
+                if align and align in ALIGN_MAP:
+                    p.alignment = ALIGN_MAP[align]
 
-            run = p.add_run()
-            _configure_run(run, hf.get('footer_cn_font', ''), hf.get('footer_en_font', ''),
-                           hf.get('footer_size_cn', ''), False,
-                           hf.get('footer_italic', False), '')
+                if not hf.get('page_number_from_body', False):
+                    num_type = hf.get('footer_page_number_type', 'standard')
+                    num_type_lower = num_type.lower() if num_type else ''
+                    if num_type_lower in ('page_only', '仅页码'):
+                        _add_field(p, 'PAGE')
+                    elif num_type_lower in ('none', '无'):
+                        pass
+                    elif num_type_lower in ('standard', '标准'):
+                        _add_field(p, 'PAGE')
+                        p.add_run(' / ')
+                        _add_field(p, 'NUMPAGES')
+                    elif num_type_lower in ('dash', '短横线'):
+                        _add_field(p, 'PAGE')
+                        p.add_run(' - ')
+                        _add_field(p, 'NUMPAGES')
+                    elif num_type_lower in ('simple', '简单'):
+                        _add_field(p, 'PAGE')
+                    else:
+                        _add_field(p, 'PAGE')
+                        p.add_run(' / ')
+                        _add_field(p, 'NUMPAGES')

@@ -10,24 +10,37 @@ def _inject_toc_field_code(doc, toc_cfg, insert_after_title=False):
     if levels < 1:
         levels = 4
 
-    p = doc.add_paragraph()
-    p.style = doc.styles['Normal']
-
     title_text = toc_cfg.get('title_text', '目录')
     title_cn = toc_cfg.get('title_cn_font', '')
     title_en = toc_cfg.get('title_en_font', '')
     title_size = toc_cfg.get('title_size_cn', '')
 
-    title_run = p.add_run(title_text)
-    rPr = title_run._element.get_or_add_rPr()
-    if title_en or title_cn:
-        font = title_en if title_en else title_cn
-        title_run.font.name = font
-        if title_cn and title_cn != title_en:
-            set_east_asia_font(rPr, title_cn)
-    if title_size:
-        title_run.font.size = Pt(cn_size_to_pt(title_size))
+    # Find existing title paragraph to insert after
+    target_idx = -1
+    if insert_after_title:
+        for i, p in enumerate(doc.paragraphs):
+            text = get_paragraph_text(p).strip()
+            if text == title_text:
+                target_idx = i
+                break
 
+    # Create TOC paragraph with field code
+    p = doc.add_paragraph()
+    p.style = doc.styles['Normal']
+
+    # Add title run if insert_after_title is False (new title)
+    if not insert_after_title:
+        title_run = p.add_run(title_text)
+        rPr = title_run._element.get_or_add_rPr()
+        if title_en or title_cn:
+            font = title_en if title_en else title_cn
+            title_run.font.name = font
+            if title_cn and title_cn != title_en:
+                set_east_asia_font(rPr, title_cn)
+        if title_size:
+            title_run.font.size = Pt(cn_size_to_pt(title_size))
+
+    # Field code runs
     run_begin = p.add_run()
     fld_begin = OxmlElement('w:fldChar')
     fld_begin.set(qn('w:fldCharType'), 'begin')
@@ -50,6 +63,18 @@ def _inject_toc_field_code(doc, toc_cfg, insert_after_title=False):
     fld_end = OxmlElement('w:fldChar')
     fld_end.set(qn('w:fldCharType'), 'end')
     run_end._element.append(fld_end)
+
+    # Move TOC paragraph after the title if found
+    if insert_after_title and target_idx >= 0:
+        body = doc.element.body
+        paras = body.findall(qn('w:p'))
+        # Remove the newly added TOC paragraph (last one)
+        toc_el = p._element
+        body.remove(toc_el)
+        # Insert after the title paragraph
+        if target_idx < len(paras):
+            title_el = paras[target_idx]
+            title_el.addnext(toc_el)
 
 
 def inject_toc(doc, toc_cfg):
