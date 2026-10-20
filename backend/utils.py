@@ -309,20 +309,50 @@ def apply_style_to_run(run, style):
     size_cn = style.get('size_cn', '')
     if size_cn:
         run.font.size = Pt(cn_size_to_pt(size_cn))
-    if style.get('bold'):
+    # Always set boolean properties - clear if not specified or False
+    bold = style.get('bold', False)
+    if bold:
         run.font.bold = True
-    if style.get('italic'):
+    else:
+        run.font.bold = False
+    italic = style.get('italic', False)
+    if italic:
         run.font.italic = True
-    if style.get('strike'):
+    else:
+        run.font.italic = False
+    strike = style.get('strike', False)
+    if strike:
         run.font.strike = True
+    else:
+        run.font.strike = False
+    # Underline
     if style.get('underline'):
         ut = style.get('underline_type', 'single')
         uc = style.get('color', '') or '#000000'
         set_underline_type(rPr, ut, uc)
-    if style.get('color'):
-        set_color_hex(rPr, style['color'])
-    if style.get('highlight'):
-        set_highlight(rPr, style['highlight'])
+    else:
+        # Remove underline
+        u_el = rPr.find(qn('w:u'))
+        if u_el is not None:
+            rPr.remove(u_el)
+    # Color
+    color = style.get('color', '')
+    if color:
+        set_color_hex(rPr, color)
+    else:
+        # Remove color (set to automatic)
+        color_el = rPr.find(qn('w:color'))
+        if color_el is not None:
+            rPr.remove(color_el)
+    # Highlight
+    highlight = style.get('highlight', '')
+    if highlight:
+        set_highlight(rPr, highlight)
+    else:
+        # Remove highlight
+        h_el = rPr.find(qn('w:highlight'))
+        if h_el is not None:
+            rPr.remove(h_el)
 
 
 def apply_paragraph_spacing(paragraph, style):
