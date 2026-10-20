@@ -8,6 +8,12 @@ backend/testdata/*.json
 backend/unidoc.license
 dist/
 
+# Python backend
+backend/__pycache__/
+backend/venv/
+*.pyc
+backend/nohup.out
+
 # Electron build output
 dist-win
 out
