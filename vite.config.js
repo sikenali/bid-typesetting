@@ -23,4 +23,10 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
+  server: {
+    host: '127.0.0.1',
+    port: 5103,
+    // Wujie 微前端通过 fetch 拉取子应用资源，必须放行跨域
+    headers: { 'Access-Control-Allow-Origin': '*' },
+  },
 })
