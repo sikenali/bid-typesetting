@@ -2,7 +2,7 @@
   <header class="top-nav">
     <div class="nav-left" :class="{ 'is-static': isSidebar }" @click="!isSidebar && router.push('/')">
       <template v-if="!isSidebar">
-        <RiTargetLine class="tool-logo" size="26" />
+        <RiLayoutColumnLine class="tool-logo" size="26" />
         <span class="brand-cn">{{ BRAND_NAME }}</span>
         <span class="divider"></span>
       </template>
@@ -94,7 +94,7 @@ function emitOpenSettings() {
 }
 
 .tool-logo {
-  color: var(--color-primary);
+  color: var(--brand-blue, var(--color-primary, #4A72A8));
   line-height: 1;
 }
 

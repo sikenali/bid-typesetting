@@ -42,7 +42,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     resizable: true,
-    title: '文版猩',
+    title: '文版星',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -76,7 +76,7 @@ app.on('window-all-closed', () => {
 
 ```yaml
 appId: com.bid-typesetting.app
-productName: 文版猩
+productName: 文版星
 directories:
   buildResources: build
 files:
@@ -92,7 +92,7 @@ nsis:
   installerIcon: public/logo-icon.svg
   uninstallerIcon: public/logo-icon.svg
   createDesktopShortcut: true
-  shortcutName: 文版猩
+  shortcutName: 文版星
 ```
 
 **Interfaces:**
@@ -219,10 +219,10 @@ rmdir /home/jingle/opc/bid-typesetting/desktop 2>/dev/null || true
 # 安装 Deno: https://docs.deno.com
 
 npm run build                              # 构建前端
-npx deno compile -A --include dist --output "文版猩.exe" desktop/desktop.ts
+npx deno compile -A --include dist --output "文版星.exe" desktop/desktop.ts
 ```
 
-编译后得到单文件 `文版猩.exe`（约 10-15MB），无需安装任何运行时即可在 Windows 10+ 运行。
+编译后得到单文件 `文版星.exe`（约 10-15MB），无需安装任何运行时即可在 Windows 10+ 运行。
 ```
 
 替换为：
@@ -242,7 +242,7 @@ npm run electron:dev
 npm run electron:build
 ```
 
-打包后得到 `dist-win-unpacked/文版猩.exe`，或通过 NSIS 安装包。
+打包后得到 `dist-win-unpacked/文版星.exe`，或通过 NSIS 安装包。
 ```
 
 - [ ] **Step 3: 更新 `.gitignore`**

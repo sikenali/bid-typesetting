@@ -142,19 +142,13 @@ function lineFilled(i) {
 
 .step-line {
   width: 57px;
-  height: 1px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--color-border-line) 0px,
-    var(--color-border-line) 5px,
-    transparent 5px,
-    transparent 9px
-  );
+  height: 2px;
+  background-color: var(--color-border-line);
   flex-shrink: 0;
   transition: background-color var(--transition-base);
 }
 
 .step-line.filled {
-  background: var(--color-success);
+  background-color: var(--color-success);
 }
 </style>

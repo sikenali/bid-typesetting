@@ -1,11 +1,11 @@
-# 文版猩 — 智能投标文件排版工具
+# 文版星 — 智能投标文件排版工具
 
 <p align="center">
   <strong>上传 DOCX · 标签化排版参数 · 一键生成规范标书</strong>
 </p>
 
 <p align="center">
-  <img src="public/logo-icon.svg" width="120" height="120" alt="文版猩 Logo">
+  <img src="public/logo-icon.svg" width="120" height="120" alt="文版星 Logo">
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 ## 软件介绍
 
-文版猩是一款专为招投标场景设计的文档排版工具。上传 DOCX 文件，通过可视化面板设置页面尺寸、正文字体、标题层级、图表样式等排版参数，一键生成规范化的投标文件。
+文版星是一款专为招投标场景设计的文档排版工具。上传 DOCX 文件，通过可视化面板设置页面尺寸、正文字体、标题层级、图表样式等排版参数，一键生成规范化的投标文件。
 
 **核心功能**
 

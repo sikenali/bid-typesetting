@@ -53,7 +53,7 @@ const pageNumberTypes = [
             <div class="field-row">
               <div class="field-cell">
                 <span class="field-label">页眉标题</span>
-                <input type="text" v-model="params.header_text" placeholder="文版猩-智能化排版工具" class="text-input" aria-label="页眉标题" />
+                <input type="text" v-model="params.header_text" placeholder="文版星-智能化排版工具" class="text-input" aria-label="页眉标题" />
               </div>
             </div>
           </div>

@@ -12,7 +12,7 @@
     >
       <template v-if="state === 'empty'">
         <div class="upload-icon-wrap">
-          <RiUploadCloud2Line class="upload-icon" size="34" />
+          <RiUploadCloud2Line class="upload-icon" size="40" />
         </div>
         <p class="upload-hint">点击选择或拖拽文件到此处上传</p>
         <div class="format-row">
@@ -254,7 +254,12 @@ function handleReplace() {
 }
 
 function handleCtaClick() {
-  if (state.value === STATE_DONE && file.value) {
+  if (state.value === STATE_PROCESSING) return
+  if (!file.value) {
+    ElMessage.warning('请先上传文件')
+    return
+  }
+  if (state.value === STATE_DONE) {
     emit('success', file.value)
   }
 }
@@ -285,7 +290,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
   padding: 40px 32px;
   overflow: hidden;
   transition: border-color 0.2s, background-color 0.2s;
@@ -335,11 +340,12 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: 8px;
 }
 
 .fmt {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 5px;
   display: flex;
   align-items: center;
@@ -358,8 +364,8 @@ onBeforeUnmount(() => {
 /* 选中态 */
 .replace-tip {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  right: 12px;
   z-index: 2;
 }
 
@@ -468,7 +474,7 @@ onBeforeUnmount(() => {
 }
 
 .cta-btn.is-processing {
-  opacity: 0.7;
-  cursor: not-allowed;
+  opacity: 1;
+  cursor: pointer;
 }
 </style>

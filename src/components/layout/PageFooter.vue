@@ -22,9 +22,9 @@
       © {{ BRAND_YEAR }} {{ BRAND_NAME }} · Powered by
       <a
         class="footer-link"
-        :href="BRAND_POWERED_URL"
+        href="https://lazycat.cloud/"
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
       >LightOS</a>
     </span>
   </footer>
