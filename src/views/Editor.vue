@@ -615,10 +615,12 @@ const handleOneClickModify = async () => {
 
 const handleCancel = () => {
   cancelTab(activeTab.value)
+  applyFormatting()
 }
 
 const handleReset = () => {
   resetTab(activeTab.value)
+  applyFormatting()
 }
 
 const handleExportJSON = () => {
