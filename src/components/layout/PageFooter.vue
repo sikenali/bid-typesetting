@@ -63,7 +63,7 @@ function emitBidding() {
     var(--color-bg-white) 0%,
     var(--color-bg-secondary) 100%
   );
-  border-top: 1px solid var(--color-border-soft);
+  border-top: 0.7px solid var(--color-border-soft);
 }
 
 .footer-brand {

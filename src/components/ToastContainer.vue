@@ -13,6 +13,7 @@
           }"
           :class="{ 'toast-hide': !toast.visible }"
         >
+          <span class="toast-stripe" :style="{ background: toast.style.border }"></span>
           <component
             :is="toastIcons[toast.type] || toastIcons.info"
             size="16"
@@ -68,7 +69,7 @@ function dismiss(id) {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px 12px 18px;
+  padding: 12px 14px 12px 22px;
   border-radius: var(--radius-md);
   border: 0.7px solid var(--color-border);
   box-shadow: var(--shadow-md);
@@ -77,6 +78,12 @@ function dismiss(id) {
   min-width: 220px;
   max-width: 420px;
   line-height: 1.45;
+}
+.toast-stripe {
+  flex-shrink: 0;
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
 }
 .toast-icon {
   flex-shrink: 0;

@@ -73,6 +73,7 @@ function selectLayout(key) {
   selectedLayout.value = key;
   themeStore.setLayout(key);
   ElMessage.success(`已切换布局：${layouts.find((l) => l.key === key)?.name || ''}`);
+  setTimeout(() => window.location.reload(), 800);
 }
 
 function resetAll() {

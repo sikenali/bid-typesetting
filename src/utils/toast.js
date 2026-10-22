@@ -46,7 +46,8 @@ function themeOf(type) {
   };
 }
 
-export function showToast(message, type = 'info', duration = 3500) {
+export function showToast(message, type = 'info', duration) {
+  const durations = { success: 2500, error: 2500, warning: 2500, info: 2000 };
   const id = ++toastId;
   const theme = themeOf(type);
   toasts.value.push({
@@ -55,6 +56,7 @@ export function showToast(message, type = 'info', duration = 3500) {
     type,
     visible: true,
     style: theme,
+    duration: duration ?? durations[type],
   });
 
   setTimeout(() => {
@@ -65,7 +67,7 @@ export function showToast(message, type = 'info', duration = 3500) {
         toasts.value = toasts.value.filter((t) => t.id !== id);
       }, 300);
     }
-  }, duration);
+  }, toast.duration);
 
   return id;
 }

@@ -272,11 +272,11 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-/* 文件卡片（设计图 e88a1549：875×390 / 面板底 / 蓝描边 / r14） */
+/* 文件卡片（设计图 e88a1549：875×345 / 面板底 / 蓝描边 / r14） */
 .upload-card {
   position: relative;
   width: min(875px, calc(100vw - 64px));
-  height: 390px;
+  height: 345px;
   flex-shrink: 0;
   background: var(--color-bg-panel);
   border: 0.7px solid var(--color-border-strong);
